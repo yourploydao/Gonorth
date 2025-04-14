@@ -8,13 +8,41 @@ const ResetPassword = () => {
     const router = useRouter();
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const { reset_code } = router.query;
   
     const handleSubmit = async (e) => {
       e.preventDefault();
+
+      if (!reset_code) {
+        alert("Invalid reset code.");
+        return;
+      }
+      
+      const decodedCode = atob(reset_code);
+      if (password !== confirmPassword) {
+        alert("Passwords do not match");
+        return;
+      }
   
-      // TODO: reset password logic here
+      try {
+        const res = await fetch("http://localhost:8080/resetpassword", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ password, reset_code }), 
+        });
   
-      router.push('/login'); // redirect after password reset
+        const data = await res.json();
+  
+        if (res.ok && data.status === "ok") {
+          alert("Password reset successfully.");
+          router.push("/login");
+        } else {
+          alert(data.error || "Failed to reset password.");
+        }
+      } catch (err) {
+        console.error("Error resetting password:", err);
+        alert("Server error. Please try again later.");
+      }
     };
 
   return (
@@ -54,7 +82,7 @@ const ResetPassword = () => {
             </div>
             
             <div className={styles.formField}>
-                <label className={styles.fieldLabel}>Re-enter Password</label>
+                <label className={styles.fieldLabel}>Confirm Password</label>
                 <div className={styles.passwordWrapper}>
                   <input
                     type={showConfirmPassword ? "text" : "password"}

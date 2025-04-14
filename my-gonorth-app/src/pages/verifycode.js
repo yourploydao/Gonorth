@@ -3,17 +3,33 @@ import React, { useState } from "react";
 import styles from "../styles/verifycode.module.css";
 
 const VerifyCode = () => {
-    const [code, setCode] = useState("");
-    const router = useRouter();
-    const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
+  const [code, setCode] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   
-    const handleSubmit = async (e) => {
-      e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const res = await fetch("http://localhost:8080/verifycode", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
+      });
   
-      // TODO: verify code logic here
+      const data = await res.json();
   
-      router.push('/resetpass'); // redirect after verification
-    };
+      if (res.ok && data.status === "ok") {
+        alert("Verified! You can now reset your password.");
+        const encodedCode = btoa(code);
+        router.push(`/resetpassword?reset_code=${encodedCode}`);
+      } else {
+        alert(data.error || "Invalid code.");
+      }
+    } catch (err) {
+      alert("Server error. Please try again later.");
+    }
+  };
 
   return (
     <div className={styles.container}>

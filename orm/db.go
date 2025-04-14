@@ -19,7 +19,7 @@ func InitDB() {
 		panic("Failed to connect to database: " + err.Error())
 	}
 
-	err = Db.AutoMigrate(&User{})
+	err = Db.AutoMigrate(&User{}, &PasswordReset{})
 	if err != nil {
 		panic("AutoMigrate failed: " + err.Error())
 	}
