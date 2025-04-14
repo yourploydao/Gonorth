@@ -1,4 +1,4 @@
-module Comsci/webpro
+module Gonorth
 
 go 1.24.2
 

@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"Comsci/webpro/orm"
+	"Gonorth/orm"
 	"fmt"
 	"net/http"
 	"os"
