@@ -16,6 +16,46 @@ const SignUp = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     // Registration logic here
+    if (!agreeTerms) {
+      alert("You must agree to the terms and conditions.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
+
+    const payload = {
+      firstname: firstName,
+      lastname: lastName,
+      email: email,
+      phone: phoneNumber,
+      password: password,
+      confirmpassword: confirmPassword,
+    };
+
+    try {
+      const res = await fetch("http://localhost:8080/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.status === "ok") {
+        alert(data.message || "Registered successfully!");
+        window.location.href = "/login";
+      } else {
+        alert(data.error || data.message || "Registration failed");
+      }
+    } catch (err) {
+      console.error("Registration error:", err);
+      alert("Something went wrong. Please try again later.");
+    }
   };
 
   return (

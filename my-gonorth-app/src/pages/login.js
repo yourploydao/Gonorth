@@ -12,6 +12,33 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     // Authentication logic here
+    if (!email || !password) {
+      alert("Please enter both email and password.");
+      return;
+    }
+  
+    const payload = { email, password };
+  
+    try {
+      const res = await fetch("http://localhost:8080/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+  
+      const data = await res.json();
+  
+      if (res.ok) {
+        alert(data.message); 
+      } else {
+        alert(data.error || data.message || "Login failed"); 
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      alert("Something went wrong. Please try again.");
+    }
   };
 
   return (
@@ -77,7 +104,7 @@ const Login = () => {
                 <input type="checkbox" id="remember" className={styles.checkbox} />
                 <label htmlFor="remember" className={styles.label}>Remember me</label>
               </div>
-              <a href="/forgotpass" className={styles.forgotPassword}>Forgot Password</a>
+              <a href="/forgotpassword" className={styles.forgotPassword}>Forgot Password</a>
             </div>
             
             <button type="submit" className={styles.loginButton}>

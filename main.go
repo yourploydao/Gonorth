@@ -21,8 +21,18 @@ func main() {
 	orm.InitDB()
 
 	r := gin.Default()
-	r.Use(cors.Default())
-	r.POST("/register", AuthController.Register)
+	r.Use(cors.New(cors.Config{
+        AllowOrigins:     []string{"http://localhost:3000"},
+        AllowMethods:     []string{"POST", "GET", "OPTIONS"},
+        AllowHeaders:     []string{"Origin", "Content-Type"},
+        ExposeHeaders:    []string{"Content-Length"},
+        AllowCredentials: true,
+    }))
+	r.POST("/signup", AuthController.Register)
 	r.POST("/login", AuthController.Login)
+	r.POST("/forgotpassword", AuthController.ForgotPassword)
+	r.POST("/verifycode", AuthController.VerifyCode)
+	r.POST("/resetpassword", AuthController.ResetPassword)
+
 	r.Run("localhost:8080")
 }

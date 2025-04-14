@@ -9,9 +9,28 @@ const ForgotPassword = () => {
     const handleSubmit = async (e) => {
       e.preventDefault();
   
-      // TODO: send recovery email logic here
-  
-      router.push('/verifycode'); //redirect หลังส่งเสร็จ
+      try {
+        const res = await fetch("http://localhost:8080/forgotpassword", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email }),
+        });
+    
+        const data = await res.json();
+    
+        if (res.ok && data.status === "ok") {
+          localStorage.setItem("email", email);
+          alert("Recovery email sent!");
+          router.push("/verifycode"); 
+        } else {
+          alert(data.error || "Something went wrong.");
+        }
+      } catch (err) {
+        console.error("Error:", err);
+        alert("Server error. Please try again later.");
+      }
     };
 
   return (
