@@ -7,8 +7,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 
-	AuthController "Comsci/webpro/controller/auth"
-	"Comsci/webpro/orm"
+	AuthController "Gonorth/controller/auth"
+	"Gonorth/orm"
 )
 
 func main() {
