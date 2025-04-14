@@ -1,0 +1,90 @@
+import { useRouter } from 'next/router';
+import React, { useState } from "react";
+import styles from "../styles/forgotpass.module.css";
+
+const ForgotPassword = () => {
+    const [email, setEmail] = useState("");
+    const router = useRouter();
+  
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+  
+      // TODO: send recovery email logic here
+  
+      router.push('/verifycode'); //redirect หลังส่งเสร็จ
+    };
+
+  return (
+    <div className={styles.container}>
+      <div className={styles.recoveryCard}>
+        <div className={styles.logoSection}>
+          <div className={styles.logo}>
+            {/* Logo image would be here */}
+            {/* <img src="/assets/gonorth-logo.png" alt="GONORTH" className={styles.gonorthLogo} /> */}
+          </div>
+          
+          <div className={styles.backLink}>
+            <a href="/login"><span className={styles.backArrow}>&#8249;</span> Back to login</a>
+          </div>
+          
+          <h1 className={styles.title}>Forgot your password?</h1>
+          <p className={styles.subtitle}>Don't worry, happens to all of us.<br></br>Enter your email below to recover your password</p>
+          
+          <form onSubmit={handleSubmit}>
+            <div className={styles.formField}>
+                <label className={styles.fieldLabel}>Email</label>
+                <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className={styles.fieldInput}
+                />
+            </div>
+
+            <button type="submit" className={styles.submitButton}>
+                Submit
+            </button>
+          </form>
+          
+          <div className={styles.divider}>
+            <span className={styles.dividerText}>Or login with</span>
+          </div>
+          
+          <div className={styles.socialButtons}>
+            <button className={styles.socialButton}>
+              <img 
+                src="https://cdn-icons-png.flaticon.com/128/5968/5968764.png" 
+                alt="Facebook" 
+                className={styles.socialIcon} 
+              />
+            </button>
+            <button className={styles.socialButton}>
+              <img 
+                src="https://cdn-icons-png.flaticon.com/128/2702/2702602.png" 
+                alt="Google" 
+                className={styles.socialIcon} 
+              />
+            </button>
+            <button className={styles.socialButton}>
+              <img 
+                src="https://cdn-icons-png.flaticon.com/128/731/731985.png" 
+                alt="Apple" 
+                className={styles.socialIcon} 
+              />
+            </button>
+          </div>
+        </div>
+        
+        <div className={styles.imageSection}>
+          <div className={styles.slideControls}>
+            <button className={`${styles.slideButton} ${styles.active}`}></button>
+            <button className={styles.slideButton}></button>
+            <button className={styles.slideButton}></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ForgotPassword;
