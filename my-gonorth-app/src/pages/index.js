@@ -5,6 +5,7 @@ import Login from './login';
 import ForgotPassword from './forgotpassword';
 import VerifyCode from './verifycode';
 import ResetPassword from './resetpassword';
+// import home-before-login from './home-before-login';
 
 export default function AuthRouter() {
   const { auth } = useRouter().query;

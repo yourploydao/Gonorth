@@ -1,0 +1,731 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+/* Base Container */
+.container {
+  width: 100%;
+  min-height: 100vh;
+  font-family: 'Montserrat', sans-serif;
+  color: #333;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  background-color: #f9f9f9;
+}
+
+/* Reset for all children */
+.container * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Main content area */
+.mainContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 0 20px;
+  position: relative;
+}
+
+/* Header Styles - White space above hero image */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: white;
+    border-bottom: 1px solid #f0f0f0; /* Optional: adds a subtle separator */
+  }
+
+  .logo {
+    height: 45px;
+    display: flex;
+    align-items: center;
+    margin-left: -40px;
+  }
+  
+  .logoImage {
+    height: 250%;
+    object-fit: contain;
+  }
+  
+.headerButtons {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.loginButton {
+  color: #000;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 8px 15px;
+  border-radius: 4px;
+  font-size: 14px;
+  display: none; /* Hide the original button */
+}
+
+.signupButton {
+  background-color: #1b413c;
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 8px 15px;
+  border-radius: 4px;
+  font-size: 14px;
+  display: none; /* Hide the original button */
+}
+
+/* New Header Styles for User Profile and Favorites */
+.favouritesButton {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #000;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 8px 15px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.heartIcon {
+  font-size: 16px;
+}
+
+/* Divider between favourites and profile */
+.headerDivider {
+  height: 24px;
+  width: 1px;
+  background-color: #363636;
+  margin: 0 5px;
+}
+
+.userProfile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.profileImage {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profileName {
+  font-weight: 500;
+  font-size: 14px;
+}
+
+/* Hero Section with Rounded Corners */
+.heroSection {
+  width: 100%;
+  height: 450px;
+  background-image: url('https://travel.mthai.com/app/uploads/2015/12/20150323101209120141029_3_1414557753_3604761%E0%B8%9E%E0%B8%B1%E0%B8%99.jpg');
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  text-align: center;
+  border-radius: 20px;
+  margin-top: 20px;
+  overflow: hidden;
+}
+
+.heroSection::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 1;
+}
+
+.heroContent {
+  position: relative;
+  z-index: 2;
+}
+
+.heroSubtitle {
+  font-size: 24px;
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+
+.heroTitle {
+  font-size: 48px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.heroText {
+  font-size: 18px;
+}
+
+/* Search Box - Overlapping hero image */
+.searchBoxWrapper {
+  position: relative;
+  z-index: 5;
+  margin-top: -70px;
+  padding: 0 15px;
+}
+
+.searchBox {
+  background: white;
+  border-radius: 10px;
+  padding: 20px 30px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.searchTitle {
+  font-size: 18px;
+  margin-bottom: 20px;
+  color: #333;
+  text-align: left;
+}
+
+.searchForm {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.searchField {
+  flex: 1;
+  min-width: 180px;
+  text-align: left;
+}
+
+.searchField label {
+  display: block;
+  font-size: 12px;
+  margin-bottom: 5px;
+  color: #666;
+  text-align: left;
+}
+
+.searchField input,
+.searchField select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+  font-family: 'Montserrat', sans-serif;
+  height: 40px;
+}
+
+.inputWithIcon {
+  position: relative;
+}
+
+.inputWithIcon input {
+  padding-right: 30px;
+}
+
+.searchIcon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+}
+
+.searchButton {
+  background-color: #09f;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  height: 40px;
+  white-space: nowrap;
+  transition: background-color 0.2s;
+}
+
+.searchButton:hover {
+  background-color: #0080d6;
+}
+
+/* Destinations Section */
+.destinationsSection {
+  padding: 40px 0;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.sectionHeader {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.sectionTitle {
+  font-size: 28px;
+  font-weight: 600;
+  flex-basis: 100%;
+}
+
+.sectionSubtitle {
+  font-size: 14px;
+  color: #666;
+  margin: 5px 0 0;
+  flex-basis: 70%;
+}
+
+.seeMoreLink {
+  color: #000000;
+  text-decoration: none;
+  font-size: 14px;
+  border: 1px solid #1466ea;
+  padding: 8px 15px;
+  border-radius: 5px;
+  transition: all 0.2s;
+}
+
+.seeMoreLink:hover {
+  background-color: #dcdfe0;
+}
+
+.destinationCards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: space-between;
+}
+
+.destinationCard {
+  flex: 1;
+  min-width: 300px;
+  height: 200px;
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.cardImage {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.3s;
+}
+
+.destinationCard:hover .cardImage {
+  transform: scale(1.05);
+}
+
+.cardOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 15px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+  color: white;
+}
+
+.cardTitle {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.cardSubtitle {
+  font-size: 14px;
+  font-weight: 400;
+  margin-bottom: 10px;
+}
+
+.showDetailButton {
+  background-color: #09f;
+  color: #000;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.showDetailButton:hover {
+  background-color: #0080d6;
+}
+
+/* Footer */
+.footer {
+  background-color: #09f;
+  color: #000;
+  padding: 40px;
+  width: 100%;
+  margin-top: 40px;
+}
+
+.footerContent {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footerLogo {
+  flex: 1;
+  min-width: 150px;
+}
+
+.footerLogoImage {
+  max-width: 500px;
+  margin-top: -70px;
+  margin-left: -150px;
+}
+
+.footerSection {
+  flex: 1;
+  min-width: 200px;
+}
+
+.footerTitle {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+.footerLinks {
+  list-style: none;
+}
+
+.footerLinks li {
+  margin-bottom: 10px;
+}
+
+.footerLinks a {
+  color: #000;
+  text-decoration: none;
+  font-size: 14px;
+  transition: opacity 0.2s;
+}
+
+.footerLinks a:hover {
+  opacity: 0.8;
+}
+
+.contactInfo, .contactDetail {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* NEW STYLES FOR DESTINATION LIST PAGE */
+
+/* Container สำหรับช่องค้นหาในหน้ารายการ */
+.destinationSearchContainer {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin: 20px 0;
+}
+
+/* Container สำหรับผลลัพธ์ */
+.resultsContainer {
+  margin-top: 20px;
+}
+
+/* ส่วนหัวของผลลัพธ์ */
+.resultsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding: 0 5px;
+}
+
+.resultsCount {
+  font-size: 14px;
+  color: #333333;
+}
+
+.sortContainer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.sortSelect {
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: 'Montserrat', sans-serif;
+  color: #333;
+  background-color: white;
+  cursor: pointer;
+}
+
+/* สไตล์สำหรับ placeholder ใน select */
+.placeholderSelect {
+  color: #888;
+}
+
+.placeholderSelect option:first-child {
+  color: #888;
+}
+
+.placeholderSelect option {
+  color: black;
+}
+
+/* รายการสถานที่ท่องเที่ยว */
+.destinationList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* สไตล์สำหรับการแสดงข้อมูลสถานที่ท่องเที่ยว */
+.destinationItem {
+  display: flex;
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  padding: 15px;
+  gap: 20px; /* เพิ่มระยะห่างระหว่างรูปและข้อมูล */
+}
+
+/* ส่วนของรูปภาพ */
+.destinationImage {
+  width: 280px;
+  height: 180px;
+  overflow: hidden;
+  flex-shrink: 0;
+  border-radius: 12px; /* ทำให้ขอบมนทั้ง 4 ด้าน */
+}
+
+.destinationImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+  border-radius: 8px 0 0 8px;
+}
+
+.destinationItem:hover .destinationImage img {
+  transform: scale(1.05);
+}
+
+/* ข้อมูลสถานที่ท่องเที่ยว */
+.destinationInfo {
+  padding: 5px 0;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.destinationTitle {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+/* คุณสมบัติต่างๆ ของสถานที่ */
+.destinationFeatures {
+  margin-bottom: 15px;
+  flex-grow: 1;
+}
+
+.featureItem {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #666;
+}
+
+.featureItem input[type="checkbox"] {
+  margin-right: 8px;
+  accent-color: #09f;
+  cursor: not-allowed;
+}
+
+/* ปุ่มดูสถานที่ */
+.viewDealsButton {
+  background-color: #09f;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 25px;
+  font-weight: 500;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  align-self: flex-start;
+  margin-top: auto;
+}
+
+.viewDealsButton:hover {
+  background-color: #0080d6;
+}
+
+/* ส่วนของคะแนนและรีวิว */
+.destinationRating {
+  width: 120px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-left: 1px solid #eee;
+  flex-shrink: 0;
+}
+
+.ratingScore {
+  font-size: 24px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.ratingText {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.reviewCount {
+  font-size: 12px;
+  color: #666;
+}
+
+/* ปุ่มแสดงผลลัพธ์เพิ่มเติม */
+.showMoreButton {
+  width: 100%;
+  padding: 12px;
+  background-color: #1b3a36;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  margin-top: 25px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.showMoreButton:hover {
+  background-color: #122b28;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .heroTitle {
+    font-size: 36px;
+  }
+  
+  .searchForm {
+    flex-direction: column;
+  }
+  
+  .searchButton {
+    width: 100%;
+    justify-content: center;
+    margin-top: 10px;
+  }
+  
+  .destinationCard {
+    min-width: 100%;
+  }
+  
+  .footerContent {
+    flex-direction: column;
+    gap: 30px;
+  }
+  
+  .destinationItem {
+    flex-direction: column;
+    padding: 12px;
+  }
+  
+  .destinationImage {
+    width: 100%;
+    height: 200px;
+    margin-bottom: 8px;
+  }
+  
+  .destinationImage img {
+    border-radius: 8px;
+  }
+  
+  .destinationRating {
+    width: 100%;
+    align-items: flex-start;
+    padding: 10px 0;
+    border-top: 1px solid #eee;
+    margin-top: 10px;
+  }
+
+  .ratingScore, .ratingText, .reviewCount {
+    text-align: left;
+  }
+}
+
+
+
+/* ส่วนของคะแนนและรีวิว */
+/* .destinationRating {
+  min-width: 120px;
+  padding: 10px 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ratingScore {
+  font-size: 32px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.ratingText {
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 5px;
+  text-align: right;
+}
+
+.reviewCount {
+  font-size: 14px;
+  color: #666;
+  text-align: right;
+} */
