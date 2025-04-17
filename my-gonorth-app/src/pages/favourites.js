@@ -2,21 +2,21 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import styles from "../styles/favourites.module.css";
 
-const Favourites = () => {
-  const router = useRouter();
-  const [heartStatus, setHeartStatus] = useState({
-    'grand-canyon-chiangmai': true,
-    'mon-hong-waterfall': true,
-    'suan-bo-kaew': true,
-    'hydrangea-royal-project': true
-  });
+// const Favourites = () => {
+//   const router = useRouter();
+//   const [heartStatus, setHeartStatus] = useState({
+//     'grand-canyon-chiangmai': true,
+//     'mon-hong-waterfall': true,
+//     'suan-bo-kaew': true,
+//     'hydrangea-royal-project': true
+//   });
   
-  const [selectedPlaces, setSelectedPlaces] = useState({
-    'grand-canyon-chiangmai': false,
-    'mon-hong-waterfall': false,
-    'suan-bo-kaew': false,
-    'hydrangea-royal-project': false
-  });
+//   const [selectedPlaces, setSelectedPlaces] = useState({
+//     'grand-canyon-chiangmai': false,
+//     'mon-hong-waterfall': false,
+//     'suan-bo-kaew': false,
+//     'hydrangea-royal-project': false
+//   });
   
   const [showPopup, setShowPopup] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
