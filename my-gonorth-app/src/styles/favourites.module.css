@@ -1,0 +1,641 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+/* Base Container */
+.container {
+  width: 100%;
+  min-height: 100vh;
+  font-family: 'Montserrat', sans-serif;
+  color: #333;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  background-color: #f9f9f9;
+  position: relative;
+}
+
+/* Reset for all children */
+.container * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Main content area */
+.mainContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 20px;
+  position: relative;
+}
+
+/* Header Styles */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: white;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.logo {
+  height: 45px;
+  display: flex;
+  align-items: center;
+  margin-left: -40px;
+}
+
+.logoImage {
+  height: 250%;
+  object-fit: contain;
+}
+
+.headerButtons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.favouritesButton {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #000;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 8px 15px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.heartIcon {
+  width: 20px;
+  height: 20px;
+  margin-right: 5px;
+}
+
+.moreInfoHeaderButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+}
+
+.moreInfoIcon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+/* Divider between favourites and profile */
+.headerDivider {
+  height: 24px;
+  width: 1px;
+  background-color: #363636;
+  margin: 0 5px;
+}
+
+.userProfile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.profileImage {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profileName {
+  font-weight: 500;
+  font-size: 14px;
+}
+
+/* Page Title */
+.pageTitle {
+  font-size: 28px;
+  font-weight: 600;
+  margin: 20px 0;
+}
+
+/* Title container with info button */
+.titleContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: -10px;
+}
+
+/* Favourites List */
+.favouritesList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.favouriteItem {
+  display: flex;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  position: relative;
+}
+
+.selectCheckbox {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 5px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.selectCheckbox input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.selectCheckbox label {
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.favouriteImage {
+  width: 280px;
+  height: 180px;
+  overflow: hidden;
+  flex-shrink: 0;
+  border-radius: 8px;
+  margin-right: 15px;
+}
+
+.favouriteImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.favouriteItem:hover .favouriteImage img {
+  transform: scale(1.05);
+}
+
+.favouriteInfo {
+  flex-grow: 1;
+  padding: 3px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.favouriteTitle {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+.infoItem {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.infoIcon {
+  margin-right: 8px;
+  font-size: 14px;
+}
+
+.infoText {
+  color: #666;
+}
+
+/* Rating styles from results-after-search */
+.destinationRating {
+  width: 120px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-left: 1px solid #eee;
+  flex-shrink: 0;
+}
+
+.ratingScore {
+  font-size: 24px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.ratingText {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.reviewCount {
+  font-size: 12px;
+  color: #666;
+}
+
+/* Updated Action buttons */
+.actionButtons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 15px;
+}
+
+.heartButton {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid #ddd;
+  background: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+/* New heart button icon style */
+.heartButtonIcon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+.moreInfoButton {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid #ddd;
+  background: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.moreInfoButton:hover {
+  background-color: #f5f5f5;
+}
+
+.heartButton:hover {
+  background-color: #f5f5f5;
+}
+
+.moreInfoButtonIcon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.viewButton {
+  background-color: #09f;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 25px;
+  font-weight: 500;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  flex: 1;
+  margin-right: 15px;
+  margin-left: 1px;
+}
+
+.viewButton:hover {
+  background-color: #0080d6;
+}
+
+/* Create Route Map Button */
+.createRouteButton {
+  width: 100%;
+  padding: 12px;
+  background-color: #1b3a36;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  margin-top: 10px;
+  margin-bottom: 30px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.createRouteButton:hover {
+  background-color: #122b28;
+}
+
+/* Popup Styles */
+.popupOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.popup {
+  background-color: white;
+  border-radius: 10px;
+  padding: 25px;
+  width: 90%;
+  max-width: 500px;
+  position: relative;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Info Popup Styles */
+.infoPopup {
+  background-color: white;
+  border-radius: 10px;
+  padding: 25px;
+  width: 90%;
+  max-width: 450px;
+  position: relative;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  text-align: center;
+}
+
+.infoIconLarge {
+  font-size: 40px;
+  margin-bottom: 15px;
+}
+
+.gotItButton {
+  background-color: #09f;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 12px 25px;
+  font-weight: 500;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 15px;
+}
+
+.gotItButton:hover {
+  background-color: #0080d6;
+}
+
+.closePopup {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+}
+
+.popupContent {
+  text-align: center;
+}
+
+.popupContent h3 {
+  font-size: 20px;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.popupContent p {
+  margin-bottom: 20px;
+  color: #666;
+  line-height: 1.5;
+}
+
+.confirmButton {
+  background-color: #09f;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 12px 25px;
+  font-weight: 500;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.confirmButton:hover {
+  background-color: #0080d6;
+}
+
+/* Notification Popup Styles */
+.notificationPopup {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #333;
+  color: white;
+  padding: 15px 25px;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  z-index: 2000;
+  animation: fadeInOut 3s ease-in-out;
+}
+
+.notificationContent {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translate(-50%, 20px); }
+  15% { opacity: 1; transform: translate(-50%, 0); }
+  85% { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; transform: translate(-50%, -20px); }
+}
+
+/* Footer */
+.footer {
+  background-color: #09f;
+  color: #000;
+  padding: 40px;
+  width: 100%;
+  margin-top: auto;
+}
+
+.footerContent {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footerLogo {
+  flex: 1;
+  min-width: 150px;
+}
+
+.footerLogoImage {
+  max-width: 500px;
+  margin-top: -70px;
+  margin-left: -150px;
+}
+
+.footerSection {
+  flex: 1;
+  min-width: 200px;
+}
+
+.footerTitle {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+.footerLinks {
+  list-style: none;
+}
+
+.footerLinks li {
+  margin-bottom: 10px;
+}
+
+.footerLinks a {
+  color: #000;
+  text-decoration: none;
+  font-size: 14px;
+  transition: opacity 0.2s;
+}
+
+.footerLinks a:hover {
+  opacity: 0.8;
+}
+
+.contactInfo, .contactDetail {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .favouriteItem {
+    flex-direction: column;
+    padding: 12px;
+  }
+  
+  .favouriteImage {
+    width: 100%;
+    height: 200px;
+    margin-bottom: 15px;
+    margin-right: 0;
+  }
+  
+  .destinationRating {
+    width: 100%;
+    align-items: flex-start;
+    padding: 10px 0;
+    border-top: 1px solid #eee;
+    border-left: none;
+    margin-top: 10px;
+  }
+  
+  .actionButtons {
+    width: 100%;
+    padding: 10px 0;
+  }
+  
+  .viewButton {
+    flex: 1;
+  }
+  
+  .popupOverlay {
+    padding: 0 15px;
+  }
+  
+  .popup, .infoPopup {
+    width: 100%;
+  }
+  
+  .footerContent {
+    flex-direction: column;
+    gap: 30px;
+  }
+  
+  .selectCheckbox {
+    top: 10px;
+    left: 10px;
+  }
+  
+  .moreInfoHeaderButton {
+    padding: 3px;
+  }
+  
+  .moreInfoIcon {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .notificationPopup {
+    width: 90%;
+    max-width: 300px;
+  }
+}
+
+/* Fix for Chrome and Safari */
+@supports (-webkit-appearance: none) {
+  .selectCheckbox input[type="checkbox"] {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    background-color: white;
+    position: relative;
+  }
+  
+  .selectCheckbox input[type="checkbox"]:checked {
+    background-color: #09f;
+    border-color: #09f;
+  }
+  
+  .selectCheckbox input[type="checkbox"]:checked:after {
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 2px;
+    width: 4px;
+    height: 8px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+}
