@@ -1,0 +1,73 @@
+/* styles/footer.module.css */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+.footer {
+  background-color: #09f;
+  color: #000;
+  padding: 40px;
+  width: 100%;
+  margin-top: auto;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.footerContent {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footerLogo {
+  flex: 1;
+  min-width: 150px;
+}
+
+.footerLogoImage {
+  max-width: 500px;
+  margin-top: -70px;
+  margin-left: -150px;
+}
+
+.footerSection {
+  flex: 1;
+  min-width: 200px;
+}
+
+.footerTitle {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+.footerLinks {
+  list-style: none;
+}
+
+.footerLinks li {
+  margin-bottom: 10px;
+}
+
+.footerLinks a {
+  color: #000;
+  text-decoration: none;
+  font-size: 14px;
+  transition: opacity 0.2s;
+}
+
+.footerLinks a:hover {
+  opacity: 0.8;
+}
+
+.contactInfo, .contactDetail {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .footerContent {
+    flex-direction: column;
+    gap: 30px;
+  }
+}

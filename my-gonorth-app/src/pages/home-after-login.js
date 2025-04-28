@@ -2,6 +2,8 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
 import styles from "../styles/home-after-login.module.css";
+import Header from "../components/navigation";
+import Footer from "../components/footer";
 
 const HomeAfterAuthen = () => {
   const router = useRouter();
@@ -40,23 +42,8 @@ const HomeAfterAuthen = () => {
 
   return (
     <div className={styles.container}>
-      {/* Header */}
-      <header className={styles.header}>
-        <div className={styles.logo}>
-          <img src="/assets/gonorth-logo.png" alt="GONORTH" className={styles.logoImage} />
-        </div>
-        <div className={styles.headerButtons}>
-          <a href="/favourites" className={styles.favouritesButton}>
-            <span className={styles.heartIcon}>♥</span> Favourites
-          </a>
-          {/* Divider between favourites and profile */}
-          <div className={styles.headerDivider}></div>
-          <div className={styles.userProfile} onClick={handleProfileClick}>
-            <img src="/assets/Profile.jpg" alt="John D." className={styles.profileImage} />
-            <span className={styles.profileName}>John D.</span>
-          </div>
-        </div>
-      </header>
+      {/* Use the Header component */}
+      <Header />
 
       {/* The rest of the component remains the same... */}
       <div className={styles.mainContent}>
@@ -244,42 +231,8 @@ const HomeAfterAuthen = () => {
         </section>
       </div>
 
-      {/* Footer */}
-      <footer className={styles.footer}>
-        <div className={styles.footerContent}>
-          <div className={styles.footerLogo}>
-            <img src="/assets/gonorth-logo.png" alt="GONORTH" className={styles.footerLogoImage} />
-          </div>
-          
-          <div className={styles.footerSection}>
-            <h3 className={styles.footerTitle}>Explore & Experience</h3>
-            <ul className={styles.footerLinks}>
-              <li><a href="/explore/mountain-views">Mountain & Scenic Views</a></li>
-              <li><a href="/explore/eco-tourism">Nature & Eco Tourism</a></li>
-              <li><a href="/explore/cultural-sites">Cultural & Heritage Sites</a></li>
-              <li><a href="/explore/cafes">Gardens & Cafés</a></li>
-              <li><a href="/explore/adventure">Adventure & Outdoor Activities</a></li>
-            </ul>
-          </div>
-          
-          <div className={styles.footerSection}>
-            <h3 className={styles.footerTitle}>Contact Us</h3>
-            <p className={styles.contactInfo}>
-              King Mongkut's University of Technology Thonburi<br />
-              126 Pracha Uthit Rd,<br />
-              Khwaeng Bang Mot,<br />
-              Khet Thung Khru, Bangkok 10140
-            </p>
-          </div>
-          
-          <div className={styles.footerSection}>
-            <p className={styles.contactDetail}>
-              Email: athitan.maha@kmutt.ac.th<br />
-              Tel: 099-9999999
-            </p>
-          </div>
-        </div>
-      </footer>
+      {/* Footer - Replaced with Footer component */}
+      <Footer />
     </div>
   );
 };
