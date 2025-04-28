@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
 import styles from "../styles/favourites.module.css";
+import Header from "../components/navigation";
+import Footer from "../components/footer";
 
 const Favourites = () => {
   const router = useRouter();
@@ -23,18 +25,6 @@ const Favourites = () => {
   const [notificationMessage, setNotificationMessage] = useState('');
   const [currentPlace, setCurrentPlace] = useState('');
   const [showInfoPopup, setShowInfoPopup] = useState(false);
-
-  const handleProfileClick = () => {
-    router.push('/profile');
-  };
-
-  const handleFavouritesClick = () => {
-    router.push('/favourites');
-  };
-
-//   const handleViewPlace = (storypage) => {
-//     router.push(`/storypage/${storypage}`);
-//   };
 
   const handleViewPlace = () => {
     router.push('/story-page');
@@ -110,28 +100,8 @@ const Favourites = () => {
 
   return (
     <div className={styles.container}>
-      {/* Header */}
-      <header className={styles.header}>
-        <div className={styles.logo}>
-          <img src="/assets/gonorth-logo.png" alt="GONORTH" className={styles.logoImage} />
-        </div>
-        <div className={styles.headerButtons}>
-        <a href="/favourites" className={styles.favouritesButton}>
-        <img 
-            src="https://cdn-icons-png.flaticon.com/128/2550/2550290.png" 
-            alt="Heart" 
-            className={styles.heartIcon} 
-        /> Favourites
-        </a>
-          {/* Removed the more info button from here */}
-          {/* Divider between favourites and profile */}
-          <div className={styles.headerDivider}></div>
-          <div className={styles.userProfile} onClick={handleProfileClick}>
-            <img src="/assets/Profile.jpg" alt="John D." className={styles.profileImage} />
-            <span className={styles.profileName}>John D.</span>
-          </div>
-        </div>
-      </header>
+      {/* Use the Header component */}
+      <Header />
 
       <div className={styles.mainContent}>
         {/* Page Title and More Info Button */}
@@ -450,7 +420,6 @@ const Favourites = () => {
           <div className={styles.infoPopup}>
             <button className={styles.closePopup} onClick={handleCloseInfoPopup}>×</button>
             <div className={styles.popupContent}>
-              {/* <div className={styles.infoIconLarge}>ℹ️</div> */}
               <h3>Route Planning Information</h3>
               <p>The first location you select will be<br></br>set as the starting point of your route.</p>
               <button 
@@ -473,42 +442,8 @@ const Favourites = () => {
         </div>
       )}
 
-      {/* Footer */}
-      <footer className={styles.footer}>
-        <div className={styles.footerContent}>
-          <div className={styles.footerLogo}>
-            <img src="/assets/gonorth-logo.png" alt="GONORTH" className={styles.footerLogoImage} />
-          </div>
-          
-          <div className={styles.footerSection}>
-            <h3 className={styles.footerTitle}>Explore & Experience</h3>
-            <ul className={styles.footerLinks}>
-              <li><a href="/explore/mountain-views">Mountain & Scenic Views</a></li>
-              <li><a href="/explore/eco-tourism">Nature & Eco Tourism</a></li>
-              <li><a href="/explore/cultural-sites">Cultural & Heritage Sites</a></li>
-              <li><a href="/explore/cafes">Gardens & Cafés</a></li>
-              <li><a href="/explore/adventure">Adventure & Outdoor Activities</a></li>
-            </ul>
-          </div>
-          
-          <div className={styles.footerSection}>
-            <h3 className={styles.footerTitle}>Contact Us</h3>
-            <p className={styles.contactInfo}>
-              King Mongkut's University of Technology Thonburi<br />
-              126 Pracha Uthit Rd,<br />
-              Khwaeng Bang Mot,<br />
-              Khet Thung Khru, Bangkok 10140
-            </p>
-          </div>
-          
-          <div className={styles.footerSection}>
-            <p className={styles.contactDetail}>
-              Email: athitan.maha@kmutt.ac.th<br />
-              Tel: 099-9999999
-            </p>
-          </div>
-        </div>
-      </footer>
+      {/* Use the Footer component */}
+      <Footer />
     </div>
   );
 };

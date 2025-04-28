@@ -34,9 +34,13 @@ const DestinationList = () => {
     router.push('/favourites');
   };
 
-  const handleViewDeals = (destination) => {
-    router.push(`/destination/${destination}/deals`);
+  const handleViewPlace = () => {
+    router.push('/story-page');
   };
+
+  // const handleViewPlace = (destination) => {
+  //   router.push(`/destination/${destination}/deals`);
+  // };
 
   const handleShowMoreResults = () => {
     console.log("Loading more results...");
@@ -52,7 +56,11 @@ const DestinationList = () => {
         </div>
         <div className={styles.headerButtons}>
           <a href="/favourites" className={styles.favouritesButton}>
-            <span className={styles.heartIcon}>♥</span> Favourites
+            <img 
+              src="https://cdn-icons-png.flaticon.com/128/2550/2550290.png" 
+              alt="Heart" 
+              className={styles.heartIcon} 
+            /> Favourites
           </a>
           {/* Divider between favourites and profile */}
           <div className={styles.headerDivider}></div>
@@ -151,33 +159,38 @@ const DestinationList = () => {
           {/* Destination List */}
           <div className={styles.destinationList}>
             {/* Destination Item 1 */}
-            <div className={styles.destinationItem}>
-              <div className={styles.destinationImage}>
+            <div className={styles.favouriteItem}>
+              <div className={styles.favouriteImage}>
                 <img src="https://jjubbbbb.wordpress.com/wp-content/uploads/2016/11/grand-canyon-of-chiang-mai2.jpg" alt="แกรนด์แคนยอน เชียงใหม่" />
               </div>
-              <div className={styles.destinationInfo}>
-                <h3 className={styles.destinationTitle}>แกรนด์แคนยอน เชียงใหม่</h3>
-                <div className={styles.destinationFeatures}>
-                  <div className={styles.featureItem}>
-                    <input type="checkbox" id="distance1" disabled checked />
-                    <label htmlFor="distance1">20 km from city center</label>
-                  </div>
-                  <div className={styles.featureItem}>
-                    <input type="checkbox" id="entrance1" disabled checked />
-                    <label htmlFor="entrance1">Free entrance</label>
-                  </div>
-                  <div className={styles.featureItem}>
-                    <input type="checkbox" id="hours1" disabled checked />
-                    <label htmlFor="hours1">Open 09:00 am - 16:00 pm</label>
-                  </div>
+              <div className={styles.favouriteInfo}>
+                <h3 className={styles.favouriteTitle}>แกรนด์แคนยอน เชียงใหม่</h3>
+                
+                <div className={styles.infoItem}>
+                  <span className={styles.infoIcon}>🚗</span>
+                  <span className={styles.infoText}>20 km from city center</span>
                 </div>
-                <button 
-                  className={styles.viewDealsButton}
-                  onClick={() => handleViewDeals('grand-canyon-chiangmai')}
-                >
-                  View Place
-                </button>
+                
+                <div className={styles.infoItem}>
+                  <span className={styles.infoIcon}>🎫</span>
+                  <span className={styles.infoText}>Free entrance</span>
+                </div>
+                
+                <div className={styles.infoItem}>
+                  <span className={styles.infoIcon}>🕒</span>
+                  <span className={styles.infoText}>Open 09:00 am - 16:00 pm</span>
+                </div>
+                
+                <div className={styles.actionButtons}>
+                  <button 
+                    className={styles.viewButton}
+                    onClick={() => handleViewPlace('grand-canyon-chiangmai')}
+                  >
+                    View Place
+                  </button>
+                </div>
               </div>
+              
               <div className={styles.destinationRating}>
                 <div className={styles.ratingScore}>5.0</div>
                 <div className={styles.ratingText}>Very Good</div>
@@ -186,33 +199,38 @@ const DestinationList = () => {
             </div>
 
             {/* Destination Item 2 */}
-            <div className={styles.destinationItem}>
-              <div className={styles.destinationImage}>
+            <div className={styles.favouriteItem}>
+              <div className={styles.favouriteImage}>
                 <img src="https://media.readthecloud.co/wp-content/uploads/2021/12/29133520/angkaew-11-750x500.jpg" alt="น้ำตกม่อนฮ่อง (ป่าแป๋)" />
               </div>
-              <div className={styles.destinationInfo}>
-                <h3 className={styles.destinationTitle}>น้ำตกม่อนฮ่อง (ป่าแป๋)</h3>
-                <div className={styles.destinationFeatures}>
-                  <div className={styles.featureItem}>
-                    <input type="checkbox" id="distance2" disabled checked />
-                    <label htmlFor="distance2">20 km from city center</label>
-                  </div>
-                  <div className={styles.featureItem}>
-                    <input type="checkbox" id="entrance2" disabled checked />
-                    <label htmlFor="entrance2">Free entrance</label>
-                  </div>
-                  <div className={styles.featureItem}>
-                    <input type="checkbox" id="hours2" disabled checked />
-                    <label htmlFor="hours2">Open 09:00 am - 16:00 pm</label>
-                  </div>
+              <div className={styles.favouriteInfo}>
+                <h3 className={styles.favouriteTitle}>น้ำตกม่อนฮ่อง (ป่าแป๋)</h3>
+                
+                <div className={styles.infoItem}>
+                  <span className={styles.infoIcon}>🚗</span>
+                  <span className={styles.infoText}>20 km from city center</span>
                 </div>
-                <button 
-                  className={styles.viewDealsButton}
-                  onClick={() => handleViewDeals('mon-hong-waterfall')}
-                >
-                  View Place
-                </button>
+                
+                <div className={styles.infoItem}>
+                  <span className={styles.infoIcon}>🎫</span>
+                  <span className={styles.infoText}>Free entrance</span>
+                </div>
+                
+                <div className={styles.infoItem}>
+                  <span className={styles.infoIcon}>🕒</span>
+                  <span className={styles.infoText}>Open 09:00 am - 16:00 pm</span>
+                </div>
+                
+                <div className={styles.actionButtons}>
+                  <button 
+                    className={styles.viewButton}
+                    onClick={() => handleViewPlace('mon-hong-waterfall')}
+                  >
+                    View Place
+                  </button>
+                </div>
               </div>
+              
               <div className={styles.destinationRating}>
                 <div className={styles.ratingScore}>4.5</div>
                 <div className={styles.ratingText}>Very Good</div>
@@ -221,33 +239,38 @@ const DestinationList = () => {
             </div>
 
             {/* Destination Item 3 */}
-            <div className={styles.destinationItem}>
-              <div className={styles.destinationImage}>
+            <div className={styles.favouriteItem}>
+              <div className={styles.favouriteImage}>
                 <img src="https://i.ytimg.com/vi/9_0j8BOBiE8/maxresdefault.jpg" alt="สวนบ่อแก้ว" />
               </div>
-              <div className={styles.destinationInfo}>
-                <h3 className={styles.destinationTitle}>สวนบ่อแก้ว</h3>
-                <div className={styles.destinationFeatures}>
-                  <div className={styles.featureItem}>
-                    <input type="checkbox" id="distance3" disabled checked />
-                    <label htmlFor="distance3">20 km from city center</label>
-                  </div>
-                  <div className={styles.featureItem}>
-                    <input type="checkbox" id="entrance3" disabled checked />
-                    <label htmlFor="entrance3">Free entrance</label>
-                  </div>
-                  <div className={styles.featureItem}>
-                    <input type="checkbox" id="hours3" disabled checked />
-                    <label htmlFor="hours3">Open 08:00 am - 17:00 pm</label>
-                  </div>
+              <div className={styles.favouriteInfo}>
+                <h3 className={styles.favouriteTitle}>สวนบ่อแก้ว</h3>
+                
+                <div className={styles.infoItem}>
+                  <span className={styles.infoIcon}>🚗</span>
+                  <span className={styles.infoText}>20 km from city center</span>
                 </div>
-                <button 
-                  className={styles.viewDealsButton}
-                  onClick={() => handleViewDeals('suan-bo-kaew')}
-                >
-                  View Place
-                </button>
+                
+                <div className={styles.infoItem}>
+                  <span className={styles.infoIcon}>🎫</span>
+                  <span className={styles.infoText}>Free entrance</span>
+                </div>
+                
+                <div className={styles.infoItem}>
+                  <span className={styles.infoIcon}>🕒</span>
+                  <span className={styles.infoText}>Open 08:00 am - 17:00 pm</span>
+                </div>
+                
+                <div className={styles.actionButtons}>
+                  <button 
+                    className={styles.viewButton}
+                    onClick={() => handleViewPlace('suan-bo-kaew')}
+                  >
+                    View Place
+                  </button>
+                </div>
               </div>
+              
               <div className={styles.destinationRating}>
                 <div className={styles.ratingScore}>4.2</div>
                 <div className={styles.ratingText}>Very Good</div>
@@ -256,33 +279,38 @@ const DestinationList = () => {
             </div>
 
             {/* Destination Item 4 */}
-            <div className={styles.destinationItem}>
-              <div className={styles.destinationImage}>
+            <div className={styles.favouriteItem}>
+              <div className={styles.favouriteImage}>
                 <img src="https://static.ticket2attraction.com/gallery/1ea4fe7f-71c1-4170-b95f-4f0b70f19ece/adcfe8c9-9316-4e4f-89c2-4669cec51d5d-1200.webp" alt="ทุ่งดอกไฮเดรนเยีย โครงการหลวงขุนแปะ" />
               </div>
-              <div className={styles.destinationInfo}>
-                <h3 className={styles.destinationTitle}>ทุ่งดอกไฮเดรนเยีย โครงการหลวงขุนแปะ</h3>
-                <div className={styles.destinationFeatures}>
-                  <div className={styles.featureItem}>
-                    <input type="checkbox" id="distance4" disabled checked />
-                    <label htmlFor="distance4">20 km from city center</label>
-                  </div>
-                  <div className={styles.featureItem}>
-                    <input type="checkbox" id="entrance4" disabled checked />
-                    <label htmlFor="entrance4">Free entrance</label>
-                  </div>
-                  <div className={styles.featureItem}>
-                    <input type="checkbox" id="hours4" disabled checked />
-                    <label htmlFor="hours4">Open 09:00 am - 16:00 pm</label>
-                  </div>
+              <div className={styles.favouriteInfo}>
+                <h3 className={styles.favouriteTitle}>ทุ่งดอกไฮเดรนเยีย โครงการหลวงขุนแปะ</h3>
+                
+                <div className={styles.infoItem}>
+                  <span className={styles.infoIcon}>🚗</span>
+                  <span className={styles.infoText}>20 km from city center</span>
                 </div>
-                <button 
-                  className={styles.viewDealsButton}
-                  onClick={() => handleViewDeals('hydrangea-royal-project')}
-                >
-                  View Place
-                </button>
+                
+                <div className={styles.infoItem}>
+                  <span className={styles.infoIcon}>🎫</span>
+                  <span className={styles.infoText}>Free entrance</span>
+                </div>
+                
+                <div className={styles.infoItem}>
+                  <span className={styles.infoIcon}>🕒</span>
+                  <span className={styles.infoText}>Open 09:00 am - 16:00 pm</span>
+                </div>
+                
+                <div className={styles.actionButtons}>
+                  <button 
+                    className={styles.viewButton}
+                    onClick={() => handleViewPlace('hydrangea-royal-project')}
+                  >
+                    View Place
+                  </button>
+                </div>
               </div>
+              
               <div className={styles.destinationRating}>
                 <div className={styles.ratingScore}>4.0</div>
                 <div className={styles.ratingText}>Very Good</div>

@@ -1,7 +1,9 @@
-// destination-page.js
+// story-page.js
 import { useState } from "react";
 import { useRouter } from "next/router";
 import styles from "../styles/story-page.module.css";
+import Header from "../components/navigation";
+import Footer from "../components/footer";
 
 const StoryPage = () => {
   const router = useRouter();
@@ -22,14 +24,6 @@ const StoryPage = () => {
     "https://jjubbbbb.wordpress.com/wp-content/uploads/2016/11/grand-canyon-of-chiang-mai2.jpg",
     "https://media.readthecloud.co/wp-content/uploads/2021/12/29133520/angkaew-11-750x500.jpg"
   ];
-
-  const handleFavoritesClick = () => {
-    router.push('/favourites');
-  };
-
-  const handleProfileClick = () => {
-    router.push('/profile');
-  };
 
   const handleToggleFavorite = () => {
     setIsInFavorites(!isInFavorites);
@@ -67,23 +61,8 @@ const StoryPage = () => {
 
   return (
     <div className={styles.container}>
-      {/* Header */}
-      <header className={styles.header}>
-        <div className={styles.logo}>
-          <img src="/assets/gonorth-logo.png" alt="GONORTH" className={styles.logoImage} />
-        </div>
-        <div className={styles.headerButtons}>
-          <a href="/favourites" className={styles.favouritesButton}>
-            <span className={styles.heartIcon}>♥</span> Favourites
-          </a>
-          {/* Divider between favourites and profile */}
-          <div className={styles.headerDivider}></div>
-          <div className={styles.userProfile} onClick={handleProfileClick}>
-            <img src="/assets/Profile.jpg" alt="John D." className={styles.profileImage} />
-            <span className={styles.profileName}>{username}</span>
-          </div>
-        </div>
-      </header>
+      {/* Use the Header component */}
+      <Header />
 
       <div className={styles.mainContent}>
         {/* Destination Title with Favorite Button */}
@@ -93,7 +72,9 @@ const StoryPage = () => {
             className={`${styles.favoriteButton} ${isInFavorites ? styles.active : ''}`}
             onClick={handleToggleFavorite}
           >
-            <span className={styles.favoriteIcon}>♥</span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="currentColor">
+              <path d="M50 75.35l-3.45-3.32C30.4 57.36 22 48.28 22 37.5 22 28.42 28.42 22 37.5 22c5.24 0 10.41 2.81 12.5 6.09 2.09-3.28 7.26-6.09 12.5-6.09 9.08 0 15.5 6.42 15.5 15.5 0 10.78-8.4 19.86-24.55 34.54L50 75.35z"/>
+            </svg>
           </button>
         </div>
 
@@ -182,7 +163,7 @@ const StoryPage = () => {
             <div className={styles.reviewItem}>
               <div className={styles.reviewHeader}>
                 <div className={styles.reviewerInfo}>
-                  <img src="/assets/user1.jpg" alt="User" className={styles.reviewerImage} />
+                  <img src="https://cdn-icons-png.flaticon.com/128/847/847969.png" alt="User" className={styles.reviewerImage} />
                   <div className={styles.reviewerDetails}>
                     <div className={styles.reviewRating}>5.0 Amazing</div>
                     <div className={styles.reviewerName}>Omar Siphron</div>
@@ -198,7 +179,7 @@ const StoryPage = () => {
             <div className={styles.reviewItem}>
               <div className={styles.reviewHeader}>
                 <div className={styles.reviewerInfo}>
-                  <img src="/assets/user2.jpg" alt="User" className={styles.reviewerImage} />
+                  <img src="https://cdn-icons-png.flaticon.com/128/847/847969.png" alt="User" className={styles.reviewerImage} />
                   <div className={styles.reviewerDetails}>
                     <div className={styles.reviewRating}>5.0 Amazing</div>
                     <div className={styles.reviewerName}>Cristofer Ekstrom Bothman</div>
@@ -214,7 +195,7 @@ const StoryPage = () => {
             <div className={styles.reviewItem}>
               <div className={styles.reviewHeader}>
                 <div className={styles.reviewerInfo}>
-                  <img src="/assets/user3.jpg" alt="User" className={styles.reviewerImage} />
+                  <img src="https://cdn-icons-png.flaticon.com/128/847/847969.png" alt="User" className={styles.reviewerImage} />
                   <div className={styles.reviewerDetails}>
                     <div className={styles.reviewRating}>5.0 Amazing</div>
                     <div className={styles.reviewerName}>Kaiya Lubin</div>
@@ -299,42 +280,8 @@ const StoryPage = () => {
         </div>
       )}
 
-      {/* Footer */}
-      <footer className={styles.footer}>
-        <div className={styles.footerContent}>
-          <div className={styles.footerLogo}>
-            <img src="/assets/gonorth-logo.png" alt="GONORTH" className={styles.footerLogoImage} />
-          </div>
-          
-          <div className={styles.footerSection}>
-            <h3 className={styles.footerTitle}>Explore & Experience</h3>
-            <ul className={styles.footerLinks}>
-              <li><a href="/explore/mountain-views">Mountain & Scenic Views</a></li>
-              <li><a href="/explore/eco-tourism">Nature & Eco Tourism</a></li>
-              <li><a href="/explore/cultural-sites">Cultural & Heritage Sites</a></li>
-              <li><a href="/explore/cafes">Gardens & Cafés</a></li>
-              <li><a href="/explore/adventure">Adventure & Outdoor Activities</a></li>
-            </ul>
-          </div>
-          
-          <div className={styles.footerSection}>
-            <h3 className={styles.footerTitle}>Contact Us</h3>
-            <p className={styles.contactInfo}>
-              King Mongkut's University of Technology Thonburi<br />
-              126 Pracha Uthit Rd,<br />
-              Khwaeng Bang Mot,<br />
-              Khet Thung Khru, Bangkok 10140
-            </p>
-          </div>
-          
-          <div className={styles.footerSection}>
-            <p className={styles.contactDetail}>
-              Email: athitan.maha@kmutt.ac.th<br />
-              Tel: 099-9999999
-            </p>
-          </div>
-        </div>
-      </footer>
+      {/* Footer - Replaced with Footer component */}
+      <Footer />
     </div>
   );
 };

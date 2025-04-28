@@ -1,0 +1,87 @@
+/* styles/header.module.css */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: white;
+  border-bottom: 3px solid #f0f0f0;
+  font-family: 'Montserrat', sans-serif;
+  margin-bottom: 20px;
+}
+
+.logo {
+  height: 45px;
+  display: flex;
+  align-items: center;
+  margin-left: -40px;
+}
+
+.logoImage {
+  height: 250%;
+  object-fit: contain;
+}
+
+.headerButtons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.favouritesButton {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #000;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 8px 15px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.heartIcon {
+  width: 20px;
+  height: 20px;
+  margin-right: 5px;
+}
+
+.headerDivider {
+  height: 24px;
+  width: 1px;
+  background-color: #363636;
+  margin: 0 5px;
+}
+
+.userProfile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.profileImage {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profileName {
+  font-weight: 500;
+  font-size: 14px;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .moreInfoHeaderButton {
+    padding: 3px;
+  }
+  
+  .moreInfoIcon {
+    width: 28px;
+    height: 28px;
+  }
+}

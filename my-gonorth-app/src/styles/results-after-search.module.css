@@ -33,51 +33,30 @@
 
 /* Header Styles - White space above hero image */
 .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 20px;
-    background-color: white;
-    border-bottom: 1px solid #f0f0f0; /* Optional: adds a subtle separator */
-  }
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: white;
+  border-bottom: 1px solid #f0f0f0; /* Optional: adds a subtle separator */
+}
 
-  .logo {
-    height: 45px;
-    display: flex;
-    align-items: center;
-    margin-left: -40px;
-  }
-  
-  .logoImage {
-    height: 250%;
-    object-fit: contain;
-  }
+.logo {
+  height: 45px;
+  display: flex;
+  align-items: center;
+  margin-left: -40px;
+}
+
+.logoImage {
+  height: 250%;
+  object-fit: contain;
+}
   
 .headerButtons {
   display: flex;
   gap: 20px;
   align-items: center;
-}
-
-.loginButton {
-  color: #000;
-  text-decoration: none;
-  font-weight: 500;
-  padding: 8px 15px;
-  border-radius: 4px;
-  font-size: 14px;
-  display: none; /* Hide the original button */
-}
-
-.signupButton {
-  background-color: #1b413c;
-  color: white;
-  text-decoration: none;
-  font-weight: 500;
-  padding: 8px 15px;
-  border-radius: 4px;
-  font-size: 14px;
-  display: none; /* Hide the original button */
 }
 
 /* New Header Styles for User Profile and Favorites */
@@ -94,7 +73,8 @@
 }
 
 .heartIcon {
-  font-size: 16px;
+  width: 16px;
+  height: 16px;
 }
 
 /* Divider between favourites and profile */
@@ -124,78 +104,13 @@
   font-size: 14px;
 }
 
-/* Hero Section with Rounded Corners */
-.heroSection {
-  width: 100%;
-  height: 450px;
-  background-image: url('https://travel.mthai.com/app/uploads/2015/12/20150323101209120141029_3_1414557753_3604761%E0%B8%9E%E0%B8%B1%E0%B8%99.jpg');
-  background-size: cover;
-  background-position: center;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  color: white;
-  text-align: center;
-  border-radius: 20px;
-  margin-top: 20px;
-  overflow: hidden;
-}
-
-.heroSection::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.3);
-  z-index: 1;
-}
-
-.heroContent {
-  position: relative;
-  z-index: 2;
-}
-
-.heroSubtitle {
-  font-size: 24px;
-  font-weight: 500;
-  margin-bottom: 10px;
-}
-
-.heroTitle {
-  font-size: 48px;
-  font-weight: 700;
-  margin-bottom: 10px;
-  text-transform: uppercase;
-}
-
-.heroText {
-  font-size: 18px;
-}
-
-/* Search Box - Overlapping hero image */
-.searchBoxWrapper {
-  position: relative;
-  z-index: 5;
-  margin-top: -70px;
-  padding: 0 15px;
-}
-
-.searchBox {
+/* Search Box Styles */
+.destinationSearchContainer {
   background: white;
   border-radius: 10px;
-  padding: 20px 30px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-.searchTitle {
-  font-size: 18px;
-  margin-bottom: 20px;
-  color: #333;
-  text-align: left;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin: 20px 0;
 }
 
 .searchForm {
@@ -267,112 +182,201 @@
   background-color: #0080d6;
 }
 
-/* Destinations Section */
-.destinationsSection {
-  padding: 40px 0;
-  width: 100%;
+/* Results Section */
+.resultsContainer {
   margin-top: 20px;
 }
 
-.sectionHeader {
+/* Results Header */
+.resultsHeader {
   display: flex;
-  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
+  margin-bottom: 15px;
+  padding: 0 5px;
 }
 
-.sectionTitle {
-  font-size: 28px;
-  font-weight: 600;
-  flex-basis: 100%;
-}
-
-.sectionSubtitle {
+.resultsCount {
   font-size: 14px;
-  color: #666;
-  margin: 5px 0 0;
-  flex-basis: 70%;
+  color: #333333;
 }
 
-.seeMoreLink {
-  color: #000000;
-  text-decoration: none;
-  font-size: 14px;
-  border: 1px solid #1466ea;
-  padding: 8px 15px;
-  border-radius: 5px;
-  transition: all 0.2s;
-}
-
-.seeMoreLink:hover {
-  background-color: #dcdfe0;
-}
-
-.destinationCards {
+.sortContainer {
   display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
 }
 
-.destinationCard {
-  flex: 1;
-  min-width: 300px;
-  height: 200px;
-  position: relative;
-  border-radius: 10px;
+.sortSelect {
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: 'Montserrat', sans-serif;
+  color: #333;
+  background-color: white;
+  cursor: pointer;
+}
+
+/* Placeholder style for select */
+.placeholderSelect {
+  color: #888;
+}
+
+.placeholderSelect option:first-child {
+  color: #888;
+}
+
+.placeholderSelect option {
+  color: black;
+}
+
+/* Destination List */
+.destinationList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Favourite Item Styles - from favourites.module.css */
+.favouriteItem {
+  display: flex;
+  background: white;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  padding: 15px;
+  gap: 20px;
 }
 
-.cardImage {
+.favouriteImage {
+  width: 280px;
+  height: 180px;
+  overflow: hidden;
+  flex-shrink: 0;
+  border-radius: 12px;
+}
+
+.favouriteImage img {
   width: 100%;
   height: 100%;
-  background-size: cover;
-  background-position: center;
-  transition: transform 0.3s;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+  border-radius: 8px;
 }
 
-.destinationCard:hover .cardImage {
+.favouriteItem:hover .favouriteImage img {
   transform: scale(1.05);
 }
 
-.cardOverlay {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 15px;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
-  color: white;
+.favouriteInfo {
+  padding: 5px 0;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
 }
 
-.cardTitle {
-  font-size: 18px;
+.favouriteTitle {
+  font-size: 20px;
   font-weight: 600;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+/* Info Item Styles */
+.infoItem {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #666;
+}
+
+.infoIcon {
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+.infoText {
+  font-size: 14px;
+}
+
+/* Action Buttons */
+.actionButtons {
+  display: flex;
+  margin-top: auto;
+  align-items: center;
+  gap: 15px;
+}
+
+.viewButton {
+  background-color: #09f;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 50px;
+  font-weight: 500;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  width: 100%; /* Makes the button expand to full width of its container */
+  display: block; /* Ensures the button takes up the full width */
+}
+
+.viewButton:hover {
+  background-color: #0080d6;
+}
+
+/* Rating Section */
+.destinationRating {
+  width: 120px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-left: 1px solid #eee;
+  flex-shrink: 0;
+}
+
+.ratingScore {
+  font-size: 24px;
+  font-weight: 700;
+  color: #333;
   margin-bottom: 5px;
 }
 
-.cardSubtitle {
+.ratingText {
   font-size: 14px;
-  font-weight: 400;
-  margin-bottom: 10px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 5px;
 }
 
-.showDetailButton {
-  background-color: #09f;
-  color: #000;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
+.reviewCount {
   font-size: 12px;
+  color: #666;
+}
+
+/* Show More Button */
+.showMoreButton {
+  width: 100%;
+  padding: 12px;
+  background-color: #1b3a36;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  margin-top: 25px;
+  font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s;
 }
 
-.showDetailButton:hover {
-  background-color: #0080d6;
+.showMoreButton:hover {
+  background-color: #122b28;
 }
 
 /* Footer */
@@ -438,217 +442,8 @@
   line-height: 1.6;
 }
 
-/* NEW STYLES FOR DESTINATION LIST PAGE */
-
-/* Container สำหรับช่องค้นหาในหน้ารายการ */
-.destinationSearchContainer {
-  background: white;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  margin: 20px 0;
-}
-
-/* Container สำหรับผลลัพธ์ */
-.resultsContainer {
-  margin-top: 20px;
-}
-
-/* ส่วนหัวของผลลัพธ์ */
-.resultsHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-  padding: 0 5px;
-}
-
-.resultsCount {
-  font-size: 14px;
-  color: #333333;
-}
-
-.sortContainer {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 14px;
-}
-
-.sortSelect {
-  padding: 5px 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-  font-family: 'Montserrat', sans-serif;
-  color: #333;
-  background-color: white;
-  cursor: pointer;
-}
-
-/* สไตล์สำหรับ placeholder ใน select */
-.placeholderSelect {
-  color: #888;
-}
-
-.placeholderSelect option:first-child {
-  color: #888;
-}
-
-.placeholderSelect option {
-  color: black;
-}
-
-/* รายการสถานที่ท่องเที่ยว */
-.destinationList {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-/* สไตล์สำหรับการแสดงข้อมูลสถานที่ท่องเที่ยว */
-.destinationItem {
-  display: flex;
-  background: white;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
-  padding: 15px;
-  gap: 20px; /* เพิ่มระยะห่างระหว่างรูปและข้อมูล */
-}
-
-/* ส่วนของรูปภาพ */
-.destinationImage {
-  width: 280px;
-  height: 180px;
-  overflow: hidden;
-  flex-shrink: 0;
-  border-radius: 12px; /* ทำให้ขอบมนทั้ง 4 ด้าน */
-}
-
-.destinationImage img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.3s ease;
-  border-radius: 8px 0 0 8px;
-}
-
-.destinationItem:hover .destinationImage img {
-  transform: scale(1.05);
-}
-
-/* ข้อมูลสถานที่ท่องเที่ยว */
-.destinationInfo {
-  padding: 5px 0;
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.destinationTitle {
-  font-size: 20px;
-  font-weight: 600;
-  margin-bottom: 15px;
-  color: #333;
-}
-
-/* คุณสมบัติต่างๆ ของสถานที่ */
-.destinationFeatures {
-  margin-bottom: 15px;
-  flex-grow: 1;
-}
-
-.featureItem {
-  display: flex;
-  align-items: center;
-  margin-bottom: 8px;
-  font-size: 14px;
-  color: #666;
-}
-
-.featureItem input[type="checkbox"] {
-  margin-right: 8px;
-  accent-color: #09f;
-  cursor: not-allowed;
-}
-
-/* ปุ่มดูสถานที่ */
-.viewDealsButton {
-  background-color: #09f;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 8px 25px;
-  font-weight: 500;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  align-self: flex-start;
-  margin-top: auto;
-}
-
-.viewDealsButton:hover {
-  background-color: #0080d6;
-}
-
-/* ส่วนของคะแนนและรีวิว */
-.destinationRating {
-  width: 120px;
-  padding: 15px;
-  background-color: #f9f9f9;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  border-left: 1px solid #eee;
-  flex-shrink: 0;
-}
-
-.ratingScore {
-  font-size: 24px;
-  font-weight: 700;
-  color: #333;
-  margin-bottom: 5px;
-}
-
-.ratingText {
-  font-size: 14px;
-  font-weight: 500;
-  color: #333;
-  margin-bottom: 5px;
-}
-
-.reviewCount {
-  font-size: 12px;
-  color: #666;
-}
-
-/* ปุ่มแสดงผลลัพธ์เพิ่มเติม */
-.showMoreButton {
-  width: 100%;
-  padding: 12px;
-  background-color: #1b3a36;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  margin-top: 25px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.showMoreButton:hover {
-  background-color: #122b28;
-}
-
 /* Responsive Styles */
 @media (max-width: 768px) {
-  .heroTitle {
-    font-size: 36px;
-  }
-  
   .searchForm {
     flex-direction: column;
   }
@@ -659,27 +454,23 @@
     margin-top: 10px;
   }
   
-  .destinationCard {
-    min-width: 100%;
-  }
-  
   .footerContent {
     flex-direction: column;
     gap: 30px;
   }
   
-  .destinationItem {
+  .favouriteItem {
     flex-direction: column;
     padding: 12px;
   }
   
-  .destinationImage {
+  .favouriteImage {
     width: 100%;
     height: 200px;
     margin-bottom: 8px;
   }
   
-  .destinationImage img {
+  .favouriteImage img {
     border-radius: 8px;
   }
   
@@ -695,37 +486,3 @@
     text-align: left;
   }
 }
-
-
-
-/* ส่วนของคะแนนและรีวิว */
-/* .destinationRating {
-  min-width: 120px;
-  padding: 10px 15px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.ratingScore {
-  font-size: 32px;
-  font-weight: 700;
-  color: #333;
-  margin-bottom: 5px;
-}
-
-.ratingText {
-  font-size: 16px;
-  font-weight: 500;
-  color: #333;
-  margin-bottom: 5px;
-  text-align: right;
-}
-
-.reviewCount {
-  font-size: 14px;
-  color: #666;
-  text-align: right;
-} */
