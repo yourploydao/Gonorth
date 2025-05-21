@@ -8,6 +8,7 @@ import (
 	"github.com/joho/godotenv"
 
 	AuthController "Gonorth/controller/auth"
+	InformationController "Gonorth/controller/information"
 	"Gonorth/orm"
 )
 
@@ -33,6 +34,12 @@ func main() {
 	r.POST("/forgotpassword", AuthController.ForgotPassword)
 	r.POST("/verifycode", AuthController.VerifyCode)
 	r.POST("/resetpassword", AuthController.ResetPassword)
+	r.POST("/locations", InformationController.CreateLocation)
+	r.POST("/images", InformationController.CreateImage)
+	r.POST("/activities", InformationController.CreateActivity)
+	r.POST("/tags", InformationController.CreateTag)
+	r.POST("/external-scores", InformationController.CreateExternalScore)
+	r.POST("/reviews", InformationController.CreateReview)
 
 	r.Run("localhost:8080")
 }

@@ -2,15 +2,18 @@ package auth
 
 import (
 	"Gonorth/orm"
+	"Gonorth/utils"
 	"fmt"
+	"math/rand"
 	"net/http"
 	"os"
 	"time"
-	"math/rand"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	// "github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
+	// "gopkg.in/gomail.v2"
 )
 
 var hmacSampleSecret []byte
@@ -49,7 +52,8 @@ func Register(c *gin.Context) {
 		Lastname:  json.Lastname,
 		Email:     json.Email,
 		Phone:     json.Phone,
-		Password:  string(encryptedPassword)}
+		Password:  string(encryptedPassword),
+	}
 	orm.Db.Create(&user)
 	if user.ID > 0 {
 		c.JSON(http.StatusOK, gin.H{
@@ -124,96 +128,104 @@ func ForgotPassword(c *gin.Context) {
 		return
 	}
 
-	code := fmt.Sprintf("%06d", rand.Intn(1000000)) // Generate 6 digit code
+	code := fmt.Sprintf("%06d", rand.Intn(1000000)) 
+	expiration := time.Now().Add(5 * time.Minute)
 
-	reset := orm.PasswordReset{
-		Email:     req.Email,
-		Code:      code,
-		ExpiresAt: time.Now().Add(5 * time.Minute),
+	var reset orm.PasswordReset
+	if err := orm.Db.Where("email = ?", req.Email).First(&reset).Error; err != nil {
+		reset = orm.PasswordReset{
+			Email:     req.Email,
+			Code:      code,
+			ExpiresAt: expiration, 
+		}
+		orm.Db.Create(&reset)
+	} else {
+		reset.Code = code
+		reset.ExpiresAt = expiration
+		orm.Db.Save(&reset)
 	}
 
-	orm.Db.Create(&reset)
+    body := fmt.Sprintf(`
+    <div style="color: #000000;">
+        Sawasdee ka/krub!<br><br>
+        Your verification code is:<br>
+        <b>%s</b><br><br>
+        Please enter this code to verify your email address for password resetting.<br>
+        This code will expire in 5 minutes.<br><br>
+        If you didn’t request this code, you can safely ignore this email.<br><br>
+        Thanks,<br>
+        Gonorth Support Team
+    </div>`, code)
 
-	c.JSON(http.StatusOK, gin.H{
-		"status":  "ok",
-		"message": "Verification code sent",
-		"code":    code,
-	})
+
+    if err := utils.SendEmail(req.Email, "Password Reset Code", body); err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send reset email"})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"message": "Password reset code sent to email."})
 }
 
 type VerifyCodeBody struct {
+	Email string `json:"email"`
 	Code  string `json:"code" binding:"required"`
 }
 
 func VerifyCode(c *gin.Context) {
 	var req VerifyCodeBody
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
-		return
-	}
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+        return
+    }
 
-	var reset orm.PasswordReset
-	if err := orm.Db.Where("code = ?", req.Code).Order("created_at desc").First(&reset).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid or expired code"})
-		return
-	}
+    var reset orm.PasswordReset
+    if err := orm.Db.Where("email = ? AND code = ?", req.Email, req.Code).First(&reset).Error; err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid code or email"})
+        return
+    }
 
-	if time.Now().After(reset.ExpiresAt) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Code has expired"})
-		return
-	}
+    if time.Now().After(reset.ExpiresAt) {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Code expired"})
+        return
+    }
 
-	c.JSON(http.StatusOK, gin.H{
-		"status":  "ok",
-		"message": "Code verified",
-		"email":   reset.Email,
-	})
+    c.JSON(http.StatusOK, gin.H{"message": "Code verified"})
 }
 
 type ResetPasswordBody struct {
-	Password string `json:"password" binding:"required"`
-	ResetCode string `json:"reset_code" binding:"required"`
+	Email string `json:"email"`
+    Code string `json:"code"`
+    NewPassword string `json:"new_password"`
 }
 
 func ResetPassword(c *gin.Context) {
 	var req ResetPasswordBody
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
-		return
-	}
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+        return
+    }
+    var reset orm.PasswordReset
+    if err := orm.Db.Where("email = ? AND code = ?", req.Email, req.Code).First(&reset).Error; err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid code or email"})
+        return
+    }
+    if time.Now().After(reset.ExpiresAt) {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Code expired"})
+        return
+    }
+    var user orm.User
+    if err := orm.Db.Where("email = ?", req.Email).First(&user).Error; err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "User not found"})
+        return
+    }
+    hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.NewPassword), bcrypt.DefaultCost)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
+        return
+    }
 
-	var reset orm.PasswordReset
-	if err := orm.Db.Where("code = ?", req.ResetCode).First(&reset).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid or expired reset code"})
-		return
-	}
-	// เช็คว่า reset code ยังไม่หมดอายุ
-	if time.Now().After(reset.ExpiresAt) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Reset code has expired"})
-		return
-	}
-	// ค้นหาผู้ใช้จาก email ที่ดึงจาก reset code
-	var user orm.User
-	if err := orm.Db.Where("email = ?", reset.Email).First(&user).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "User does not exist"})
-		return
-	}
-	// สร้างรหัสผ่านใหม่
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to reset password"})
-		return
-	}
-	// อัปเดตรหัสผ่าน
-	user.Password = string(hashedPassword)
-	if err := orm.Db.Save(&user).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update password"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"status":  "ok",
-		"message": "Password reset successfully",
-		"email":   user.Email,
-	})
+    user.Password = string(hashedPassword)
+    orm.Db.Save(&user)
+    orm.Db.Delete(&reset) // ลบ code ทิ้ง 
+    c.JSON(http.StatusOK, gin.H{"message": "Password reset successful"})
 }
