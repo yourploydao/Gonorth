@@ -7,6 +7,17 @@ const VerifyCode = () => {
   const [code, setCode] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   
+  useEffect(() => {
+    // ดึง email จาก localStorage
+    const savedEmail = localStorage.getItem("forgotPasswordEmail");
+    if (savedEmail) {
+      setEmail(savedEmail);
+    } else {
+      alert("No email found. Please go back to Forgot Password page.");
+      router.push("/forgotpassword");
+    }
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -14,14 +25,14 @@ const VerifyCode = () => {
       const res = await fetch("http://localhost:8080/verifycode", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code }),
+        body: JSON.stringify({ email: email, code: code }),
       });
-  
+
       const data = await res.json();
-  
-      if (res.ok && data.status === "ok") {
+
+      if (res.ok && data.message === "Code verified") {
         alert("Verified! You can now reset your password.");
-        const encodedCode = btoa(code);
+        const encodedCode = btoa(code); // base64 encode
         router.push(`/resetpassword?reset_code=${encodedCode}`);
       } else {
         alert(data.error || "Invalid code.");
