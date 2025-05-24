@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"time"
+	"log"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
@@ -128,42 +129,73 @@ func ForgotPassword(c *gin.Context) {
 		return
 	}
 
-	code := fmt.Sprintf("%06d", rand.Intn(1000000)) 
+	code := fmt.Sprintf("%06d", rand.Intn(1000000))  
 	expiration := time.Now().Add(5 * time.Minute)
 
-	var reset orm.PasswordReset
-	if err := orm.Db.Where("email = ?", req.Email).First(&reset).Error; err != nil {
-		reset = orm.PasswordReset{
-			Email:     req.Email,
-			Code:      code,
-			ExpiresAt: expiration, 
-		}
-		orm.Db.Create(&reset)
-	} else {
-		reset.Code = code
-		reset.ExpiresAt = expiration
-		orm.Db.Save(&reset)
+	orm.Db.Where("email = ?", req.Email).Delete(&orm.PasswordReset{})
+	reset := orm.PasswordReset{
+		Email:     req.Email,
+		Code:      code,
+		ExpiresAt: expiration,
+	}
+	if err := orm.Db.Create(&reset).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save reset code"})
+		return
 	}
 
-    body := fmt.Sprintf(`
-    <div style="color: #000000;">
-        Sawasdee ka/krub!<br><br>
-        Your verification code is:<br>
-        <b>%s</b><br><br>
-        Please enter this code to verify your email address for password resetting.<br>
-        This code will expire in 5 minutes.<br><br>
-        If you didn’t request this code, you can safely ignore this email.<br><br>
-        Thanks,<br>
-        Gonorth Support Team
-    </div>`, code)
+	body := utils.GenerateOtpHtml(code)
+	if err := utils.SendEmail(req.Email, "Password Reset Code", body); err != nil {
+		log.Println("DB Error:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send reset email"})
+		return
+	}
 
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "ok",
+		"message": "Reset code resent to email",
+	})
+}
 
-    if err := utils.SendEmail(req.Email, "Password Reset Code", body); err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send reset email"})
-        return
-    }
+type ResendCodeBody struct {
+	Email string `json:"email" binding:"required,email"`
+}
 
-    c.JSON(http.StatusOK, gin.H{"message": "Password reset code sent to email."})
+func ResendCode(c *gin.Context) {
+	var req ResendCodeBody
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
+	fmt.Println("ResendCode called with email:", req.Email)
+
+	var user orm.User
+	if err := orm.Db.Where("email = ?", req.Email).First(&user).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Account with this email does not exist"})
+		return
+	}
+
+	code := fmt.Sprintf("%06d", rand.Intn(1000000))  
+	expiration := time.Now().Add(5 * time.Minute)
+
+	orm.Db.Where("email = ?", req.Email).Delete(&orm.PasswordReset{})
+	reset := orm.PasswordReset{
+		Email:     req.Email,
+		Code:      code,
+		ExpiresAt: expiration,
+	}
+
+	if err := orm.Db.Create(&reset).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save reset code (resending)"})
+		return
+	}
+
+	body := utils.GenerateOtpHtml(code)
+	if err := utils.SendEmail(req.Email, "Password Reset Code", body); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send reset email (resending)"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Reset code resent"})
 }
 
 type VerifyCodeBody struct {

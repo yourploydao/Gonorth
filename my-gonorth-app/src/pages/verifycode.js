@@ -1,11 +1,12 @@
 import { useRouter } from 'next/router';
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "../styles/verifycode.module.css";
 
 const VerifyCode = () => {
   const router = useRouter();
   const [code, setCode] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
   
   useEffect(() => {
     // ดึง email จาก localStorage
@@ -38,6 +39,32 @@ const VerifyCode = () => {
         alert(data.error || "Invalid code.");
       }
     } catch (err) {
+      alert("Server error. Please try again later.");
+    }
+  };
+
+  const handleResendCode = async () => {
+    try {
+      const res = await fetch("http://localhost:8080/resendcode", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }), 
+      });
+
+      const text = await res.text();  // อ่านเป็น text ก่อน
+      try {
+        const data = JSON.parse(text);  // พยายามแปลงเป็น JSON
+        if (res.ok && data.message === "Reset code resent") {
+          alert("Verification code resent to your email.");
+        } else {
+          alert(data.error || "Failed to resend code.");
+        }
+      } catch (jsonErr) {
+        console.error("Response is not valid JSON:", text);
+        alert("Server returned invalid response.");
+      }
+    } catch (err) {
+      console.error("Resend error:", err);
       alert("Server error. Please try again later.");
     }
   };
@@ -80,7 +107,16 @@ const VerifyCode = () => {
             </div>
             
             <div className={styles.resendWrapper}>
-              <p className={styles.resendText}>Didn't receive a code? <a href="#" className={styles.resendLink}>Resend</a></p>
+              <p className={styles.resendText}>
+                Didn't receive a code?
+                <button
+                  type="button"
+                  className={styles.resendLink}
+                  onClick={handleResendCode}
+                >
+                  Resend
+                </button>
+              </p>
             </div>
 
             <button type="submit" className={styles.verifyButton}>

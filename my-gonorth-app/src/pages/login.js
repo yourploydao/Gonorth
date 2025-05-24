@@ -32,6 +32,7 @@ const Login = () => {
   
       if (res.ok) {
         alert(data.message); 
+        // window.location.href = "/home";
       } else {
         alert(data.error || data.message || "Login failed"); 
       }

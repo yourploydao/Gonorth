@@ -26,7 +26,6 @@ const HomeBeforeAuthen = () => {
     router.push(`/destination/${destination}`);
   };
 
-
   return (
     <div className={styles.container}>
       {/* Header */}

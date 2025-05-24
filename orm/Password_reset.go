@@ -9,5 +9,6 @@ type PasswordReset struct {
 	Email     string    `gorm:"uniqueIndex"`
 	Code      string
 	ExpiresAt time.Time
-	CreatedAt time.Time
+	CreatedAt time.Time `gorm:"autoCreateTime"`
+	UpdatedAt time.Time `gorm:"autoUpdateTime"`
 }
