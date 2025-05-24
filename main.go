@@ -32,6 +32,7 @@ func main() {
 	r.POST("/signup", AuthController.Register)
 	r.POST("/login", AuthController.Login)
 	r.POST("/forgotpassword", AuthController.ForgotPassword)
+	r.POST("/resendcode", AuthController.ResendCode)
 	r.POST("/verifycode", AuthController.VerifyCode)
 	r.POST("/resetpassword", AuthController.ResetPassword)
 	r.POST("/locations", InformationController.CreateLocation)

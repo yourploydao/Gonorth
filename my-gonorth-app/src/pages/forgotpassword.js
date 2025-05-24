@@ -3,35 +3,38 @@ import React, { useState } from "react";
 import styles from "../styles/forgotpass.module.css";
 
 const ForgotPassword = () => {
-    const [email, setEmail] = useState("");
-    const router = useRouter();
+  const [email, setEmail] = useState("");
+  const router = useRouter();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const res = await fetch("http://localhost:8080/forgotpassword", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
   
-    const handleSubmit = async (e) => {
-      e.preventDefault();
+      const data = await res.json();
+      console.log("Response status:", res.status);
+      console.log("Response OK:", res.ok);
+      console.log("Response data:", data);
   
-      try {
-        const res = await fetch("http://localhost:8080/forgotpassword", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email }),
-        });
-    
-        const data = await res.json();
-    
-        if (res.ok && data.status === "ok") {
-          localStorage.setItem("email", email);
-          alert("Recovery email sent!");
-          router.push("/verifycode"); 
-        } else {
-          alert(data.error || "Something went wrong.");
-        }
-      } catch (err) {
-        console.error("Error:", err);
-        alert("Server error. Please try again later.");
+      if (res.ok && data.status === "ok") {
+        localStorage.setItem("forgotPasswordEmail", email);
+        alert("Password reset code sent to email");
+        router.push("/verifycode"); 
+      } else {
+        alert(data.error || "Something went wrong.");
       }
-    };
+    } catch (err) {
+      console.error("Error:", err);
+      alert("Server error. Please try again later.");
+    }
+  };
 
   return (
     <div className={styles.container}>

@@ -17,7 +17,7 @@ const HomeAfterAuthen = () => {
     // Implement search functionality here
     console.log("Searching for:", {
       query: searchQuery,
-      category: selectedCategory || "Not selected",
+      category: selectedCategory || "Not selected", 
       distance: selectedDistance || "Not selected",
       budget: selectedBudget || "Not selected"
     });

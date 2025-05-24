@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "../styles/resetpassword.module.css";
 
 const ResetPassword = () => {
@@ -9,41 +9,63 @@ const ResetPassword = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const { reset_code } = router.query;
-  
-    const handleSubmit = async (e) => {
-      e.preventDefault();
+    const [email, setEmail] = useState("");
+
+    useEffect(() => {
+      if (!router.isReady) return;
+
+      const storedEmail = localStorage.getItem("forgotPasswordEmail");
+      if (!storedEmail) {
+        alert("No email found. Please go back to Forgot Password page.");
+        router.push("/forgotpassword");
+        return;
+      }
+
+      setEmail(storedEmail);
 
       if (!reset_code) {
         alert("Invalid reset code.");
-        return;
+        router.push("/forgotpassword");
       }
-      
-      const decodedCode = atob(reset_code);
-      if (password !== confirmPassword) {
-        alert("Passwords do not match");
-        return;
+  }, [router.isReady]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!reset_code) {
+      alert("Invalid reset code.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:8080/resetpassword", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: email,
+          code: atob(reset_code), // decode เป็นรหัสจริง
+          new_password: password,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.message === "Password reset successful") {
+        alert("Password reset successfully.");
+        router.push("/login");
+      } else {
+        alert(data.error || "Failed to reset password.");
       }
-  
-      try {
-        const res = await fetch("http://localhost:8080/resetpassword", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ password, reset_code }), 
-        });
-  
-        const data = await res.json();
-  
-        if (res.ok && data.status === "ok") {
-          alert("Password reset successfully.");
-          router.push("/login");
-        } else {
-          alert(data.error || "Failed to reset password.");
-        }
-      } catch (err) {
-        console.error("Error resetting password:", err);
-        alert("Server error. Please try again later.");
-      }
-    };
+    } catch (err) {
+      console.error("Error resetting password:", err);
+      alert("Server error. Please try again later.");
+    }
+  };
 
   return (
     <div className={styles.container}>
