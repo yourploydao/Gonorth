@@ -46,7 +46,7 @@ func Register(c *gin.Context) {
 	if json.Password != json.ConfirmPassword {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Password and ConfirmPassword do not match"})
 		return
-	}
+	} 
 	//Create user
 	encryptedPassword, _ := bcrypt.GenerateFromPassword([]byte(json.Password), 10)
 

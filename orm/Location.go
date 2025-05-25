@@ -13,9 +13,10 @@ type Location struct {
 	History         string
 	HasParking      bool     `gorm:"default:false"`
 	FreeParking     bool     `gorm:"default:false"`
-	// Images          []Image
-	Activities      []Activity
-	Tags            []Tag    `gorm:"many2many:location_tags;"`
+	Images          []Image  `gorm:"foreignKey:LocationID"`
+	Activities      []Activity `gorm:"foreignKey:LocationID"`
+	Tags            []Tag    `gorm:"foreignKey:LocationID"`
+	BudgetAmount    uint
 	// ExternalScores  []ExternalScore
 	// Reviews         []Review
 }
