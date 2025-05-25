@@ -24,6 +24,7 @@ func InitDB() {
 		&PasswordReset{},
 		&Location{},
 		&Image{},
+		&Budget{},
 		&Activity{},
 		&Tag{},
 		&ExternalScore{},

@@ -43,6 +43,8 @@ func main() {
 		auth.GET("/profile" , AuthController.Profile)
 		auth.POST("/locations", InformationController.CreateLocation)
 		auth.POST("/images", InformationController.CreateImage)
+		auth.GET("/location/:id", InformationController.GetLocationWithBudget)
+		auth.POST("/budget", InformationController.CreateBudget)
 		auth.POST("/activities", InformationController.CreateActivity)
 		auth.POST("/tags", InformationController.CreateTag)
 		auth.POST("/external-scores", InformationController.CreateExternalScore)
