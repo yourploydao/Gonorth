@@ -30,9 +30,10 @@ const Login = () => {
   
       const data = await res.json();
   
-      if (res.ok) {
+      if (res.ok && data.message == "Login successful") {
         alert(data.message); 
-        // window.location.href = "/home";
+        localStorage.setItem("token", data.token);
+        window.location.href = "/home-after-login";
       } else {
         alert(data.error || data.message || "Login failed"); 
       }

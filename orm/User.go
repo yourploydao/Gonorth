@@ -11,4 +11,5 @@ type User struct {
 	Email string `gorm:"unique"`
 	Phone string
 	Password string
+	ProfileImage string `gorm:"default:'https://res.cloudinary.com/dqjpnlm38/image/upload/v1748119561/73-730154_open-default-profile-picture-png_adwe46.png'"`
 }
