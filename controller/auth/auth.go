@@ -26,6 +26,7 @@ type RegisterBody struct {
 	Phone           string `json:"phone" binding:"required"`
 	Password        string `json:"password" binding:"required"`
 	ConfirmPassword string `json:"confirmpassword" binding:"required"`
+	ProfileImage    string `json:"profileImage"`
 }
 
 func Register(c *gin.Context) {
@@ -48,23 +49,28 @@ func Register(c *gin.Context) {
 	}
 	//Create user
 	encryptedPassword, _ := bcrypt.GenerateFromPassword([]byte(json.Password), 10)
+
+	profileImage := json.ProfileImage
+	if profileImage == "" {
+		profileImage = "https://res.cloudinary.com/dqjpnlm38/image/upload/v1748119561/73-730154_open-default-profile-picture-png_adwe46.png"
+	}
 	user := orm.User{
 		Firstname: json.Firstname,
 		Lastname:  json.Lastname,
 		Email:     json.Email,
 		Phone:     json.Phone,
 		Password:  string(encryptedPassword),
+		ProfileImage: profileImage,
 	}
+
 	orm.Db.Create(&user)
 	if user.ID > 0 {
 		c.JSON(http.StatusOK, gin.H{
-			"status":  "ok",
 			"message": "Registeration successful",
 			"userId":  user.ID,
 		})
 	} else {
 		c.JSON(http.StatusOK, gin.H{
-			"status":  "ok",
 			"message": "Registeration failed",
 		})
 	}
@@ -94,20 +100,26 @@ func Login(c *gin.Context) {
 		hmacSampleSecret = []byte(os.Getenv("JWT_SECRET_KEY"))
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 			"userId": userExist.ID,
-			"exp":    time.Now().Add(time.Minute * 3).Unix(),
+			"exp":    time.Now().Add(time.Minute * 60).Unix(),
+			"iat":    time.Now().Unix(),
+			"iss":    "gonorth",
 		})
 		tokenString, err := token.SignedString(hmacSampleSecret)
 		fmt.Println(tokenString, err)
 
 		c.JSON(http.StatusOK, gin.H{
-			"status":  "ok",
 			"message": "Login successful",
 			"token":   tokenString,
+			"user": gin.H{
+				"id": userExist.ID,
+				"firstname": userExist.Firstname,
+				"lastname": userExist.Lastname,
+				"email": userExist.Email,
+			},
 		})
 	} else {
-		c.JSON(http.StatusOK, gin.H{
-			"status":  "error",
-			"message": "Login failed. The password is incorrect.",
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": "Login failed. The password is incorrect.",
 		})
 	}
 }
@@ -151,7 +163,6 @@ func ForgotPassword(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"status":  "ok",
 		"message": "Reset code resent to email",
 	})
 }
@@ -260,4 +271,22 @@ func ResetPassword(c *gin.Context) {
     orm.Db.Save(&user)
     orm.Db.Delete(&reset) // ลบ code ทิ้ง 
     c.JSON(http.StatusOK, gin.H{"message": "Password reset successful"})
+}
+
+func Profile(c *gin.Context) {
+	userInterface, exists := c.Get("user")
+	if !exists {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "User not found in context"})
+		return
+	}
+
+	user := userInterface.(orm.User)
+
+	c.JSON(http.StatusOK, gin.H{
+		"user": gin.H{
+			"firstname":    user.Firstname,
+			"lastname":     user.Lastname,
+			"profileImage": user.ProfileImage,
+		},
+	})
 }

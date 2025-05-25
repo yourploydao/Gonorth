@@ -1,10 +1,43 @@
 // components/Header.js
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styles from "../styles/navigation.module.css";
 import { useRouter } from "next/router";
 
 const Header = () => {
   const router = useRouter();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("No token found");
+        return;
+      }
+
+      try {
+        const res = await fetch("http://localhost:8080/profile", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`, 
+          },
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            console.log("User profile:", data);
+            setUser(data.user); // backend ควรส่ง: { user: { firstname, lastname, profileImage } }
+          } else {
+            console.error("Failed to fetch user profile");
+          }
+        } catch (err) {
+          console.error("Error fetching profile:", err);
+        }
+      };
+
+    fetchProfile();
+  }, []);
 
   const handleProfileClick = () => {
     router.push('/profile');
@@ -29,10 +62,18 @@ const Header = () => {
         </a>
         {/* Divider between favourites and profile */}
         <div className={styles.headerDivider}></div>
-        <div className={styles.userProfile} onClick={handleProfileClick}>
-          <img src="/assets/Profile.jpg" alt="John D." className={styles.profileImage} />
-          <span className={styles.profileName}>John D.</span>
-        </div>
+        {user && (
+          <div className={styles.userProfile} onClick={handleProfileClick}>
+            <img
+              src={user.profileImage}
+              alt={`${user.firstname} ${user.lastname}`}
+              className={styles.profileImage}
+            />
+            <span className={styles.profileName}>
+              {user.firstname} {user.lastname} 
+            </span>
+          </div>
+        )}
       </div>
     </header>
   );

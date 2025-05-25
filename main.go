@@ -8,6 +8,7 @@ import (
 	"github.com/joho/godotenv"
 
 	AuthController "Gonorth/controller/auth"
+	Middleware "Gonorth/controller/middleware"
 	InformationController "Gonorth/controller/information"
 	"Gonorth/orm"
 )
@@ -25,7 +26,7 @@ func main() {
 	r.Use(cors.New(cors.Config{
         AllowOrigins:     []string{"http://localhost:3000"},
         AllowMethods:     []string{"POST", "GET", "OPTIONS"},
-        AllowHeaders:     []string{"Origin", "Content-Type"},
+        AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
         ExposeHeaders:    []string{"Content-Length"},
         AllowCredentials: true,
     }))
@@ -35,12 +36,18 @@ func main() {
 	r.POST("/resendcode", AuthController.ResendCode)
 	r.POST("/verifycode", AuthController.VerifyCode)
 	r.POST("/resetpassword", AuthController.ResetPassword)
-	r.POST("/locations", InformationController.CreateLocation)
-	r.POST("/images", InformationController.CreateImage)
-	r.POST("/activities", InformationController.CreateActivity)
-	r.POST("/tags", InformationController.CreateTag)
-	r.POST("/external-scores", InformationController.CreateExternalScore)
-	r.POST("/reviews", InformationController.CreateReview)
+
+	auth := r.Group("/")
+	auth.Use(Middleware.Middleware())
+	{
+		auth.GET("/profile" , AuthController.Profile)
+		auth.POST("/locations", InformationController.CreateLocation)
+		auth.POST("/images", InformationController.CreateImage)
+		auth.POST("/activities", InformationController.CreateActivity)
+		auth.POST("/tags", InformationController.CreateTag)
+		auth.POST("/external-scores", InformationController.CreateExternalScore)
+		auth.POST("/reviews", InformationController.CreateReview)
+	}
 
 	r.Run("localhost:8080")
 }

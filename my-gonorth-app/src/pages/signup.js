@@ -46,7 +46,7 @@ const SignUp = () => {
 
       const data = await res.json();
 
-      if (res.ok && data.status === "ok") {
+      if (res.ok && data.message == "Registeration successful") {
         alert(data.message || "Registered successfully!");
         window.location.href = "/login";
       } else {
