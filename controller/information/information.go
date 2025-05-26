@@ -132,3 +132,18 @@ func GetLocationWithBudget(c *gin.Context) {
 		"budget":   budget,
 	})
 }
+
+func GetLocation(c *gin.Context) {
+	locationID := c.Param("id")
+	var location orm.Location
+
+	if err := orm.Db.
+		Preload("Images").
+		Preload("Activities").
+		First(&location, locationID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Location not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, location)
+}

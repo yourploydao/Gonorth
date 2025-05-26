@@ -36,6 +36,7 @@ func main() {
 	r.POST("/resendcode", AuthController.ResendCode)
 	r.POST("/verifycode", AuthController.VerifyCode)
 	r.POST("/resetpassword", AuthController.ResetPassword)
+	r.GET("/location/:id", InformationController.GetLocation)
 
 	auth := r.Group("/")
 	auth.Use(Middleware.Middleware())
@@ -43,7 +44,7 @@ func main() {
 		auth.GET("/profile" , AuthController.Profile)
 		auth.POST("/locations", InformationController.CreateLocation)
 		auth.POST("/images", InformationController.CreateImage)
-		auth.GET("/location/:id", InformationController.GetLocationWithBudget)
+		// auth.GET("/location/:id", InformationController.GetLocation)
 		auth.POST("/budget", InformationController.CreateBudget)
 		auth.POST("/activities", InformationController.CreateActivity)
 		auth.POST("/tags", InformationController.CreateTag)

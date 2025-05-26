@@ -1,5 +1,5 @@
 // story-page.js
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import styles from "../styles/story-page.module.css";
 import Header from "../components/navigation";
@@ -8,22 +8,68 @@ import Footer from "../components/footer";
 const StoryPage = () => {
   const router = useRouter();
   const [isInFavorites, setIsInFavorites] = useState(false);
-  const [currentMainImage, setCurrentMainImage] = useState("https://today-obs.line-scdn.net/0hD9HSJp0yGxZ1KgpR3SxkQU18F2dGTAEfV08GIAMoFXVcBl9BGkpIdVIoQjpREwsVVRhScFZ6EiIMTl5AGg/w644");
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewRating, setReviewRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
   const [username, setUsername] = useState("John D."); // This would be fetched from the database
+  const { id } = router.query;
+  const [locationData, setLocationData] = useState(null);
+  const [currentMainImage, setCurrentMainImage] = useState(null);
+  const [galleryImages, setGalleryImages] = useState([]);
 
-  // Sample image gallery data - would be fetched from database
-  const galleryImages = [
-    "https://today-obs.line-scdn.net/0hD9HSJp0yGxZ1KgpR3SxkQU18F2dGTAEfV08GIAMoFXVcBl9BGkpIdVIoQjpREwsVVRhScFZ6EiIMTl5AGg/w644",
-    "https://static.ticket2attraction.com/gallery/1ea4fe7f-71c1-4170-b95f-4f0b70f19ece/adcfe8c9-9316-4e4f-89c2-4669cec51d5d-1200.webp",
-    "https://i.ytimg.com/vi/9_0j8BOBiE8/maxresdefault.jpg",
-    "https://www.govivigo.com/content/upload/images/Lampang/Kau-Fau-Waterfall.jpg",
-    "https://media.readthecloud.co/wp-content/uploads/2021/12/29133520/angkaew-11-750x500.jpg",
-    "https://jjubbbbb.wordpress.com/wp-content/uploads/2016/11/grand-canyon-of-chiang-mai2.jpg",
-    "https://media.readthecloud.co/wp-content/uploads/2021/12/29133520/angkaew-11-750x500.jpg"
-  ];
+  useEffect(() => {
+    // if (!id) {
+    //   console.log("No ID provided");
+    //   return;
+    // }
+
+    const fetchLocation = async () => {
+      try {
+        const res = await fetch(`http://localhost:8080/location/1`
+        //   , {
+        //   method: "GET",
+        //   headers: {
+        //     "Content-Type": "application/json",
+        //     "Authorization": `Bearer ${token}`, 
+        //   },
+        // }
+      );
+
+        if (!res.ok) {
+          console.error("API response not OK:", res.status, res.statusText);
+          return;
+        }
+
+        const data = await res.json();
+        console.log("LocationsName:", data.LocationsName); 
+        console.log("Images array:", data.Images); 
+        console.log("Activities array:", data.Activities); 
+        
+        setLocationData(data);
+
+        if (data.Images && Array.isArray(data.Images) && data.Images.length > 0) {
+          console.log("Processing images...");
+          const images = data.Images;
+          const mainImage = images.find((img) => img.IsMain) || images[0];
+          
+          console.log("Main image found:", mainImage);
+          console.log("All image URLs:", images.map((img) => img.URL));
+          
+          setCurrentMainImage(mainImage?.URL || null);
+          setGalleryImages(images.map((img) => img.URL));
+        } else {
+          console.log("No images found or Images is not an array");
+          setCurrentMainImage(null);
+          setGalleryImages([]);
+        }
+      } catch (error) {
+        console.error("Error fetching location data:", error);
+        setLocationData(null);
+      }
+    };
+
+    fetchLocation();
+  }, []);
 
   const handleToggleFavorite = () => {
     setIsInFavorites(!isInFavorites);
@@ -67,7 +113,8 @@ const StoryPage = () => {
       <div className={styles.mainContent}>
         {/* Destination Title with Favorite Button */}
         <div className={styles.destinationTitleSection}>
-          <h1 className={styles.destinationTitle}>สวนสนบ่อแก้ว</h1>
+          <h1 className={styles.destinationTitle}>{locationData?.LocationsName}</h1>
+          {/* <p className={styles.subtitle}>{locationData?.Topic}</p> */}
           <button 
             className={`${styles.favoriteButton} ${isInFavorites ? styles.active : ''}`}
             onClick={handleToggleFavorite}
@@ -85,16 +132,16 @@ const StoryPage = () => {
           <div className={styles.reviewCount}>54 reviews</div>
         </div>
 
-        {/* Main Image Carousel */}
         <div className={styles.mainImageContainer}>
-          <img 
-            src={currentMainImage}
-            alt="สวนสนบ่อแก้ว" 
-            className={styles.mainImage} 
-          />
+          {currentMainImage && (
+            <img 
+              src={currentMainImage}
+              alt={locationData?.LocationsName || "main image"} 
+              className={styles.mainImage} 
+            />
+          )}
         </div>
 
-        {/* Thumbnail Gallery */}
         <div className={styles.thumbnailGallery}>
           {galleryImages.map((image, index) => (
             <div 
@@ -102,7 +149,7 @@ const StoryPage = () => {
               className={styles.thumbnail}
               onClick={() => handleThumbnailClick(image)}
             >
-              <img src={image} alt={`สวนสนบ่อแก้ว thumbnail ${index + 1}`} />
+              <img src={image} alt={`thumbnail ${index + 1}`} />
             </div>
           ))}
         </div>
@@ -113,25 +160,23 @@ const StoryPage = () => {
           <div className={styles.infoContent}>
             <div className={styles.addressInfo}>
               <span className={styles.infoIcon}>📍</span>
-              <span className={styles.infoText}>ถนนฮอด-แม่สะเรียง ตำบลบ่อหลวง อำเภอฮอด จังหวัดเชียงใหม่</span>
+              <span className={styles.infoText}>{locationData?.Address}</span>
             </div>
             <div className={styles.timeInfo}>
               <span className={styles.infoIcon}>🕒</span>
-              <span className={styles.infoText}>เปิดให้เข้าชม : 08.00-17.00 น.</span>
+              <span className={styles.infoText}>เปิดให้เข้าชม : {locationData?.OpenTime}</span>
             </div>
           </div>
         </div>
 
         {/* Destination Details */}
         <div className={styles.detailsContainer}>
-          <h2 className={styles.detailsTitle}>ประวัติของสวนสนบ่อแก้ว</h2>
+          <h2 className={styles.detailsTitle}>ประวัติของ{locationData?.LocationsName}</h2>
           <div className={styles.detailsContent}>
-            <p>สวนสนบ่อแก้ว ตั้งอยู่ในอำเภอเชียงดาว จังหวัดเชียงใหม่</p>
-            <p>เป็นสถานที่ท่องเที่ยวเชิงธรรมชาติที่มีความสวยงามและเป็นที่รู้จักในฐานะแหล่งท่องเที่ยวเชิงนิเวศน์ จุดเด่นของสวนสนบ่อแก้วคือการปลูกต้นสนที่มีการจัดสวนอย่างสวยงาม มีทั้งการปลูกต้นสนหลายชนิดเช่น สนสามใบ, สนสองใบ และต้นสนพันธุ์ของเขตร้อนในไทย มีลักษณะภูมิประเทศเป็นป่าสนที่มีวิวทิศที่สวยงาม รวมถึงอากาศเย็นสบายตลอดทั้งปี</p>
-            <p>สวนสนบ่อแก้วถือเป็นพื้นที่ที่อุดมสมบูรณ์ที่ใช้ประโยชน์จากทรัพยากรป่าไม้และเนื้อเวลาผ่านไปได้มีการพัฒนาและพัฒนาให้กลายเป็นแหล่งท่องเที่ยวที่สำคัญ โดยเฉพาะนักท่องเที่ยวที่สนใจในธรรมชาติและการเดินป่า นอกจากความสวยงามของต้นสนแล้ว สวนสนบ่อแก้วยังเป็นสถานที่ที่นักท่องเที่ยวสามารถทำกิจกรรมต่าง ๆ เช่น เดินป่า ขี่จักรยาน และพักผ่อนในบรรยากาศที่เงียบสงบ</p>
-            <p>นอกจากนี้ ยังมีเส้นทางเดินป่าที่เชื่อมต่อไปยังสถานที่ท่องเที่ยวอื่น ๆ ในเขตอุทยานแห่งชาติ สวนสนบ่อแก้วถือเป็นหนึ่งในจุดท่องเที่ยวที่นักท่องเที่ยวสามารถสัมผัสกับธรรมชาติที่สวยงามและเงียบสงบในภาคเหนือ</p>
-            <p>สวนสนบ่อแก้ว ที่เที่ยว Unseen อีกแห่งของเชียงใหม่ สวยหยดกับเกาะมาบาบิ เกาะหิเลอเที่ยวฉะ ตั้งอยู่ใกล้กับ อุทยานแห่งชาติออบหลวง ไปประมาณ 22 กิโลเมตร เป็นพื้นที่ทดลองปลูกสนอยู่หลายชนิดต่างๆ ทำให้มีต้นสนสูงเรียงราย ไปอย่างสวยงาม ได้ฟีล Alice in Wonderland ไปอีก งานนี้หลุดเธอสสวยๆ ไปยิ้มเก้อ ถ่ายรูปกันได้เลยจ้า</p>
-            
+            {locationData?.History && (
+              <p>{locationData.History}</p>
+            )}
+
             <h3 className={styles.activitiesTitle}>กิจกรรมแนะนำ</h3>
             <ul className={styles.activitiesList}>
               <li><span className={styles.activityDot}></span>จุดพักผ่อนชมธรรมชาติ</li>
