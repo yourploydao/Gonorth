@@ -11,29 +11,30 @@ const StoryPage = () => {
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewRating, setReviewRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
-  const [username, setUsername] = useState("John D."); // This would be fetched from the database
   const { id } = router.query;
   const [locationData, setLocationData] = useState(null);
   const [currentMainImage, setCurrentMainImage] = useState(null);
   const [galleryImages, setGalleryImages] = useState([]);
 
   useEffect(() => {
-    // if (!id) {
-    //   console.log("No ID provided");
-    //   return;
-    // }
+    if (!router.isReady || !id) {
+      console.log("Router not ready or no ID provided", { isReady: router.isReady, id });
+      return;
+    }
 
     const fetchLocation = async () => {
       try {
-        const res = await fetch(`http://localhost:8080/location/1`
-        //   , {
-        //   method: "GET",
-        //   headers: {
-        //     "Content-Type": "application/json",
-        //     "Authorization": `Bearer ${token}`, 
-        //   },
-        // }
-      );
+        const token = localStorage.getItem("token");
+
+        console.log("Fetching location with ID:", id);
+
+        const res = await fetch(`http://localhost:8080/location/${id}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`, 
+          },
+        });
 
         if (!res.ok) {
           console.error("API response not OK:", res.status, res.statusText);
@@ -42,8 +43,8 @@ const StoryPage = () => {
 
         const data = await res.json();
         console.log("LocationsName:", data.LocationsName); 
-        console.log("Images array:", data.Images); 
-        console.log("Activities array:", data.Activities); 
+        console.log("Images:", data.Images); 
+        console.log("Activities:", data.Activities); 
         
         setLocationData(data);
 
@@ -69,7 +70,7 @@ const StoryPage = () => {
     };
 
     fetchLocation();
-  }, []);
+  }, [id]);
 
   const handleToggleFavorite = () => {
     setIsInFavorites(!isInFavorites);
@@ -179,14 +180,17 @@ const StoryPage = () => {
 
             <h3 className={styles.activitiesTitle}>กิจกรรมแนะนำ</h3>
             <ul className={styles.activitiesList}>
-              <li><span className={styles.activityDot}></span>จุดพักผ่อนชมธรรมชาติ</li>
-              <li><span className={styles.activityDot}></span>เดินเล่น</li>
-              <li><span className={styles.activityDot}></span>ถ่ายรูป</li>
+              {locationData?.Activities.map((activity, index) => (
+                <li key={index}>
+                  <span className={styles.activityDot}></span>
+                  {activity.ActivityName}
+                </li>
+              ))}
             </ul>
             
             <div className={styles.parkingInfo}>
               <span className={styles.parkingIcon}>P</span>
-              <span className={styles.parkingText}>จอดรถด้านหน้าสวนสนบ่อแก้ว ไม่มีค่าใช้จ่าย</span>
+              <span className={styles.parkingText}>{locationData?.ParkingDetails}</span>
             </div>
           </div>
         </div>

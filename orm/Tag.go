@@ -5,6 +5,6 @@ import "gorm.io/gorm"
 type Tag struct {
 	gorm.Model
 	TagName   string     `gorm:"unique"`
-	LocationID uint
+	Locations []Location `gorm:"many2many:location_tags;"`
 }
 
