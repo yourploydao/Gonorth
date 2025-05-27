@@ -1,5 +1,5 @@
 // ยังไม่แยก nav and footer เป็น components แยกออกมา
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import styles from "../styles/home-after-login.module.css";
 import Header from "../components/navigation";
@@ -11,6 +11,63 @@ const HomeAfterAuthen = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedDistance, setSelectedDistance] = useState("");
   const [selectedBudget, setSelectedBudget] = useState("");
+  const [latestLocations, setLatestLocations] = useState([]);
+  const [randomLocations, setRandomLocations] = useState([]);
+
+  useEffect(() => {
+    const fetchLatestLocations = async () => {
+      try {
+        const token = localStorage.getItem("token");
+
+        const res = await fetch("http://localhost:8080/locations-login/latest", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`, 
+          },
+        });
+
+      if (!res.ok) {
+          console.error("API response not OK:", res.status, res.statusText);
+          return;
+      }
+      
+      const data = await res.json();
+      console.log("Fetched data:", data);
+      setLatestLocations(data);
+    } catch (error) {
+      console.error("Error fetching latest locations:", error);
+    }
+  };
+
+  const fetchRandomLocations = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const allRes = await fetch("http://localhost:8080/locations-login/all", {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`, 
+          },
+      });
+
+      if (!allRes.ok) throw new Error("Failed to fetch all locations");
+      const allData = await allRes.json();
+
+      // สุ่ม 3 สถานที่จากทั้งหมด
+      const shuffled = allData.sort(() => 0.5 - Math.random());
+      const selected = shuffled.slice(0, 3);
+      setRandomLocations(selected);
+
+    } catch (error) {
+      console.error("Error fetching locations:", error);
+    }
+  };
+
+    fetchLatestLocations();
+    fetchRandomLocations();
+  }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -28,8 +85,9 @@ const HomeAfterAuthen = () => {
     router.push('/results-after-search');
   };
 
-  const handleDestinationC = (destination) => {
-    router.push(`/destination/${destination}`);
+  const handleDestinationClick = (locationId) => {
+    console.log("Navigating to location ID:", locationId);
+    router.push(`/story-page?id=${locationId}`);
   };
 
   const handleProfileClick = () => {
@@ -131,102 +189,68 @@ const HomeAfterAuthen = () => {
           </div>
 
           <div className={styles.destinationCards}>
-            <div className={styles.destinationCard}>
-              <div className={styles.cardImage} style={{ backgroundImage: `url('https://static.ticket2attraction.com/gallery/1ea4fe7f-71c1-4170-b95f-4f0b70f19ece/adcfe8c9-9316-4e4f-89c2-4669cec51d5d-1200.webp')` }}>
-                <div className={styles.cardOverlay}>
-                  <h3 className={styles.cardTitle}>Pongyang Jungle</h3>
-                  <h4 className={styles.cardSubtitle}>Coaster & Zipline</h4>
-                  <button 
-                    className={styles.showDetailButton}
-                    onClick={() => handleDestinationClick('pongyang-jungle')}
-                  >
-                    Show Detail
-                  </button>
+            {latestLocations.map((location) => (
+              <div key={location.ID} className={styles.destinationCard}>
+                <div
+                  className={styles.cardImage}
+                  style={{
+                    backgroundImage: `url('${
+                      location.Images?.find(img => img.IsMain)?.URL || location.Images?.[0]?.URL 
+                    }')`
+                  }}
+                >
+                  <div className={styles.cardOverlay}>
+                    <h3 className={styles.cardTitle}>{location.LocationsName}</h3>
+                    {location.Address && (
+                      <h4 className={styles.cardSubtitle}>{location.Address}</h4>
+                    )}
+                    <button
+                      className={styles.showDetailButton}
+                      onClick={() => handleDestinationClick(location.ID)}
+                    >
+                      Show Detail
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-
-            <div className={styles.destinationCard}>
-              <div className={styles.cardImage} style={{ backgroundImage: `url('https://today-obs.line-scdn.net/0hD9HSJp0yGxZ1KgpR3SxkQU18F2dGTAEfV08GIAMoFXVcBl9BGkpIdVIoQjpREwsVVRhScFZ6EiIMTl5AGg/w644')` }}>
-                <div className={styles.cardOverlay}>
-                  <h3 className={styles.cardTitle}>บ้านข้างวัด</h3>
-                  <button 
-                    className={styles.showDetailButton}
-                    onClick={() => handleDestinationClick('ban-kang-wat')}
-                  >
-                    Show Detail
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className={styles.destinationCard}>
-              <div className={styles.cardImage} style={{ backgroundImage: `url('https://i.ytimg.com/vi/9_0j8BOBiE8/maxresdefault.jpg')` }}>
-                <div className={styles.cardOverlay}>
-                  <h3 className={styles.cardTitle}>Jungle De Cafe (แม่ริม)</h3>
-                  <button 
-                    className={styles.showDetailButton}
-                    onClick={() => handleDestinationClick('jungle-de-cafe')}
-                  >
-                    Show Detail
-                  </button>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
         </section>
 
-        {/* Summer Trip Section */}
+        {/* New Journey */}
         <section className={styles.destinationsSection}>
           <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>Plan Your Summer Perfect Trip</h2>
-            <p className={styles.sectionSubtitle}>Search Places most recommendation destinations</p>
-            <a href="/summer-trips" className={styles.seeMoreLink}>See more places</a>
-          </div>
+            <h2 className={styles.sectionTitle}>New Journey</h2>
+            <p className={styles.sectionSubtitle}>Welcome to the new journey</p>
+            <a href="/summer-trips" className={styles.seeMoreLink}>See more places</a> 
+          </div> 
 
           <div className={styles.destinationCards}>
-            <div className={styles.destinationCard}>
-              <div className={styles.cardImage} style={{ backgroundImage: `url('https://www.govivigo.com/content/upload/images/Lampang/Kau-Fau-Waterfall.jpg')` }}>
-                <div className={styles.cardOverlay}>
-                  <h3 className={styles.cardTitle}>น้ำตกม่อนฮ่อง (ป่าแป๋)</h3>
-                  <button 
-                    className={styles.showDetailButton}
-                    onClick={() => handleDestinationClick('mon-hong-waterfall')}
-                  >
-                    Show Detail
-                  </button>
+            {randomLocations.map((location) => (
+              <div key={location.ID} className={styles.destinationCard}>
+                <div
+                  className={styles.cardImage}
+                  style={{
+                    backgroundImage: `url('${
+                      location.Images?.find(img => img.IsMain)?.URL || location.Images?.[0]?.URL 
+                    }')`
+                  }}
+                >
+                  <div className={styles.cardOverlay}>
+                    <h3 className={styles.cardTitle}>{location.Topic}</h3>
+                    {location.Address && (
+                      <h4 className={styles.cardSubtitle}>{location.Address}</h4>
+                    )}
+                    <button
+                      className={styles.showDetailButton}
+                      onClick={() => handleDestinationClick(location.ID)}
+                    >
+                      Show Detail
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-
-            <div className={styles.destinationCard}>
-              <div className={styles.cardImage} style={{ backgroundImage: `url('https://media.readthecloud.co/wp-content/uploads/2021/12/29133520/angkaew-11-750x500.jpg')` }}>
-                <div className={styles.cardOverlay}>
-                  <h3 className={styles.cardTitle}>อ่างแก้ว</h3>
-                  <button 
-                    className={styles.showDetailButton}
-                    onClick={() => handleDestinationClick('ang-kaew')}
-                  >
-                    Show Detail
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className={styles.destinationCard}>
-              <div className={styles.cardImage} style={{ backgroundImage: `url('https://jjubbbbb.wordpress.com/wp-content/uploads/2016/11/grand-canyon-of-chiang-mai2.jpg')` }}>
-              {/* <div className={styles.cardImage} style={{ backgroundImage: `url('https://via.placeholder.com/300x200')` }}></div> */}
-                <div className={styles.cardOverlay}>
-                  <h3 className={styles.cardTitle}>แกรนด์แคนยอน เชียงใหม่</h3>
-                  <button 
-                    className={styles.showDetailButton}
-                    onClick={() => handleDestinationClick('grand-canyon-chiangmai')}
-                  >
-                    Show Detail
-                  </button>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
         </section>
       </div>

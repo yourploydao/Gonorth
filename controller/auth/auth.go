@@ -100,7 +100,7 @@ func Login(c *gin.Context) {
 		hmacSampleSecret = []byte(os.Getenv("JWT_SECRET_KEY"))
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 			"userId": userExist.ID,
-			"exp":    time.Now().Add(time.Minute * 60).Unix(),
+			"exp":    time.Now().Add(time.Minute * 180).Unix(),
 			"iat":    time.Now().Unix(),
 			"iss":    "gonorth",
 		})

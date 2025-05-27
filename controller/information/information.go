@@ -2,24 +2,97 @@ package information
 
 import (
 	"net/http"
+	"strconv"
+
+	"Gonorth/orm"
 
 	"github.com/gin-gonic/gin"
-	"Gonorth/orm"
+	"gorm.io/gorm"
 )
 
 // Location
+type LocationInput struct {
+	LocationsName   string         `json:"LocationsName"`
+	LocationsRating float64        `json:"LocationsRating"`
+	ReviewCount     int            `json:"ReviewCount"`
+	Address         string         `json:"Address"`
+	OpenTime        string         `json:"OpenTime"`
+	Topic           string         `json:"Topic"`
+	History         string         `json:"History"`
+	HasParking      bool           `json:"HasParking"`
+	ParkingDetails	string		   `json:"ParkingDetails"`	
+	HasEntrance		bool	 	   `json:"HasEntrance"`
+	EntranceDetails string		   `json:"EntranceDetails"`
+	BudgetAmount    uint           `json:"BudgetAmount"`
+	Images          []orm.Image    `json:"Images"`
+	Activities      []orm.Activity `json:"Activities"`
+	Tags            []struct {
+		TagName string `json:"TagName"`
+	} `json:"Tags"`
+}
+
 func CreateLocation(c *gin.Context) {
-	var location orm.Location
-	if err := c.ShouldBindJSON(&location); err != nil {
+	var input LocationInput
+	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	// ดึง tag จริงจาก db ตาม TagName ที่ส่งมา
+	var tags []orm.Tag
+	for _, t := range input.Tags {
+		var tag orm.Tag
+		err := orm.Db.Where("tag_name = ?", t.TagName).First(&tag).Error
+		if err != nil {
+			if err == gorm.ErrRecordNotFound {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "Tag not found: " + t.TagName})
+				return
+			} else {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+		}
+		tags = append(tags, tag)
+	}
+
+	location := orm.Location{
+		LocationsName:   input.LocationsName,
+		LocationsRating: input.LocationsRating,
+		ReviewCount:     input.ReviewCount,
+		Address:         input.Address,
+		OpenTime:        input.OpenTime,
+		Topic:           input.Topic,
+		History:         input.History,
+		HasParking:		 input.HasParking,   
+		ParkingDetails:	 input.ParkingDetails,	
+		HasEntrance:	 input.HasEntrance,		
+		EntranceDetails: input.EntranceDetails,
+		BudgetAmount:    input.BudgetAmount,
+		Images:          input.Images,
+		Activities:      input.Activities,
+		Tags:            tags,
+	} 
+
 	if err := orm.Db.Create(&location).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
 	c.JSON(http.StatusCreated, location)
 }
+
+// func CreateLocation(c *gin.Context) {
+// 	var location orm.Location
+// 	if err := c.ShouldBindJSON(&location); err != nil {
+// 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+// 		return
+// 	}
+// 	if err := orm.Db.Create(&location).Error; err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+// 		return
+// 	}
+// 	c.JSON(http.StatusCreated, location)
+// }
 
 // Image
 func CreateImage(c *gin.Context) {
@@ -147,3 +220,34 @@ func GetLocation(c *gin.Context) {
 
 	c.JSON(http.StatusOK, location)
 }
+
+func GetLatestLocations(c *gin.Context) {
+    limitParam := c.DefaultQuery("limit", "3")
+    limit, err := strconv.Atoi(limitParam)
+    if err != nil || limit <= 0 {
+        limit = 3
+    }
+
+    var locations []orm.Location 
+    result := orm.Db.Preload("Images").Order("created_at DESC").Limit(limit).Find(&locations)
+
+    if result.Error != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+        return
+    }
+
+    c.JSON(http.StatusOK, locations) 
+}
+
+func GetAllLocations(c *gin.Context) {
+    var locations []orm.Location
+
+    result := orm.Db.Preload("Images").Find(&locations)
+    if result.Error != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+        return
+    }
+
+    c.JSON(http.StatusOK, locations)
+}
+
