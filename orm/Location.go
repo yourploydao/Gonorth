@@ -21,4 +21,5 @@ type Location struct {
 	BudgetAmount    uint
 	// ExternalScores  []ExternalScore
 	// Reviews         []Review
+	FavoritedBy     []User     `gorm:"many2many:user_favorite"`
 }
