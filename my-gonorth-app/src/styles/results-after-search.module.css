@@ -29,6 +29,7 @@
   width: 100%;
   padding: 0 20px;
   position: relative;
+  margin-top: 75px; 
 }
 
 /* Header Styles - White space above hero image */
@@ -160,6 +161,11 @@
   top: 50%;
   transform: translateY(-50%);
   font-size: 16px;
+}
+
+.searchIcon img {
+  width: 20px;
+  height: 20px;
 }
 
 .searchButton {
@@ -299,6 +305,11 @@
   font-size: 16px;
 }
 
+.infoIcon img {
+  width: 24px;
+  height: 24px;
+}
+
 .infoText {
   font-size: 14px;
 }
@@ -369,7 +380,8 @@
   color: white;
   border: none;
   border-radius: 4px;
-  margin-top: 25px;
+  margin-top: 20px;
+  margin-bottom: 30px;
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s;
