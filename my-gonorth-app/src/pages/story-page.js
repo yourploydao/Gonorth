@@ -130,8 +130,8 @@ const StoryPage = () => {
         {/* Rating Display */}
         <div className={styles.ratingContainer}>
           <div className={styles.ratingScore}>4.2</div>
-          <div className={styles.ratingText}>Very Good</div>
-          <div className={styles.reviewCount}>54 reviews</div>
+          <div className={styles.ratingText}>ดีเยี่ยม</div>
+          <div className={styles.reviewCount}>54 รีวิว</div>
         </div>
 
         <div className={styles.mainImageContainer}>
@@ -161,11 +161,16 @@ const StoryPage = () => {
           <h2 className={styles.infoTitle}>Address & Time</h2>
           <div className={styles.infoContent}>
             <div className={styles.addressInfo}>
-              <span className={styles.infoIcon}>📍</span>
+
+            <span className={styles.infoIcon}>
+              <img src="https://cdn-icons-png.flaticon.com/128/684/684908.png" alt="Location Icon" />
+            </span>
               <span className={styles.infoText}>{locationData?.Address}</span>
             </div>
             <div className={styles.timeInfo}>
-              <span className={styles.infoIcon}>🕒</span>
+            <span className={styles.infoIcon}>
+              <img src="https://cdn-icons-png.flaticon.com/128/2972/2972531.png" alt="Location Icon" />
+            </span>
               <span className={styles.infoText}>เปิดให้เข้าชม : {locationData?.OpenTime}</span>
             </div>
           </div>
@@ -199,13 +204,13 @@ const StoryPage = () => {
         {/* Reviews Section */}
         <div className={styles.reviewsSection}>
           <div className={styles.reviewsHeader}>
-            <h2 className={styles.reviewsTitle}>Reviews</h2>
-            <button className={styles.reviewButton} onClick={handleReviewSubmit}>Give your review</button>
+            <h2 className={styles.reviewsTitle}>รีวิว</h2>
+            <button className={styles.reviewButton} onClick={handleReviewSubmit}>เขียนรีวิวของคุณ</button>
           </div>
           
           <div className={styles.overallRating}>
             <div className={styles.ratingNumber}>4.2</div>
-            <div className={styles.ratingLabel}>Very good</div>
+            <div className={styles.ratingLabel}>ดีเยี่ยม</div>
           </div>
           
           {/* Individual Reviews */}
@@ -215,14 +220,16 @@ const StoryPage = () => {
                 <div className={styles.reviewerInfo}>
                   <img src="https://cdn-icons-png.flaticon.com/128/847/847969.png" alt="User" className={styles.reviewerImage} />
                   <div className={styles.reviewerDetails}>
-                    <div className={styles.reviewRating}>5.0 Amazing</div>
-                    <div className={styles.reviewerName}>Omar Siphron</div>
+                    <div className={styles.reviewRating}>5.0 ยอดเยี่ยม</div>
+                    <div className={styles.reviewerName}>จอนจองกุก</div>
                   </div>
                 </div>
-                <div className={styles.reviewFlag}>🏴</div>
+                <div className={styles.reviewFlag}>
+                <img src="https://cdn-icons-png.flaticon.com/128/11244/11244136.png" alt="Flag Icon" />
+              </div>
               </div>
               <div className={styles.reviewContent}>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+              สวนสนบ่อแก้วบรรยากาศดีมาก ร่มรื่นและเงียบสงบ เหมาะสำหรับพักผ่อนสุด ๆ ครับ
               </div>
             </div>
             
@@ -231,14 +238,16 @@ const StoryPage = () => {
                 <div className={styles.reviewerInfo}>
                   <img src="https://cdn-icons-png.flaticon.com/128/847/847969.png" alt="User" className={styles.reviewerImage} />
                   <div className={styles.reviewerDetails}>
-                    <div className={styles.reviewRating}>5.0 Amazing</div>
-                    <div className={styles.reviewerName}>Cristofer Ekstrom Bothman</div>
+                    <div className={styles.reviewRating}>5.0 ดีเยี่ยม</div>
+                    <div className={styles.reviewerName}>เจคคึ</div>
                   </div>
                 </div>
-                <div className={styles.reviewFlag}>🏴</div>
+                <div className={styles.reviewFlag}>
+                <img src="https://cdn-icons-png.flaticon.com/128/11244/11244136.png" alt="Flag Icon" />
+              </div>
               </div>
               <div className={styles.reviewContent}>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+              ชอบที่นี่มาก ต้นสนเยอะ อากาศสดชื่น เดินเล่นสบาย ๆ ได้ทั้งวันเลย
               </div>
             </div>
             
@@ -247,14 +256,16 @@ const StoryPage = () => {
                 <div className={styles.reviewerInfo}>
                   <img src="https://cdn-icons-png.flaticon.com/128/847/847969.png" alt="User" className={styles.reviewerImage} />
                   <div className={styles.reviewerDetails}>
-                    <div className={styles.reviewRating}>5.0 Amazing</div>
-                    <div className={styles.reviewerName}>Kaiya Lubin</div>
+                    <div className={styles.reviewRating}>5.0 ดีเยี่ยม</div>
+                    <div className={styles.reviewerName}>จอนละจอนละจอห์นนี่</div>
                   </div>
                 </div>
-                <div className={styles.reviewFlag}>🏴</div>
+                <div className={styles.reviewFlag}>
+                <img src="https://cdn-icons-png.flaticon.com/128/11244/11244136.png" alt="Flag Icon" />
+              </div>
               </div>
               <div className={styles.reviewContent}>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+              เป็นสวนที่สงบ เหมาะกับการมานั่งพักผ่อน ถ่ายรูปก็สวย แนะนำเลยครับ
               </div>
             </div>
           </div>
@@ -262,7 +273,7 @@ const StoryPage = () => {
           {/* Pagination */}
           <div className={styles.pagination}>
             <button className={styles.paginationArrow}>←</button>
-            <div className={styles.paginationText}>1 of 12</div>
+            <div className={styles.paginationText}>1 จาก 2</div>
             <button className={styles.paginationArrow}>→</button>
           </div>
         </div>
@@ -273,7 +284,7 @@ const StoryPage = () => {
         <div className={styles.modalOverlay}>
           <div className={styles.modalContent}>
             <div className={styles.modalHeader}>
-              <h3 className={styles.modalTitle}>Write Your Review</h3>
+              <h3 className={styles.modalTitle}>เขียนความคิดเห็นของคุณ</h3>
               <button className={styles.closeModalButton} onClick={handleCloseModal}>×</button>
             </div>
             <div className={styles.modalBody}>
@@ -283,7 +294,7 @@ const StoryPage = () => {
               </div>
 
               <div className={styles.starRatingContainer}>
-                <div className={styles.starRatingLabel}>Your Rating</div>
+                <div className={styles.starRatingLabel}>การให้คะแนนของคุณ</div>
                 <div className={styles.starRating}>
                   {[1, 2, 3, 4, 5].map((star) => (
                     <span 
@@ -296,33 +307,33 @@ const StoryPage = () => {
                   ))}
                 </div>
                 <div className={styles.ratingText}>
-                  {reviewRating === 1 && "Poor"}
-                  {reviewRating === 2 && "Fair"}
-                  {reviewRating === 3 && "Good"}
-                  {reviewRating === 4 && "Very Good"}
-                  {reviewRating === 5 && "Amazing"}
+                  {reviewRating === 1 && "แย่"}
+                  {reviewRating === 2 && "พอใช้"}
+                  {reviewRating === 3 && "ดี"}
+                  {reviewRating === 4 && "ดีมาก"}
+                  {reviewRating === 5 && "ยอดเยี่ยม"}
                 </div>
               </div>
 
               <div className={styles.reviewTextareaContainer}>
-                <label htmlFor="reviewText" className={styles.reviewTextLabel}>Your Review</label>
+                <label htmlFor="reviewText" className={styles.reviewTextLabel}>ความคิดเห็นของคุณ</label>
                 <textarea
                   id="reviewText"
                   className={styles.reviewTextarea}
-                  placeholder="Share your experience with this place..."
+                  placeholder="แชร์ประสบการณ์ของคุณกับสถานที่แห่งนี้..."
                   value={reviewText}
                   onChange={(e) => setReviewText(e.target.value)}
                 ></textarea>
               </div>
 
               <div className={styles.modalFooter}>
-                <button className={styles.cancelButton} onClick={handleCloseModal}>Cancel</button>
+                <button className={styles.cancelButton} onClick={handleCloseModal}>ยกเลิก</button>
                 <button 
                   className={styles.submitButton} 
                   onClick={handleSubmitReview}
                   disabled={reviewRating === 0}
                 >
-                  Submit Review
+                  ส่งรีวิว
                 </button>
               </div>
             </div>
