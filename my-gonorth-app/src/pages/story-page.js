@@ -69,10 +69,11 @@ const StoryPage = () => {
       }
     };
 
+
     fetchLocation();
   }, [id]);
 
-  const handleToggleFavorite = () => {
+  const handleToggleFavorite = async () => {
     setIsInFavorites(!isInFavorites);
   };
 

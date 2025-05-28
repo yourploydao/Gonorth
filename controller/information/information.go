@@ -81,19 +81,6 @@ func CreateLocation(c *gin.Context) {
 	c.JSON(http.StatusCreated, location)
 }
 
-// func CreateLocation(c *gin.Context) {
-// 	var location orm.Location
-// 	if err := c.ShouldBindJSON(&location); err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-// 		return
-// 	}
-// 	if err := orm.Db.Create(&location).Error; err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-// 		return
-// 	}
-// 	c.JSON(http.StatusCreated, location)
-// }
-
 // Image
 func CreateImage(c *gin.Context) {
 	var image orm.Image
@@ -250,4 +237,3 @@ func GetAllLocations(c *gin.Context) {
 
     c.JSON(http.StatusOK, locations)
 }
-
