@@ -2,6 +2,8 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
 import styles from "../styles/results-after-search.module.css";
+import Header from "../components/navigation";
+import Footer from "../components/footer";
 
 const DestinationList = () => {
   const router = useRouter();
@@ -49,109 +51,92 @@ const DestinationList = () => {
 
   return (
     <div className={styles.container}>
-      {/* Header */}
-      <header className={styles.header}>
-        <div className={styles.logo}>
-          <img src="/assets/gonorth-logo.png" alt="GONORTH" className={styles.logoImage} />
-        </div>
-        <div className={styles.headerButtons}>
-          <a href="/favourites" className={styles.favouritesButton}>
-            <img 
-              src="https://cdn-icons-png.flaticon.com/128/2550/2550290.png" 
-              alt="Heart" 
-              className={styles.heartIcon} 
-            /> Favourites
-          </a>
-          {/* Divider between favourites and profile */}
-          <div className={styles.headerDivider}></div>
-          <div className={styles.userProfile} onClick={handleProfileClick}>
-            <img src="/assets/Profile.jpg" alt="John D." className={styles.profileImage} />
-            <span className={styles.profileName}>John D.</span>
-          </div>
-        </div>
-      </header>
+      {/* Use the Header component */}
+      <Header />
 
       <div className={styles.mainContent}>
         {/* Search Box */}
         <div className={styles.destinationSearchContainer}>
           <form onSubmit={handleSearch} className={styles.searchForm}>
             <div className={styles.searchField}>
-              <label>Search</label>
+              <label>ค้นหา</label>
               <div className={styles.inputWithIcon}>
                 <input 
                   type="text" 
-                  placeholder="Your new journey..." 
+                  placeholder="การผจญภัยครั้งใหม่..." 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
-                <span className={styles.searchIcon}>🔍</span>
+                  <span className={styles.searchIcon}>
+                    <img src="https://cdn-icons-png.flaticon.com/128/13207/13207561.png" alt="Search Icon" />
+                  </span>
               </div>
             </div>
 
             <div className={styles.searchField}>
-              <label>Categories</label>
+              <label>ประเภทสถานที่</label>
               <select 
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
                 className={!selectedCategory ? styles.placeholderSelect : ""}
               >
-                <option value="" disabled style={!selectedCategory ? placeholderStyle : {}}>Select</option>
-                <option value="Nature">Nature</option>
-                <option value="Culture">Culture</option>
-                <option value="Food">Food</option>
-                <option value="Adventure">Adventure</option>
+                <option value="" disabled style={!selectedCategory ? placeholderStyle : {}}>ตัวเลือก</option>
+                <option value="Nature">ธรรมชาติ</option>
+                <option value="Culture">วัฒนธรรม</option>
+                <option value="Food">อาหาร</option>
+                <option value="Adventure">ผจญภัย</option>
               </select>
             </div>
 
             <div className={styles.searchField}>
-              <label>Distance from city center</label>
+              <label>ระยะห่างจากใจกลางเมือง</label>
               <select 
                 value={selectedDistance}
                 onChange={(e) => setSelectedDistance(e.target.value)}
                 className={!selectedDistance ? styles.placeholderSelect : ""}
               >
-                <option value="" disabled style={!selectedDistance ? placeholderStyle : {}}>Select</option>
-                <option value="0 km">0 km</option>
-                <option value="0-5 km">0-5 km</option>
-                <option value="5-10 km">5-10 km</option>
-                <option value="10+ km">10+ km</option>
+                <option value="" disabled style={!selectedDistance ? placeholderStyle : {}}>ตัวเลือก</option>
+                <option value="0 km">0 กิโลเมตร</option>
+                <option value="0-5 km">0-10 กิโลเมตร</option>
+                <option value="5-10 km">11-20 กิโลเมตร</option>
+                <option value="10+ km">21+ กิโลเมตร</option>
               </select>
             </div>
 
             <div className={styles.searchField}>
-              <label>Budget</label>
+              <label>งบประมาณ</label>
               <select 
                 value={selectedBudget}
                 onChange={(e) => setSelectedBudget(e.target.value)}
                 className={!selectedBudget ? styles.placeholderSelect : ""}
               >
-                <option value="" disabled style={!selectedBudget ? placeholderStyle : {}}>Select</option>
-                <option value="0 - 2,000 THB">0 - 2,000 THB</option>
-                <option value="2,000 - 5,000 THB">2,000 - 5,000 THB</option>
-                <option value="5,000 - 10,000 THB">5,000 - 10,000 THB</option>
-                <option value="10,000+ THB">10,000+ THB</option>
+                <option value="" disabled style={!selectedBudget ? placeholderStyle : {}}>ตัวเลือก</option>
+                <option value="0 - 2,000 THB">0 - 2,000 บาท</option>
+                <option value="2,000 - 5,000 THB">2,001 - 5,000 บาท</option>
+                <option value="5,000 - 10,000 THB">5,001 - 10,000 บาท</option>
+                <option value="10,000+ THB">10,001+ บาท</option>
               </select>
             </div>
 
-            <button type="submit" className={styles.searchButton}>Search</button>
+            <button type="submit" className={styles.searchButton}>ค้นหา</button>
           </form>
         </div>
 
         {/* Results Section */}
         <div className={styles.resultsContainer}>
           <div className={styles.resultsHeader}>
-            <div className={styles.resultsCount}>Showing <strong>4</strong> of <strong>20</strong> places</div>
+            <div className={styles.resultsCount}>แสดงสถานที่ <strong>4</strong> จากทั้งหมด <strong>20</strong> แห่ง</div>
             <div className={styles.sortContainer}>
-              <span>Sort by:</span>
+              <span>จัดเรียงตาม:</span>
               <select 
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
                 className={styles.sortSelect}
               >
-                <option value="Recommended">Recommended</option>
-                <option value="Price">Price</option>
-                <option value="Distance">Distance</option>
-                <option value="Rating">Rating</option>
+                <option value="Recommended">แนะนำ</option>
+                <option value="Price">ราคา</option>
+                <option value="Distance">ระยะทาง</option>
+                <option value="Rating">ระดับคะแนน</option>
               </select>
             </div>
           </div>
@@ -167,18 +152,24 @@ const DestinationList = () => {
                 <h3 className={styles.favouriteTitle}>แกรนด์แคนยอน เชียงใหม่</h3>
                 
                 <div className={styles.infoItem}>
-                  <span className={styles.infoIcon}>🚗</span>
-                  <span className={styles.infoText}>20 km from city center</span>
+                <span className={styles.infoIcon}>
+                  <img src="https://cdn-icons-png.flaticon.com/128/526/526754.png" alt="Car Icon" />
+                </span>
+                  <span className={styles.infoText}>ห่างจากใจกลางเมือง 20 กิโลเมตร</span>
                 </div>
                 
                 <div className={styles.infoItem}>
-                  <span className={styles.infoIcon}>🎫</span>
-                  <span className={styles.infoText}>Free entrance</span>
+                <span className={styles.infoIcon}>
+                  <img src="https://cdn-icons-png.flaticon.com/128/1614/1614997.png" alt="Ticket Icon" />
+                </span>
+                  <span className={styles.infoText}>เข้าชมฟรี</span>
                 </div>
                 
                 <div className={styles.infoItem}>
-                  <span className={styles.infoIcon}>🕒</span>
-                  <span className={styles.infoText}>Open 09:00 am - 16:00 pm</span>
+                <span className={styles.infoIcon}>
+                  <img src="https://cdn-icons-png.flaticon.com/128/2972/2972531.png" alt="Time Icon" />
+                </span>
+                  <span className={styles.infoText}>เปิดทำการ เวลา 09:00 น. – 16:00 น.</span>
                 </div>
                 
                 <div className={styles.actionButtons}>
@@ -186,15 +177,15 @@ const DestinationList = () => {
                     className={styles.viewButton}
                     onClick={() => handleViewPlace('grand-canyon-chiangmai')}
                   >
-                    View Place
+                    ชมสถานที่
                   </button>
                 </div>
               </div>
               
               <div className={styles.destinationRating}>
                 <div className={styles.ratingScore}>5.0</div>
-                <div className={styles.ratingText}>Very Good</div>
-                <div className={styles.reviewCount}>25 reviews</div>
+                <div className={styles.ratingText}>ดีเยี่ยม</div>
+                <div className={styles.reviewCount}>25 รีวิว</div>
               </div>
             </div>
 
@@ -207,18 +198,24 @@ const DestinationList = () => {
                 <h3 className={styles.favouriteTitle}>น้ำตกม่อนฮ่อง (ป่าแป๋)</h3>
                 
                 <div className={styles.infoItem}>
-                  <span className={styles.infoIcon}>🚗</span>
-                  <span className={styles.infoText}>20 km from city center</span>
+                <span className={styles.infoIcon}>
+                  <img src="https://cdn-icons-png.flaticon.com/128/526/526754.png" alt="Car Icon" />
+                </span>
+                  <span className={styles.infoText}>ห่างจากใจกลางเมือง 20 กิโลเมตร</span>
                 </div>
                 
                 <div className={styles.infoItem}>
-                  <span className={styles.infoIcon}>🎫</span>
-                  <span className={styles.infoText}>Free entrance</span>
+                <span className={styles.infoIcon}>
+                  <img src="https://cdn-icons-png.flaticon.com/128/1614/1614997.png" alt="Ticket Icon" />
+                </span>
+                  <span className={styles.infoText}>เข้าชมฟรี</span>
                 </div>
                 
                 <div className={styles.infoItem}>
-                  <span className={styles.infoIcon}>🕒</span>
-                  <span className={styles.infoText}>Open 09:00 am - 16:00 pm</span>
+                <span className={styles.infoIcon}>
+                  <img src="https://cdn-icons-png.flaticon.com/128/2972/2972531.png" alt="Time Icon" />
+                </span>
+                  <span className={styles.infoText}>เปิดทำการ เวลา 09:00 น. – 16:00 น.</span>
                 </div>
                 
                 <div className={styles.actionButtons}>
@@ -226,15 +223,15 @@ const DestinationList = () => {
                     className={styles.viewButton}
                     onClick={() => handleViewPlace('mon-hong-waterfall')}
                   >
-                    View Place
+                    ชมสถานที่
                   </button>
                 </div>
               </div>
               
               <div className={styles.destinationRating}>
                 <div className={styles.ratingScore}>4.5</div>
-                <div className={styles.ratingText}>Very Good</div>
-                <div className={styles.reviewCount}>15 reviews</div>
+                <div className={styles.ratingText}>ดีเยี่ยม</div>
+                <div className={styles.reviewCount}>15 รีวิว</div>
               </div>
             </div>
 
@@ -247,18 +244,24 @@ const DestinationList = () => {
                 <h3 className={styles.favouriteTitle}>สวนบ่อแก้ว</h3>
                 
                 <div className={styles.infoItem}>
-                  <span className={styles.infoIcon}>🚗</span>
-                  <span className={styles.infoText}>20 km from city center</span>
+                <span className={styles.infoIcon}>
+                  <img src="https://cdn-icons-png.flaticon.com/128/526/526754.png" alt="Car Icon" />
+                </span>
+                  <span className={styles.infoText}>ห่างจากใจกลางเมือง 20 กิโลเมตร</span>
                 </div>
                 
                 <div className={styles.infoItem}>
-                  <span className={styles.infoIcon}>🎫</span>
-                  <span className={styles.infoText}>Free entrance</span>
+                <span className={styles.infoIcon}>
+                  <img src="https://cdn-icons-png.flaticon.com/128/1614/1614997.png" alt="Ticket Icon" />
+                </span>
+                  <span className={styles.infoText}>เข้าชมฟรี</span>
                 </div>
                 
                 <div className={styles.infoItem}>
-                  <span className={styles.infoIcon}>🕒</span>
-                  <span className={styles.infoText}>Open 08:00 am - 17:00 pm</span>
+                <span className={styles.infoIcon}>
+                  <img src="https://cdn-icons-png.flaticon.com/128/2972/2972531.png" alt="Time Icon" />
+                </span>
+                  <span className={styles.infoText}>เปิดทำการ เวลา 09:00 น. – 16:00 น.</span>
                 </div>
                 
                 <div className={styles.actionButtons}>
@@ -266,15 +269,15 @@ const DestinationList = () => {
                     className={styles.viewButton}
                     onClick={() => handleViewPlace('suan-bo-kaew')}
                   >
-                    View Place
+                    ชมสถานที่
                   </button>
                 </div>
               </div>
               
               <div className={styles.destinationRating}>
                 <div className={styles.ratingScore}>4.2</div>
-                <div className={styles.ratingText}>Very Good</div>
-                <div className={styles.reviewCount}>12 reviews</div>
+                <div className={styles.ratingText}>ดีเยี่ยม</div>
+                <div className={styles.reviewCount}>12 รีวิว</div>
               </div>
             </div>
 
@@ -287,18 +290,24 @@ const DestinationList = () => {
                 <h3 className={styles.favouriteTitle}>ทุ่งดอกไฮเดรนเยีย โครงการหลวงขุนแปะ</h3>
                 
                 <div className={styles.infoItem}>
-                  <span className={styles.infoIcon}>🚗</span>
-                  <span className={styles.infoText}>20 km from city center</span>
+                <span className={styles.infoIcon}>
+                  <img src="https://cdn-icons-png.flaticon.com/128/526/526754.png" alt="Car Icon" />
+                </span>
+                  <span className={styles.infoText}>ห่างจากใจกลางเมือง 20 กิโลเมตร</span>
                 </div>
                 
                 <div className={styles.infoItem}>
-                  <span className={styles.infoIcon}>🎫</span>
-                  <span className={styles.infoText}>Free entrance</span>
+                <span className={styles.infoIcon}>
+                  <img src="https://cdn-icons-png.flaticon.com/128/1614/1614997.png" alt="Ticket Icon" />
+                </span>
+                  <span className={styles.infoText}>เข้าชมฟรี</span>
                 </div>
                 
                 <div className={styles.infoItem}>
-                  <span className={styles.infoIcon}>🕒</span>
-                  <span className={styles.infoText}>Open 09:00 am - 16:00 pm</span>
+                <span className={styles.infoIcon}>
+                  <img src="https://cdn-icons-png.flaticon.com/128/2972/2972531.png" alt="Time Icon" />
+                </span>
+                  <span className={styles.infoText}>เปิดทำการ เวลา 09:00 น. – 16:00 น.</span>
                 </div>
                 
                 <div className={styles.actionButtons}>
@@ -306,62 +315,28 @@ const DestinationList = () => {
                     className={styles.viewButton}
                     onClick={() => handleViewPlace('hydrangea-royal-project')}
                   >
-                    View Place
+                    ชมสถานที่
                   </button>
                 </div>
               </div>
               
               <div className={styles.destinationRating}>
                 <div className={styles.ratingScore}>4.0</div>
-                <div className={styles.ratingText}>Very Good</div>
-                <div className={styles.reviewCount}>8 reviews</div>
+                <div className={styles.ratingText}>ดี</div>
+                <div className={styles.reviewCount}>8 รีวิว</div>
               </div>
             </div>
           </div>
 
           {/* Show More Button */}
           <button className={styles.showMoreButton} onClick={handleShowMoreResults}>
-            Show more results
+          แสดงผลลัพธ์เพิ่มเติม
           </button>
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className={styles.footer}>
-        <div className={styles.footerContent}>
-          <div className={styles.footerLogo}>
-            <img src="/assets/gonorth-logo.png" alt="GONORTH" className={styles.footerLogoImage} />
-          </div>
-          
-          <div className={styles.footerSection}>
-            <h3 className={styles.footerTitle}>Explore & Experience</h3>
-            <ul className={styles.footerLinks}>
-              <li><a href="/explore/mountain-views">Mountain & Scenic Views</a></li>
-              <li><a href="/explore/eco-tourism">Nature & Eco Tourism</a></li>
-              <li><a href="/explore/cultural-sites">Cultural & Heritage Sites</a></li>
-              <li><a href="/explore/cafes">Gardens & Cafés</a></li>
-              <li><a href="/explore/adventure">Adventure & Outdoor Activities</a></li>
-            </ul>
-          </div>
-          
-          <div className={styles.footerSection}>
-            <h3 className={styles.footerTitle}>Contact Us</h3>
-            <p className={styles.contactInfo}>
-              King Mongkut's University of Technology Thonburi<br />
-              126 Pracha Uthit Rd,<br />
-              Khwaeng Bang Mot,<br />
-              Khet Thung Khru, Bangkok 10140
-            </p>
-          </div>
-          
-          <div className={styles.footerSection}>
-            <p className={styles.contactDetail}>
-              Email: athitan.maha@kmutt.ac.th<br />
-              Tel: 099-9999999
-            </p>
-          </div>
-        </div>
-      </footer>
+      {/* Footer - Replaced with Footer component */}
+      <Footer />
     </div>
   );
 };

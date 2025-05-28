@@ -7,34 +7,36 @@ const Footer = () => {
     <footer className={styles.footer}>
       <div className={styles.footerContent}>
         <div className={styles.footerLogo}>
+        <a href="/home-after-login">
           <img src="/assets/gonorth-logo.png" alt="GONORTH" className={styles.footerLogoImage} />
+        </a>
         </div>
         
         <div className={styles.footerSection}>
-          <h3 className={styles.footerTitle}>Explore & Experience</h3>
+          <h3 className={styles.footerTitle}>ค้นหาและสัมผัสประสบการณ์</h3>
           <ul className={styles.footerLinks}>
-            <li><a href="/explore/mountain-views">Mountain & Scenic Views</a></li>
-            <li><a href="/explore/eco-tourism">Nature & Eco Tourism</a></li>
-            <li><a href="/explore/cultural-sites">Cultural & Heritage Sites</a></li>
-            <li><a href="/explore/cafes">Gardens & Cafés</a></li>
-            <li><a href="/explore/adventure">Adventure & Outdoor Activities</a></li>
+            <li><a href="/explore/mountain-views">ภูเขาและวิวทิวทัศน์ที่สวยงาม</a></li>
+            <li><a href="/explore/eco-tourism">การท่องเที่ยวเชิงธรรมชาติและนิเวศ</a></li>
+            <li><a href="/explore/cultural-sites">สถานที่ทางวัฒนธรรมและมรดก</a></li>
+            <li><a href="/explore/cafes">สวนสวยและร้านกาแฟ</a></li>
+            <li><a href="/explore/adventure">กิจกรรมแนวผจญภัยและกิจกรรมกลางแจ้ง</a></li>
           </ul>
         </div>
         
         <div className={styles.footerSection}>
-          <h3 className={styles.footerTitle}>Contact Us</h3>
+          <h3 className={styles.footerTitle}>ติดต่อเรา</h3>
           <p className={styles.contactInfo}>
-            King Mongkut's University of Technology Thonburi<br />
-            126 Pracha Uthit Rd,<br />
-            Khwaeng Bang Mot,<br />
-            Khet Thung Khru, Bangkok 10140
+            มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าธนบุรี<br />
+            เลขที่ 126 ถนนประชาอุทิศ <br />
+            แขวงบางมด<br />
+            เขตทุ่งครุ กรุงเทพมหานคร 10140
           </p>
         </div>
         
         <div className={styles.footerSection}>
           <p className={styles.contactDetail}>
-            Email: athitan.maha@kmutt.ac.th<br />
-            Tel: 099-9999999
+          อีเมล: athitan.maha@kmutt.ac.th<br />
+          โทร: 099-9999999
           </p>
         </div>
       </div>

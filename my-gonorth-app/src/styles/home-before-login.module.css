@@ -200,6 +200,11 @@
   font-size: 16px;
 }
 
+.searchIcon img {
+  width: 20px;
+  height: 20px;
+}
+
 .searchButton {
   background-color: #09f;
   color: #ffffff;

@@ -29,6 +29,7 @@
   width: 100%;
   padding: 0 20px;
   position: relative;
+  margin-top: 75px;  
 }
 
 /* Destination Title Section */
@@ -175,6 +176,11 @@
 
 .infoIcon {
   font-size: 18px;
+}
+
+.infoIcon img {
+  width: 24px;
+  height: 24px;
 }
 
 .infoText {
@@ -344,6 +350,11 @@
 
 .reviewFlag {
   font-size: 20px;
+}
+
+.reviewFlag img {
+  width: 35px;
+  height: 35px;
 }
 
 .reviewContent {
