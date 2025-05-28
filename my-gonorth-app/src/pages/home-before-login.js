@@ -1,7 +1,7 @@
-// ยังไม่แยก nav and footer เป็น components แยกออกมา
 import { useState } from "react";
 import { useRouter } from "next/router";
 import styles from "../styles/home-before-login.module.css";
+import Footer from "../components/footer";
 
 const HomeBeforeAuthen = () => {
   const router = useRouter();
@@ -35,8 +35,8 @@ const HomeBeforeAuthen = () => {
           <img src="/assets/gonorth-logo.png" alt="GONORTH" className={styles.logoImage} />
         </div>
         <div className={styles.headerButtons}>
-          <a href="/login" className={styles.loginButton}>Login</a>
-          <a href="/signup" className={styles.signupButton}>Sign up</a>
+          <a href="/login" className={styles.loginButton}>เข้าสู่ระบบ</a>
+          <a href="/signup" className={styles.signupButton}>ลงทะเบียน</a>
         </div>
       </header>
 
@@ -44,74 +44,76 @@ const HomeBeforeAuthen = () => {
         {/* Hero Section with Rounded Corners */}
         <section className={styles.heroSection}>
           <div className={styles.heroContent}>
-            <h2 className={styles.heroSubtitle}>Helping You</h2>
-            <h1 className={styles.heroTitle}>GO BEYOND, GO NORTH</h1>
-            <p className={styles.heroText}>Experience Chiang Mai Like Never Before</p>
+            <h2 className={styles.heroSubtitle}>เปิดประสบการณ์ใหม่</h2>
+            <h1 className={styles.heroTitle}>ก้าวข้ามทุกขีดจำกัด</h1>
+            <p className={styles.heroText}>มุ่งสู่เชียงใหม่ในแบบที่คุณไม่เคยสัมผัสมาก่อน</p>
           </div>
         </section>
 
         {/* Search Box - Overlapping the hero image */}
         <div className={styles.searchBoxWrapper}>
           <div className={styles.searchBox}>
-            <h3 className={styles.searchTitle}>Find your new destinations?</h3>
+            <h3 className={styles.searchTitle}>ลองหาจุดหมายใหม่ ๆ ให้ตัวเองดูไหม?</h3>
             
             <form onSubmit={handleSearch} className={styles.searchForm}>
               <div className={styles.searchField}>
-                <label>Search</label>
+                <label>ค้นหา</label>
                 <div className={styles.inputWithIcon}>
                   <input 
                     type="text" 
-                    placeholder="Your new journey..." 
+                    placeholder="การผจญภัยครั้งใหม่..." 
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
-                  <span className={styles.searchIcon}>🔍</span>
+                  <span className={styles.searchIcon}>
+                    <img src="https://cdn-icons-png.flaticon.com/128/13207/13207561.png" alt="Search Icon" />
+                  </span>
                 </div>
               </div>
 
               <div className={styles.searchField}>
-                <label>Categories</label>
+                <label>ประเภทสถานที่</label>
                 <select 
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
                 >
-                  <option value="" disabled>Select</option>
-                  <option value="Nature">Nature</option>
-                  <option value="Culture">Culture</option>
-                  <option value="Food">Food</option>
-                  <option value="Adventure">Adventure</option>
+                  <option value="" disabled>ตัวเลือก</option>
+                  <option value="Nature">ธรรมชาติ</option>
+                  <option value="Culture">วัฒนธรรม</option>
+                  <option value="Food">อาหาร</option>
+                  <option value="Adventure">ผจญภัย</option>
                 </select>
               </div>
 
               <div className={styles.searchField}>
-                <label>Distance from city center</label>
+                <label>ระยะห่างจากใจกลางเมือง</label>
                 <select 
                   value={selectedDistance}
                   onChange={(e) => setSelectedDistance(e.target.value)}
                 >
-                  <option value="" disabled>Select</option>
-                  <option value="0 km">0 km</option>
-                  <option value="0-5 km">0-5 km</option>
-                  <option value="5-10 km">5-10 km</option>
-                  <option value="10+ km">10+ km</option>
+                  <option value="" disabled>ตัวเลือก</option>
+                  <option value="0 km">0 กิโลเมตร</option>
+                  <option value="0-5 km">0-10 กิโลเมตร</option>
+                  <option value="5-10 km">11-20 กิโลเมตร</option>
+                  <option value="10+ km">21+ กิโลเมตร</option>
                 </select>
               </div>
 
               <div className={styles.searchField}>
-                <label>Budget</label>
+                <label>งบประมาณ</label>
                 <select 
                   value={selectedBudget}
                   onChange={(e) => setSelectedBudget(e.target.value)}
                 >
-                  <option value="" disabled>Select</option>
-                  <option value="0 - 2,000 THB">0 - 2,000 THB</option>
-                  <option value="2,000 - 5,000 THB">2,000 - 5,000 THB</option>
-                  <option value="5,000 - 10,000 THB">5,000 - 10,000 THB</option>
-                  <option value="10,000+ THB">10,000+ THB</option>
+                  <option value="" disabled>ตัวเลือก</option>
+                  <option value="0 - 2,000 THB">0 - 2,000 บาท</option>
+                  <option value="2,000 - 5,000 THB">2,001 - 5,000 บาท</option>
+                  <option value="5,000 - 10,000 THB">5,001 - 10,000 บาท</option>
+                  <option value="10,000+ THB">10,001+ บาท</option>
                 </select>
               </div>
 
-              <button type="submit" className={styles.searchButton}>Search</button>
+              <button type="submit" className={styles.searchButton}>ค้นหา</button>
             </form>
           </div>
         </div>
@@ -119,9 +121,9 @@ const HomeBeforeAuthen = () => {
         {/* New Destinations Section */}
         <section className={styles.destinationsSection}>
           <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>New Destinations</h2>
-            <p className={styles.sectionSubtitle}>Search for New destinations</p>
-            <a href="/destinations" className={styles.seeMoreLink}>See more places</a>
+            <h2 className={styles.sectionTitle}>สถานที่ใหม่ ๆ ที่น่าไป</h2>
+            <p className={styles.sectionSubtitle}>ออกตามหาจุดหมายปลายทางใหม่ ๆ</p>
+            <a href="/destinations" className={styles.seeMoreLink}>สำรวจสถานที่เพิ่มเติม</a>
           </div>
 
           <div className={styles.destinationCards}>
@@ -134,7 +136,7 @@ const HomeBeforeAuthen = () => {
                     className={styles.showDetailButton}
                     onClick={() => handleDestinationClick('pongyang-jungle')}
                   >
-                    Show Detail
+                    ดูรายละเอียด
                   </button>
                 </div>
               </div>
@@ -148,7 +150,7 @@ const HomeBeforeAuthen = () => {
                     className={styles.showDetailButton}
                     onClick={() => handleDestinationClick('ban-kang-wat')}
                   >
-                    Show Detail
+                    ดูรายละเอียด
                   </button>
                 </div>
               </div>
@@ -162,7 +164,7 @@ const HomeBeforeAuthen = () => {
                     className={styles.showDetailButton}
                     onClick={() => handleDestinationClick('jungle-de-cafe')}
                   >
-                    Show Detail
+                    ดูรายละเอียด
                   </button>
                 </div>
               </div>
@@ -173,9 +175,9 @@ const HomeBeforeAuthen = () => {
         {/* Summer Trip Section */}
         <section className={styles.destinationsSection}>
           <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>Plan Your Summer Perfect Trip</h2>
-            <p className={styles.sectionSubtitle}>Search Places most recommendation destinations</p>
-            <a href="/summer-trips" className={styles.seeMoreLink}>See more places</a>
+            <h2 className={styles.sectionTitle}>วางแผนการเดินทางฤดูฝนสุดสมบูรณ์แบบของคุณ</h2>
+            <p className={styles.sectionSubtitle}>ค้นหาจุดหมายปลายทางที่แนะนำมากที่สุด</p>
+            <a href="/summer-trips" className={styles.seeMoreLink}>สำรวจสถานที่เพิ่มเติม</a>
           </div>
 
           <div className={styles.destinationCards}>
@@ -187,7 +189,7 @@ const HomeBeforeAuthen = () => {
                     className={styles.showDetailButton}
                     onClick={() => handleDestinationClick('mon-hong-waterfall')}
                   >
-                    Show Detail
+                    ดูรายละเอียด
                   </button>
                 </div>
               </div>
@@ -201,7 +203,7 @@ const HomeBeforeAuthen = () => {
                     className={styles.showDetailButton}
                     onClick={() => handleDestinationClick('ang-kaew')}
                   >
-                    Show Detail
+                    ดูรายละเอียด
                   </button>
                 </div>
               </div>
@@ -215,7 +217,7 @@ const HomeBeforeAuthen = () => {
                     className={styles.showDetailButton}
                     onClick={() => handleDestinationClick('grand-canyon-chiangmai')}
                   >
-                    Show Detail
+                    ดูรายละเอียด
                   </button>
                 </div>
               </div>
@@ -224,42 +226,8 @@ const HomeBeforeAuthen = () => {
         </section>
       </div>
 
-      {/* Footer */}
-      <footer className={styles.footer}>
-        <div className={styles.footerContent}>
-          <div className={styles.footerLogo}>
-            <img src="/assets/gonorth-logo.png" alt="GONORTH" className={styles.footerLogoImage} />
-          </div>
-          
-          <div className={styles.footerSection}>
-            <h3 className={styles.footerTitle}>Explore & Experience</h3>
-            <ul className={styles.footerLinks}>
-              <li><a href="/explore/mountain-views">Mountain & Scenic Views</a></li>
-              <li><a href="/explore/eco-tourism">Nature & Eco Tourism</a></li>
-              <li><a href="/explore/cultural-sites">Cultural & Heritage Sites</a></li>
-              <li><a href="/explore/cafes">Gardens & Cafés</a></li>
-              <li><a href="/explore/adventure">Adventure & Outdoor Activities</a></li>
-            </ul>
-          </div>
-          
-          <div className={styles.footerSection}>
-            <h3 className={styles.footerTitle}>Contact Us</h3>
-            <p className={styles.contactInfo}>
-              King Mongkut's University of Technology Thonburi<br />
-              126 Pracha Uthit Rd,<br />
-              Khwaeng Bang Mot,<br />
-              Khet Thung Khru, Bangkok 10140
-            </p>
-          </div>
-          
-          <div className={styles.footerSection}>
-            <p className={styles.contactDetail}>
-              Email: athitan.maha@kmutt.ac.th<br />
-              Tel: 099-9999999
-            </p>
-          </div>
-        </div>
-      </footer>
+      {/* Footer - Replaced with Footer component */}
+      <Footer />
     </div>
   );
 };
