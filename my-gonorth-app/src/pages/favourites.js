@@ -38,9 +38,9 @@ const Favourites = () => {
     
     // Show notification when unfavoriting a place
     if (heartStatus[id]) {
-      showNotificationPopup(`${getPlaceName(id)} removed from favorites`);
+      showNotificationPopup(`${getPlaceName(id)} ลบออกจากรายการโปรด`);
     } else {
-      showNotificationPopup(`${getPlaceName(id)} added to favorites`);
+      showNotificationPopup(`${getPlaceName(id)} เพิ่มเข้าไปในรายการโปรดแล้ว`);
     }
   };
   
@@ -73,9 +73,9 @@ const Favourites = () => {
     
     if (currentPlace && selectedDestinations.length > 0) {
       // Implementation for creating route map with currentPlace as starting point
-      showNotificationPopup(`Creating route map starting with ${getPlaceName(currentPlace)}`);
+      showNotificationPopup(`กำลังสร้างแผนที่เส้นทางโดยเริ่มจาก... ${getPlaceName(currentPlace)}`);
     } else {
-      showNotificationPopup("Please select at least one destination for your route");
+      showNotificationPopup("คุณต้องเลือกอย่างน้อยหนึ่งจุดหมายเพื่อสร้างเส้นทาง");
     }
   };
 
@@ -106,7 +106,7 @@ const Favourites = () => {
       <div className={styles.mainContent}>
         {/* Page Title and More Info Button */}
         <div className={styles.titleContainer}>
-          <h1 className={styles.pageTitle}>Favourites</h1>
+          <h1 className={styles.pageTitle}>รายการโปรด</h1>
           <button className={styles.moreInfoHeaderButton} onClick={handleInfoButtonClick}>
             <img src="https://cdn-icons-png.flaticon.com/128/14836/14836604.png" alt="info" className={styles.moreInfoIcon} />
           </button>
@@ -123,7 +123,7 @@ const Favourites = () => {
                 checked={selectedPlaces['grand-canyon-chiangmai']}
                 onChange={() => handleSelectPlace('grand-canyon-chiangmai')}
               />
-              <label htmlFor="check-grand-canyon-chiangmai">Select for route</label>
+              <label htmlFor="check-grand-canyon-chiangmai">เลือกจุดหมายสำหรับเส้นทาง</label>
             </div>
             <div className={styles.favouriteImage}>
               <img src="https://jjubbbbb.wordpress.com/wp-content/uploads/2016/11/grand-canyon-of-chiang-mai2.jpg" alt="แกรนด์แคนยอน เชียงใหม่" />
@@ -132,18 +132,24 @@ const Favourites = () => {
               <h3 className={styles.favouriteTitle}>แกรนด์แคนยอน เชียงใหม่</h3>
               
               <div className={styles.infoItem}>
-                <span className={styles.infoIcon}>🚗</span>
-                <span className={styles.infoText}>20 km from city center</span>
+              <span className={styles.infoIcon}>
+                  <img src="https://cdn-icons-png.flaticon.com/128/526/526754.png" alt="Car Icon" />
+              </span>
+                <span className={styles.infoText}>ห่างจากใจกลางเมือง 20 กิโลเมตร</span>
               </div>
               
               <div className={styles.infoItem}>
-                <span className={styles.infoIcon}>🎫</span>
-                <span className={styles.infoText}>Free entrance</span>
+              <span className={styles.infoIcon}>
+                  <img src="https://cdn-icons-png.flaticon.com/128/1614/1614997.png" alt="Ticket Icon" />
+                </span>
+                <span className={styles.infoText}>เข้าชมฟรี</span>
               </div>
               
               <div className={styles.infoItem}>
-                <span className={styles.infoIcon}>🕒</span>
-                <span className={styles.infoText}>Open 08:00 am - 17:00 pm</span>
+              <span className={styles.infoIcon}>
+                  <img src="https://cdn-icons-png.flaticon.com/128/2972/2972531.png" alt="Time Icon" />
+                </span>
+                <span className={styles.infoText}>เปิดทำการ เวลา 09:00 น. – 16:00 น.</span>
               </div>
               
               <div className={styles.actionButtons}>
@@ -169,15 +175,15 @@ const Favourites = () => {
                   className={styles.viewButton}
                   onClick={() => handleViewPlace('story-page')}
                 >
-                  View Place
+                  ชมสถานที่
                 </button>
               </div>
             </div>
             
             <div className={styles.destinationRating}>
               <div className={styles.ratingScore}>5.0</div>
-              <div className={styles.ratingText}>Very Good</div>
-              <div className={styles.reviewCount}>25 reviews</div>
+              <div className={styles.ratingText}>ดีเยี่ยม</div>
+              <div className={styles.reviewCount}>25 รีวิว</div>
             </div>
           </div>
 
@@ -190,7 +196,7 @@ const Favourites = () => {
                 checked={selectedPlaces['mon-hong-waterfall']}
                 onChange={() => handleSelectPlace('mon-hong-waterfall')}
               />
-              <label htmlFor="check-mon-hong-waterfall">Select for route</label>
+              <label htmlFor="check-mon-hong-waterfall">เลือกจุดหมายสำหรับเส้นทาง</label>
             </div>
             <div className={styles.favouriteImage}>
               <img src="https://media.readthecloud.co/wp-content/uploads/2021/12/29133520/angkaew-11-750x500.jpg" alt="น้ำตกม่อนฮ่อง (ป่าแป๋)" />
@@ -199,18 +205,24 @@ const Favourites = () => {
               <h3 className={styles.favouriteTitle}>น้ำตกม่อนฮ่อง (ป่าแป๋)</h3>
               
               <div className={styles.infoItem}>
-                <span className={styles.infoIcon}>🚗</span>
-                <span className={styles.infoText}>20 km from city center</span>
+              <span className={styles.infoIcon}>
+                  <img src="https://cdn-icons-png.flaticon.com/128/526/526754.png" alt="Car Icon" />
+              </span>
+                <span className={styles.infoText}>ห่างจากใจกลางเมือง 20 กิโลเมตร</span>
               </div>
               
               <div className={styles.infoItem}>
-                <span className={styles.infoIcon}>🎫</span>
-                <span className={styles.infoText}>Free entrance</span>
+              <span className={styles.infoIcon}>
+                  <img src="https://cdn-icons-png.flaticon.com/128/1614/1614997.png" alt="Ticket Icon" />
+                </span>
+                <span className={styles.infoText}>เข้าชมฟรี</span>
               </div>
               
               <div className={styles.infoItem}>
-                <span className={styles.infoIcon}>🕒</span>
-                <span className={styles.infoText}>Open 08:00 am - 17:00 pm</span>
+              <span className={styles.infoIcon}>
+                  <img src="https://cdn-icons-png.flaticon.com/128/2972/2972531.png" alt="Time Icon" />
+                </span>
+                <span className={styles.infoText}>เปิดทำการ เวลา 09:00 น. – 16:00 น.</span>
               </div>
               
               <div className={styles.actionButtons}>
@@ -236,15 +248,15 @@ const Favourites = () => {
                   className={styles.viewButton}
                   onClick={() => handleViewPlace('mon-hong-waterfall')}
                 >
-                  View Place
+                  ชมสถานที่
                 </button>
               </div>
             </div>
             
             <div className={styles.destinationRating}>
               <div className={styles.ratingScore}>4.5</div>
-              <div className={styles.ratingText}>Very Good</div>
-              <div className={styles.reviewCount}>15 reviews</div>
+              <div className={styles.ratingText}>ดีเยี่ยม</div>
+              <div className={styles.reviewCount}>15 รีวิว</div>
             </div>
           </div>
 
@@ -257,7 +269,7 @@ const Favourites = () => {
                 checked={selectedPlaces['suan-bo-kaew']}
                 onChange={() => handleSelectPlace('suan-bo-kaew')}
               />
-              <label htmlFor="check-suan-bo-kaew">Select for route</label>
+              <label htmlFor="check-suan-bo-kaew">เลือกจุดหมายสำหรับเส้นทาง</label>
             </div>
             <div className={styles.favouriteImage}>
               <img src="https://i.ytimg.com/vi/9_0j8BOBiE8/maxresdefault.jpg" alt="สวนบ่อแก้ว" />
@@ -266,18 +278,24 @@ const Favourites = () => {
               <h3 className={styles.favouriteTitle}>สวนบ่อแก้ว</h3>
               
               <div className={styles.infoItem}>
-                <span className={styles.infoIcon}>🚗</span>
-                <span className={styles.infoText}>20 km from city center</span>
+              <span className={styles.infoIcon}>
+                  <img src="https://cdn-icons-png.flaticon.com/128/526/526754.png" alt="Car Icon" />
+              </span>
+                <span className={styles.infoText}>ห่างจากใจกลางเมือง 20 กิโลเมตร</span>
               </div>
               
               <div className={styles.infoItem}>
-                <span className={styles.infoIcon}>🎫</span>
-                <span className={styles.infoText}>Free entrance</span>
+              <span className={styles.infoIcon}>
+                  <img src="https://cdn-icons-png.flaticon.com/128/1614/1614997.png" alt="Ticket Icon" />
+                </span>
+                <span className={styles.infoText}>เข้าชมฟรี</span>
               </div>
               
               <div className={styles.infoItem}>
-                <span className={styles.infoIcon}>🕒</span>
-                <span className={styles.infoText}>Open 08:00 am - 17:00 pm</span>
+              <span className={styles.infoIcon}>
+                  <img src="https://cdn-icons-png.flaticon.com/128/2972/2972531.png" alt="Time Icon" />
+                </span>
+                <span className={styles.infoText}>เปิดทำการ เวลา 09:00 น. – 16:00 น.</span>
               </div>
               
               <div className={styles.actionButtons}>
@@ -303,15 +321,15 @@ const Favourites = () => {
                   className={styles.viewButton}
                   onClick={() => handleViewPlace('suan-bo-kaew')}
                 >
-                  View Place
+                  ชมสถานที่
                 </button>
               </div>
             </div>
             
             <div className={styles.destinationRating}>
               <div className={styles.ratingScore}>4.2</div>
-              <div className={styles.ratingText}>Very Good</div>
-              <div className={styles.reviewCount}>12 reviews</div>
+              <div className={styles.ratingText}>ดีเยี่ยม</div>
+              <div className={styles.reviewCount}>12 รีวิว</div>
             </div>
           </div>
 
@@ -333,18 +351,24 @@ const Favourites = () => {
               <h3 className={styles.favouriteTitle}>ทุ่งดอกไฮเดรนเยีย โครงการหลวงขุนแปะ</h3>
               
               <div className={styles.infoItem}>
-                <span className={styles.infoIcon}>🚗</span>
-                <span className={styles.infoText}>20 km from city center</span>
+              <span className={styles.infoIcon}>
+                  <img src="https://cdn-icons-png.flaticon.com/128/526/526754.png" alt="Car Icon" />
+              </span>
+                <span className={styles.infoText}>ห่างจากใจกลางเมือง 20 กิโลเมตร</span>
               </div>
               
               <div className={styles.infoItem}>
-                <span className={styles.infoIcon}>🎫</span>
-                <span className={styles.infoText}>Free entrance</span>
+              <span className={styles.infoIcon}>
+                  <img src="https://cdn-icons-png.flaticon.com/128/1614/1614997.png" alt="Ticket Icon" />
+                </span>
+                <span className={styles.infoText}>เข้าชมฟรี</span>
               </div>
               
               <div className={styles.infoItem}>
-                <span className={styles.infoIcon}>🕒</span>
-                <span className={styles.infoText}>Open 08:00 am - 17:00 pm</span>
+              <span className={styles.infoIcon}>
+                  <img src="https://cdn-icons-png.flaticon.com/128/2972/2972531.png" alt="Time Icon" />
+                </span>
+                <span className={styles.infoText}>เปิดทำการ เวลา 09:00 น. – 16:00 น.</span>
               </div>
               
               <div className={styles.actionButtons}>
@@ -370,14 +394,14 @@ const Favourites = () => {
                   className={styles.viewButton}
                   onClick={() => handleViewPlace('hydrangea-royal-project')}
                 >
-                  View Place
+                  ชมสถานที่
                 </button>
               </div>
             </div>
             
             <div className={styles.destinationRating}>
               <div className={styles.ratingScore}>4.0</div>
-              <div className={styles.ratingText}>Very Good</div>
+              <div className={styles.ratingText}>ดี</div>
               <div className={styles.reviewCount}>8 reviews</div>
             </div>
           </div>
@@ -385,7 +409,7 @@ const Favourites = () => {
 
         {/* Create Route Map Button */}
         <button className={styles.createRouteButton} onClick={handleCreateRouteMap}>
-          Create Route Map
+        สร้างแผนที่การเดินทาง
         </button>
 
       </div>
@@ -396,18 +420,18 @@ const Favourites = () => {
           <div className={styles.popup}>
             <button className={styles.closePopup} onClick={handleClosePopup}>×</button>
             <div className={styles.popupContent}>
-              <h3>Set as Starting Point</h3>
-              <p>Do you want to set <strong>{getPlaceName(currentPlace)}</strong> as the starting point for your route?</p>
+              <h3>ถูกกำหนดเป็นจุดเริ่มต้น</h3>
+              <p>คุณต้องการตั้ง <strong>{getPlaceName(currentPlace)}</strong> เป็นจุดเริ่มต้นสำหรับเส้นทางของคุณหรือไม่?</p>
               <button 
                 className={styles.confirmButton}
                 onClick={() => {
                   // Set this place as starting point logic
                   setSelectedPlaces(prev => ({...prev, [currentPlace]: true}));
-                  showNotificationPopup(`${getPlaceName(currentPlace)} set as starting point`);
+                  showNotificationPopup(`${getPlaceName(currentPlace)} กำหนดเป็นจุดเริ่มต้น`);
                   setShowPopup(false);
                 }}
               >
-                Confirm
+                ยืนยัน
               </button>
             </div>
           </div>
@@ -420,13 +444,13 @@ const Favourites = () => {
           <div className={styles.infoPopup}>
             <button className={styles.closePopup} onClick={handleCloseInfoPopup}>×</button>
             <div className={styles.popupContent}>
-              <h3>Route Planning Information</h3>
-              <p>The first location you select will be<br></br>set as the starting point of your route.</p>
+              <h3>รายละเอียดการวางแผนเส้นทาง</h3>
+              <p>สถานที่แรกที่คุณเลือก<br></br>จะถูกตั้งเป็นจุดเริ่มต้นของเส้นทางของคุณ</p>
               <button 
                 className={styles.gotItButton}
                 onClick={handleCloseInfoPopup}
               >
-                Got it!
+                เข้าใจแล้ว!
               </button>
             </div>
           </div>
