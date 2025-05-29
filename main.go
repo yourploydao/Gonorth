@@ -44,7 +44,10 @@ func main() {
 	auth.Use(Middleware.Middleware())
 	{
 		auth.GET("/profile" , AuthController.Profile)
+		auth.POST("/change-username", AuthController.ChangeUsername)
+		auth.POST("/change-email", AuthController.ChangeEmail)
 		auth.POST("/change-password", AuthController.ChangePassword)
+		auth.POST("/change-phone", AuthController.ChangePhone)
 		auth.POST("/locations", InformationController.CreateLocation)
 		auth.POST("/images", InformationController.CreateImage)
 		auth.GET("/locations-login/latest", InformationController.GetLatestLocations)
