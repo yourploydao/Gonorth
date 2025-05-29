@@ -60,4 +60,3 @@ func Middleware() gin.HandlerFunc {
 		}
 	}
 }
-

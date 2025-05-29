@@ -66,7 +66,7 @@ const Header = () => {
     setIsRouting(true);
     setShowDropdown(false);
     // ใส่โค้ดสำหรับ logout ที่นี่
-    router.push('/login').finally(() => {
+    router.push('/home-before-login').finally(() => {
       setTimeout(() => setIsRouting(false), 100);
     });
   };
@@ -139,9 +139,13 @@ const Header = () => {
           {showDropdown && (
             <div className={styles.profileDropdown}>
               <div className={styles.profileHeader}>
-                <img src="/assets/Profile.jpg" alt="John Doe" className={styles.dropdownProfileImage} />
+                <img
+                  src={user.profileImage}
+                  alt={`${user.firstname} ${user.lastname}`}
+                  className={styles.dropdownProfileImage} 
+                />
                 <div className={styles.profileInfo}>
-                  <h3 className={styles.profileFullName}>John Doe.</h3>
+                  <h3 className={styles.profileFullName}>{user.firstname} {user.lastname}</h3>
                 </div>
               </div>
               
