@@ -287,6 +287,62 @@ func Profile(c *gin.Context) {
 			"firstname":    user.Firstname,
 			"lastname":     user.Lastname,
 			"profileImage": user.ProfileImage,
+			"email":        user.Email,
+			"password":     user.Password,
+			"phone":        user.Phone,
 		},
 	})
+}
+
+func ChangePassword(c *gin.Context) {
+    userID, exists := c.Get("user")
+    if !exists {
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+        return
+    }
+
+    var req struct {
+        CurrentPassword string `json:"currentPassword"`
+        NewPassword     string `json:"newPassword"`
+    }
+    if err := c.ShouldBindJSON(&req); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+        return
+    }
+
+    // เพิ่ม log เพื่อดูข้อมูล
+    fmt.Printf("UserID: %v\n", userID)
+    fmt.Printf("Current Password from request: '%s'\n", req.CurrentPassword)
+    fmt.Printf("New Password from request: '%s'\n", req.NewPassword)
+
+    var user orm.User
+    if err := orm.Db.First(&user, userID).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "User not found"})
+        return
+    }
+
+    fmt.Printf("Stored hashed password: '%s'\n", user.Password)
+
+    // เช็ครหัสผ่านเดิม
+    if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.CurrentPassword)); err != nil {
+        fmt.Printf("Password comparison failed: %v\n", err)
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "Incorrect current password"})
+        return
+    }
+
+    // รหัสผ่านใหม่
+    hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.NewPassword), bcrypt.DefaultCost)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
+        return
+    }
+
+    // อัปเดตรหัสผ่าน
+    user.Password = string(hashedPassword)
+    if err := orm.Db.Save(&user).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update password"})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"message": "Password updated successfully"})
 }
