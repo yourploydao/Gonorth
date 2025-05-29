@@ -50,16 +50,14 @@ const ResetPassword = () => {
       <div className={styles.resetCard}>
         <div className={styles.logoSection}>
           <div className={styles.logo}>
-            {/* Logo image would be here */}
-            {/* <img src="/assets/gonorth-logo.png" alt="GONORTH" className={styles.gonorthLogo} /> */}
           </div>
           
-          <h1 className={styles.title}>Reset your password</h1>
-          <p className={styles.subtitle}>Your previous password has been reseted.<br></br>Please set a new password for your account.</p>
+          <h1 className={styles.title}>ตั้งรหัสผ่านใหม่</h1>
+          <p className={styles.subtitle}>รหัสผ่านเดิมของคุณถูกรีเซ็ตแล้ว<br></br>โปรดตั้งรหัสผ่านใหม่สำหรับบัญชีของคุณ</p>
           
           <form onSubmit={handleSubmit}>
             <div className={styles.formField}>
-                <label className={styles.fieldLabel}>Create Password</label>
+                <label className={styles.fieldLabel}>สร้างรหัสผ่านใหม่</label>
                 <div className={styles.passwordWrapper}>
                   <input
                     type={showPassword ? "text" : "password"}
@@ -82,7 +80,7 @@ const ResetPassword = () => {
             </div>
             
             <div className={styles.formField}>
-                <label className={styles.fieldLabel}>Confirm Password</label>
+                <label className={styles.fieldLabel}>ยืนยันรหัสผ่านใหม่</label>
                 <div className={styles.passwordWrapper}>
                   <input
                     type={showConfirmPassword ? "text" : "password"}
@@ -105,7 +103,7 @@ const ResetPassword = () => {
             </div>
 
             <button type="submit" className={styles.resetButton}>
-                Set password
+            ตั้งรหัสผ่าน
             </button>
           </form>
         </div>

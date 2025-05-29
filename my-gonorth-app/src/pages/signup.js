@@ -63,22 +63,18 @@ const SignUp = () => {
       <div className={styles.loginCard}>
         <div className={styles.logoSection}>
           <div className={styles.glasses}>
-            {/* <div className={styles.lens}></div>
-            <div className={styles.lens}></div>
-            <div className={styles.bridge}></div> */}
           </div>
           <div className={styles.logo}>
-            {/* <img src={require("../assets/gonorth-logo.png")} alt="GONORTH Logo" /> */}
           </div>
           
-          <h1 className={styles.title}>Sign up</h1>
-          <p className={styles.subtitle}>Let's get you all set up so you can access your personal account.</p>
+          <h1 className={styles.title}>ลงทะเบียน</h1>
+          <p className={styles.subtitle}>มาเริ่มต้นใช้งานบัญชีของคุณกันเถอะ</p>
           
           <form onSubmit={handleSubmit}>
             {/* First Name and Last Name fields in one row */}
             <div className={styles.formRow}>
               <div className={styles.formField}>
-                <label className={styles.fieldLabel}>First Name</label>
+                <label className={styles.fieldLabel}>ชื่อจริง</label>
                 <input
                   type="text"
                   value={firstName}
@@ -88,7 +84,7 @@ const SignUp = () => {
                 />
               </div>
               <div className={styles.formField}>
-                <label className={styles.fieldLabel}>Last Name</label>
+                <label className={styles.fieldLabel}>นามสกุล</label>
                 <input
                   type="text"
                   value={lastName}
@@ -102,7 +98,7 @@ const SignUp = () => {
             {/* Email and Phone Number fields in one row */}
             <div className={styles.formRow}>
               <div className={styles.formField}>
-                <label className={styles.fieldLabel}>Email</label>
+                <label className={styles.fieldLabel}>อีเมล</label>
                 <input
                   type="email"
                   value={email}
@@ -112,7 +108,7 @@ const SignUp = () => {
                 />
               </div>
               <div className={styles.formField}>
-                <label className={styles.fieldLabel}>Phone Number</label>
+                <label className={styles.fieldLabel}>เบอร์โทรศัพท์</label>
                 <input
                   type="tel"
                   value={phoneNumber}
@@ -125,7 +121,7 @@ const SignUp = () => {
             
             {/* Password field - full width */}
             <div className={styles.formField}>
-              <label className={styles.fieldLabel}>Password</label>
+              <label className={styles.fieldLabel}>รหัสผ่าน</label>
               <div className={styles.passwordWrapper}>
                 <input
                   type={showPassword ? "text" : "password"}
@@ -139,7 +135,11 @@ const SignUp = () => {
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   <img 
-                    src="https://cdn-icons-png.flaticon.com/128/4855/4855030.png" 
+                    src={
+                      showPassword
+                      ? "https://cdn-icons-png.flaticon.com/128/2767/2767194.png" // show password icon
+                      : "https://cdn-icons-png.flaticon.com/128/4855/4855030.png" // hide password icon
+                    }
                     alt="Toggle password visibility"
                     width="20"
                     height="20"
@@ -150,7 +150,7 @@ const SignUp = () => {
             
             {/* Confirm Password field - full width */}
             <div className={styles.formField}>
-              <label className={styles.fieldLabel}>Confirm Password</label>
+              <label className={styles.fieldLabel}>ยืนยันรหัสผ่าน</label>
               <div className={styles.passwordWrapper}>
                 <input
                   type={showConfirmPassword ? "text" : "password"}
@@ -164,7 +164,11 @@ const SignUp = () => {
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 >
                   <img 
-                    src="https://cdn-icons-png.flaticon.com/128/4855/4855030.png" 
+                    src={
+                      showPassword
+                      ? "https://cdn-icons-png.flaticon.com/128/2767/2767194.png" // show password icon
+                      : "https://cdn-icons-png.flaticon.com/128/4855/4855030.png" // hide password icon
+                    }
                     alt="Toggle password visibility"
                     width="20"
                     height="20"
@@ -183,22 +187,22 @@ const SignUp = () => {
                 className={styles.checkbox} 
               />
               <label htmlFor="terms" className={styles.checkboxLabel}>
-                I agree to all the <a href="#" className={styles.termsLink}>Terms</a> and <a href="#" className={styles.termsLink}>Privacy Policies</a>
+              ฉันรับทราบและยินยอมตาม <a href="#" className={styles.termsLink}>เงื่อนไข</a> และ <a href="#" className={styles.termsLink}>นโยบายความเป็นส่วนตัว</a>
               </label>
             </div>
             
             {/* Create account button */}
             <button type="submit" className={styles.createButton}>
-              Create account
+            สร้างบัญชี
             </button>
           </form>
           
           <div className={styles.loginLink}>
-            Already have an account? <a href="/login" className={styles.loginAnchor}>Login</a>
+           มีบัญชีอยู่แล้วใช่ไหม? <a href="/login" className={styles.loginAnchor}>เข้าสู่ระบบ</a>
           </div>
           
           <div className={styles.divider}>
-            <span className={styles.dividerText}>Or Sign up with</span>
+            <span className={styles.dividerText}>หรือลงทะเบียนด้วย</span>
           </div>
           
           <div className={styles.socialButtons}>

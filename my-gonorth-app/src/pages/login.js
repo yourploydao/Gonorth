@@ -54,12 +54,12 @@ const Login = () => {
           {/* <img src={require("../assets/gonorth-logo.png")} alt="GONORTH Logo" /> ดึงจาก assets ไม่มา*/}
           </div>
           
-          <h1 className={styles.title}>Login</h1>
-          <p className={styles.subtitle}>Login to access your Gonorth account</p>
+          <h1 className={styles.title}>เข้าสู่ระบบ</h1>
+          <p className={styles.subtitle}>เข้าสู่ระบบเพื่อเข้าถึงบัญชี Gonorth ของคุณ</p>
           
           <form onSubmit={handleSubmit}>
             <div className={styles.inputGroup}>
-              <label htmlFor="email" className={styles.label}>Email</label>
+              <label htmlFor="email" className={styles.label}>อีเมล</label>
               <input
                 type="email"
                 id="email"
@@ -72,7 +72,7 @@ const Login = () => {
             </div>
             
             <div className={styles.inputGroup}>
-              <label htmlFor="password" className={styles.label}>Password</label>
+              <label htmlFor="password" className={styles.label}>รหัสผ่าน</label>
               <div className={styles.passwordInput}>
                 <input
                   type={showPassword ? "text" : "password"}
@@ -102,22 +102,22 @@ const Login = () => {
             <div className={styles.rememberForgot}>
               <div className={styles.remember}>
                 <input type="checkbox" id="remember" className={styles.checkbox} />
-                <label htmlFor="remember" className={styles.label}>Remember me</label>
+                <label htmlFor="remember" className={styles.label}>จำฉันไว้ในระบบ</label>
               </div>
-              <a href="/forgotpassword" className={styles.forgotPassword}>Forgot Password</a>
+              <a href="/forgotpassword" className={styles.forgotPassword}>ลืมรหัสผ่าน</a>
             </div>
             
             <button type="submit" className={styles.loginButton}>
-              Login
+              เข้าสู่ระบบ
             </button>
           </form>
           
           <div className={styles.noAccount}>
-            Don't have an account? <a href="/signup" className={styles.signUp}>Sign up</a>
+          ยังไม่มีบัญชีใช่ไหม? <a href="/signup" className={styles.signUp}>ลงทะเบียน</a>
           </div>
           
           <div className={styles.divider}>
-            <span className={styles.dividerText}>Or login with</span>
+            <span className={styles.dividerText}>หรือเข้าสู่ระบบด้วย</span>
           </div>
           
           <div className={styles.socialLogin}>
