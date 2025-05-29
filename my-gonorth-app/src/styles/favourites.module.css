@@ -81,7 +81,7 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   padding: 15px;
   position: relative;
-  margin-top: 20px;
+  margin-top: 5px;
 }
 
 .selectCheckbox {
@@ -158,15 +158,21 @@
   align-items: center;
   margin-bottom: 8px;
   font-size: 14px;
+  color: #666;
 }
 
 .infoIcon {
   margin-right: 8px;
-  font-size: 14px;
+  font-size: 16px;
+}
+
+.infoIcon img {
+  width: 24px;
+  height: 24px;
 }
 
 .infoText {
-  color: #666;
+  font-size: 14px;
 }
 
 /* Rating styles */

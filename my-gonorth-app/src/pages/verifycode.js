@@ -1,5 +1,5 @@
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from 'next/router';
-import React, { useState } from "react";
 import styles from "../styles/verifycode.module.css";
 
 const VerifyCode = () => {
@@ -47,16 +47,14 @@ const VerifyCode = () => {
       <div className={styles.verifyCard}>
         <div className={styles.logoSection}>
           <div className={styles.logo}>
-            {/* Logo image would be here */}
-            {/* <img src="/assets/gonorth-logo.png" alt="GONORTH" className={styles.gonorthLogo} /> */}
           </div>
           
-          <h1 className={styles.title}>Verify code</h1>
-          <p className={styles.subtitle}>An authentication code has been sent to your email.</p>
+          <h1 className={styles.title}>ตรวจสอบรหัส</h1>
+          <p className={styles.subtitle}>ระบบได้ส่งรหัสยืนยันไปที่อีเมลของคุณแล้ว</p>
           
           <form onSubmit={handleSubmit}>
             <div className={styles.formField}>
-                <label className={styles.fieldLabel}>Enter Code</label>
+                <label className={styles.fieldLabel}>ใส่รหัสยืนยัน</label>
                 <div className={styles.passwordWrapper}>
                   <input
                     type={showPassword ? "text" : "password"}
@@ -80,11 +78,11 @@ const VerifyCode = () => {
             </div>
             
             <div className={styles.resendWrapper}>
-              <p className={styles.resendText}>Didn't receive a code? <a href="#" className={styles.resendLink}>Resend</a></p>
+              <p className={styles.resendText}>ไม่ได้รับรหัสใช่ไหม? <a href="#" className={styles.resendLink}>ส่งรหัสใหม่</a></p>
             </div>
 
             <button type="submit" className={styles.verifyButton}>
-                Verify
+            ยืนยัน
             </button>
           </form>
         </div>

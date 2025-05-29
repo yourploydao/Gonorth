@@ -1,9 +1,11 @@
 import { useState, useRef } from "react";
-import styles from "../styles/profile-page.module.css";
+import { useRouter } from "next/router";
+import styles from "../styles/admin-profile-page.module.css";
 import Header from "../components/navigation";
 import Footer from "../components/footer";
 
-const UserProfile = () => {
+const AdminProfile = () => {
+  const router = useRouter();
   const [username, setUsername] = useState("John Doe");
   const [email, setEmail] = useState("john.doe@gmail.com");
   const [phone, setPhone] = useState("0000000000");
@@ -59,10 +61,17 @@ const UserProfile = () => {
     setIsEditingPhone(false);
   };
 
+  const handleAddPlace = () => {
+    router.push('/admin-create-storypage');
+  };
+
+  const handleManageUsers = () => {
+    router.push('/admin-user-management');
+  };
+
   return (
     <div className={styles.container}>
-    {/* Use the Header component */}
-    <Header />
+      <Header />
 
       <div className={styles.mainContent}>
         {/* Profile Banner */}
@@ -124,6 +133,58 @@ const UserProfile = () => {
             <div className={styles.valueContainer}>
               <span className={styles.value}>{phone}</span>
               <button className={styles.changeButton} onClick={() => setIsEditingPhone(true)}>แก้ไข</button>
+            </div>
+          </div>
+        </section>
+
+        {/* Admin Control Section */}
+        <section className={styles.adminSection}>
+          <h2 className={styles.sectionTitle}>การจัดการระบบแอดมิน</h2>
+          
+          <div className={styles.adminControls}>
+            <div className={styles.adminControlCard}>
+              <div className={styles.adminControlContent}>
+                <h3 className={styles.adminControlTitle}>เพิ่มสถานที่ใหม่</h3>
+                <p className={styles.adminControlDescription}>
+                  เพิ่มสถานที่ท่องเที่ยว ร้านอาหาร หรือสถานที่น่าสนใจใหม่เข้าสู่ระบบ
+                </p>
+                <button 
+                  className={styles.adminControlButton} 
+                  onClick={handleAddPlace}
+                >
+                  เพิ่มสถานที่ใหม่
+                </button>
+              </div>
+            </div>
+
+            <div className={styles.adminControlCard}>
+              <div className={styles.adminControlContent}>
+                <h3 className={styles.adminControlTitle}>จัดการสถานที่</h3>
+                <p className={styles.adminControlDescription}>
+                  แก้ไขข้อมูลสถานที่ที่มีอยู่ ลบสถานที่ หรืออัปเดตรายละเอียด
+                </p>
+                <button 
+                  className={styles.adminControlButton} 
+                  onClick={() => router.push('/admin-place-management')}
+                >
+                  จัดการสถานที่
+                </button>
+              </div>
+            </div>
+
+            <div className={styles.adminControlCard}>
+              <div className={styles.adminControlContent}>
+                <h3 className={styles.adminControlTitle}>จัดการผู้ใช้</h3>
+                <p className={styles.adminControlDescription}>
+                  จัดการข้อมูลผู้ใช้ ดูสถิติการใช้งาน และควบคุมสิทธิ์การเข้าถึง
+                </p>
+                <button 
+                  className={styles.adminControlButton} 
+                  onClick={handleManageUsers}
+                >
+                  จัดการผู้ใช้
+                </button>
+              </div>
             </div>
           </div>
         </section>
@@ -230,10 +291,9 @@ const UserProfile = () => {
         </div>
       )}
 
-      {/* Footer */}
       <Footer />
     </div>
   );
 };
 
-export default UserProfile;
+export default AdminProfile;
