@@ -100,7 +100,7 @@ func Login(c *gin.Context) {
 		hmacSampleSecret = []byte(os.Getenv("JWT_SECRET_KEY"))
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 			"userId": userExist.ID,
-			"exp":    time.Now().Add(time.Minute * 180).Unix(),
+			"exp": time.Now().Add(time.Hour * 24).Unix(),    
 			"iat":    time.Now().Unix(),
 			"iss":    "gonorth",
 		})
@@ -310,22 +310,14 @@ func ChangePassword(c *gin.Context) {
         return
     }
 
-    // เพิ่ม log เพื่อดูข้อมูล
-    fmt.Printf("UserID: %v\n", userID)
-    fmt.Printf("Current Password from request: '%s'\n", req.CurrentPassword)
-    fmt.Printf("New Password from request: '%s'\n", req.NewPassword)
-
     var user orm.User
     if err := orm.Db.First(&user, userID).Error; err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": "User not found"})
         return
     }
 
-    fmt.Printf("Stored hashed password: '%s'\n", user.Password)
-
     // เช็ครหัสผ่านเดิม
     if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.CurrentPassword)); err != nil {
-        fmt.Printf("Password comparison failed: %v\n", err)
         c.JSON(http.StatusUnauthorized, gin.H{"error": "Incorrect current password"})
         return
     }
@@ -345,4 +337,107 @@ func ChangePassword(c *gin.Context) {
     }
 
     c.JSON(http.StatusOK, gin.H{"message": "Password updated successfully"})
+}
+
+func ChangeUsername(c *gin.Context) {
+	var req struct {
+		Firstname string `json:"firstname" binding:"required"`
+		Lastname  string `json:"lastname" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
+
+	userInterface, exists := c.Get("user")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	user := userInterface.(orm.User)
+
+	if err := orm.Db.Model(&orm.User{}).
+		Where("id = ?", user.ID).
+		Updates(map[string]interface{}{
+			"firstname": req.Firstname,
+			"lastname":  req.Lastname,
+		}).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update name"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Name updated successfully"})
+}
+
+func ChangeEmail(c *gin.Context) {
+	var req struct {
+		Email string `json:"email" binding:"required,email"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid email format"})
+		return
+	}
+
+	userInterface, exists := c.Get("user")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	user, ok := userInterface.(orm.User)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user type"})
+		return
+	}
+
+	// ตรวจสอบอีเมลซ้ำ
+	var existingUser orm.User
+	if err := orm.Db.Where("email = ?", req.Email).First(&existingUser).Error; err == nil && existingUser.ID != user.ID {
+		c.JSON(http.StatusConflict, gin.H{"error": "Email is already in use"})
+		return
+	}
+
+	// อัปเดตอีเมล
+	if err := orm.Db.Model(&orm.User{}).
+		Where("id = ?", user.ID).
+		Update("email", req.Email).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update email"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Email updated successfully"})
+}
+func ChangePhone(c *gin.Context) {
+	var req struct {
+		Phone string `json:"phone" binding:"required,len=10,numeric"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid phone format"})
+		return
+	}
+
+	userInterface, exists := c.Get("user")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	user, ok := userInterface.(orm.User)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user type"})
+		return
+	}
+
+	if err := orm.Db.Model(&orm.User{}).
+		Where("id = ?", user.ID).
+		Update("phone", req.Phone).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update phone number"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Phone number updated successfully"})
 }

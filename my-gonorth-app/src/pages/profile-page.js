@@ -71,19 +71,68 @@ const UserProfile = () => {
     fileInputRef.current.click();
   };
 
-  const handleSaveUsername = () => {
-    setUsername(tempUsername);
-    setIsEditingUsername(false);
+  const handleSaveUsername = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Authentication token missing.");
+      return;
+    }
+
+    const [firstname, ...lastnameParts] = tempUsername.trim().split(" ");
+    const lastname = lastnameParts.join(" ");
+
+    try {
+      const res = await fetch("http://localhost:8080/change-username", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({ firstname, lastname }),
+      });
+
+      if (res.ok) {
+        alert("Username updated successfully!");
+        setIsEditingUsername(false);
+        setUser(prev => ({ ...prev, firstname, lastname }));
+      } else {
+        const data = await res.json();
+        alert(`Failed to update name: ${data.error || "Unknown error"}`);
+      }
+    } catch (error) {
+      alert("Network error. Please check your connection.");
+    }
   };
 
-  const handleSaveEmail = () => {
-    setEmail(tempEmail);
-    setIsEditingEmail(false);
-  };
+  const handleSaveEmail = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Authentication token missing.");
+      return;
+    }
 
-  const handleSavePhone = () => {
-    setPhone(tempPhone);
-    setIsEditingPhone(false);
+    try {
+      const res = await fetch("http://localhost:8080/change-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({ email: tempEmail }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert("Email updated successfully!");
+        setIsEditingEmail(false);
+        setUser(prev => ({ ...prev, email: tempEmail }));
+      } else {
+        alert(`Failed to update email: ${data.error || "Unknown error"}`);
+      }
+    } catch (error) {
+      alert("Network error. Please check your connection.");
+    }
   };
 
   const handleSavePassword = async () => {
@@ -139,6 +188,37 @@ const UserProfile = () => {
         alert("Authentication failed. Current password is incorrect.");
       } else {
         alert(`Failed to update password: ${responseData.error || responseText}`);
+      }
+    } catch (error) {
+      alert("Network error. Please check your connection.");
+    }
+  };
+
+  const handleSavePhone = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Authentication token missing.");
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:8080/change-phone", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({ phone: tempPhone }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert("Phone number updated successfully!");
+        setIsEditingPhone(false);
+        setUser(prev => ({ ...prev, phone: tempPhone }));
+      } else {
+        alert(`Failed to update phone: ${data.error || "Unknown error"}`);
       }
     } catch (error) {
       alert("Network error. Please check your connection.");
