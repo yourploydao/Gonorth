@@ -23,7 +23,8 @@ type LocationInput struct {
 	ParkingDetails	string		   `json:"ParkingDetails"`	
 	HasEntrance		bool	 	   `json:"HasEntrance"`
 	EntranceDetails string		   `json:"EntranceDetails"`
-	BudgetAmount    uint           `json:"BudgetAmount"`
+	BudgetRange     string           `json:"BudgetRange"`
+	Season    		string           `json:"Season"`
 	Images          []orm.Image    `json:"Images"`
 	Activities      []orm.Activity `json:"Activities"`
 	Tags            []struct {
@@ -67,7 +68,7 @@ func CreateLocation(c *gin.Context) {
 		ParkingDetails:	 input.ParkingDetails,	
 		HasEntrance:	 input.HasEntrance,		
 		EntranceDetails: input.EntranceDetails,
-		BudgetAmount:    input.BudgetAmount,
+		BudgetRange:     input.BudgetRange,
 		Images:          input.Images,
 		Activities:      input.Activities,
 		Tags:            tags,
@@ -151,48 +152,6 @@ func CreateReview(c *gin.Context) {
 	c.JSON(http.StatusCreated, review)
 }
 
-// Budget
-func CreateBudget(c *gin.Context) {
-	var budget orm.Budget
-	if err := c.ShouldBindJSON(&budget); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	if err := orm.Db.Create(&budget).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusCreated, budget)
-}
-
-func GetLocationWithBudget(c *gin.Context) {
-	var location orm.Location
-	id := c.Param("id")
-
-	if err := orm.Db.First(&location, id).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Location not found"})
-		return
-	}
-
-	var budget orm.Budget
-	err := orm.Db.Where("min <= ? AND (max IS NULL OR max >= ?)", location.BudgetAmount, location.BudgetAmount).
-		First(&budget).Error
-
-	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"location": location,
-			"budget":   nil,
-			"message":  "No matching budget range",
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"location": location,
-		"budget":   budget,
-	})
-}
-
 func GetLocation(c *gin.Context) {
 	locationID := c.Param("id")
 	var location orm.Location
@@ -236,4 +195,22 @@ func GetAllLocations(c *gin.Context) {
     }
 
     c.JSON(http.StatusOK, locations)
+}
+
+func GetLocationsBySeason(c *gin.Context) {
+	season := c.Param("season")
+
+	var locations []orm.Location
+	result := orm.Db.
+		Preload("Images").
+		Preload("Activities").
+		Where("season = ?", season).
+		Find(&locations)
+
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, locations)
 }

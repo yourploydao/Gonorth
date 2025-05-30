@@ -374,6 +374,15 @@
   z-index: 3;
 }
 
+.showHistory {
+  background-color: transparent; 
+  color: #000;
+  border: none;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
 .historyIndicator {
   width: 10px;
   height: 10px;
@@ -804,3 +813,4 @@
     gap: 30px;
   }
 }
+
