@@ -18,7 +18,10 @@ type Location struct {
 	Images          []Image  `gorm:"foreignKey:LocationID"`
 	Activities      []Activity `gorm:"foreignKey:LocationID"`
 	Tags            []Tag    `gorm:"many2many:location_tags;"`
-	BudgetAmount    uint
+	BudgetRange 	string 	 `gorm:"type:varchar(20)" json:"budget_range"`
+	Season 			string 	 `gorm:"type:varchar(10);default:'summer'" json:"season"`
+
+
 	// ExternalScores  []ExternalScore
 	// Reviews         []Review
 	FavoritedBy     []User     `gorm:"many2many:user_favorite"`
