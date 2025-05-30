@@ -22,10 +22,10 @@ const StoryPage = () => {
       return;
     }
 
+    const token = localStorage.getItem("token");  
+
     const fetchLocation = async () => {
       try {
-        const token = localStorage.getItem("token");
-
         console.log("Fetching location with ID:", id);
 
         const res = await fetch(`http://localhost:8080/location/${id}`, {
@@ -69,13 +69,67 @@ const StoryPage = () => {
       }
     };
 
+    const checkFavorite = async () => {
+      try {
+        const res = await fetch(`http://localhost:8080/favorite/${id}`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,  // ใช้ token ที่ประกาศข้างบน
+          },
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setIsInFavorites(data.isFavorite);
+        } else {
+          setIsInFavorites(false);
+        }
+      } catch (error) {
+        console.error("Error checking favorite:", error);
+        setIsInFavorites(false);
+      }
+    };
 
     fetchLocation();
-  }, [id]);
+    checkFavorite();
+  }, [id, router.isReady]);
 
   const handleToggleFavorite = async () => {
-    setIsInFavorites(!isInFavorites);
+    const token = localStorage.getItem("token");
+    if (!token) {
+      return;
+    }
+
+    console.log("Sending favorite toggle for location ID:", id);
+
+    try {
+      const url = `http://localhost:8080/favorite`;
+      const method = isInFavorites ? "DELETE" : "POST";
+      const res = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ location_id: parseInt(id) }),
+      });
+
+      console.log("Response status:", res.status);
+
+      if (res.ok) {
+        setIsInFavorites((prev) => !prev);
+        console.log(`${method} favorite success`);
+      } else {
+        const errorText = await res.text();
+        console.error("Toggle favorite failed:", errorText);
+        alert("Fail to add favorite");
+      }
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+      alert("Server error");
+    }
   };
+
 
   const handleThumbnailClick = (imageUrl) => {
     setCurrentMainImage(imageUrl);
