@@ -1,58 +1,157 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import styles from "../styles/favourites.module.css";
 import Header from "../components/navigation";
 import Footer from "../components/footer";
 
 const Favourites = () => {
-  const router = useRouter();
-  const [heartStatus, setHeartStatus] = useState({
-    'grand-canyon-chiangmai': true,
-    'mon-hong-waterfall': true,
-    'suan-bo-kaew': true,
-    'hydrangea-royal-project': true
-  });
-  
-  const [selectedPlaces, setSelectedPlaces] = useState({
-    'grand-canyon-chiangmai': false,
-    'mon-hong-waterfall': false,
-    'suan-bo-kaew': false,
-    'hydrangea-royal-project': false
-  });
-  
+  const [favorites, setFavorites] = useState([]);
+  const [heartStatus, setHeartStatus] = useState({});
+  const [selectedPlaces, setSelectedPlaces] = useState({});
   const [showPopup, setShowPopup] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState('');
   const [currentPlace, setCurrentPlace] = useState('');
   const [showInfoPopup, setShowInfoPopup] = useState(false);
 
-  const handleViewPlace = () => {
-    router.push('/story-page');
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        console.log("Token:", token);
+
+        const res = await fetch("http://localhost:8080/userfavorites", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+
+        console.log("Response status:", res.status);
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch");
+        }
+
+        const data = await res.json();
+        console.log("Data from API:", data);
+        console.log("Favorite IDs:", data.map(d => d.location_id));
+
+        setFavorites(data);
+
+        const dynamicHeartStatus = {};
+        const dynamicSelectedPlaces = {};
+
+        data.forEach(item => {
+          // ใช้ ID จาก response หลัก (item.ID) แทน location.ID
+          dynamicHeartStatus[item.ID] = true;
+          dynamicSelectedPlaces[item.ID] = false;
+        });
+
+        setHeartStatus(dynamicHeartStatus);
+        setSelectedPlaces(dynamicSelectedPlaces);
+
+      } catch (error) {
+        console.error("Error fetching favorites:", error);
+      }
+    };
+
+    fetchFavorites();
+  }, []);
+
+  useEffect(() => {
+    console.log("Favorites in state:", favorites);
+  }, [favorites]);
+
+  const handleViewPlace = (id) => {
+    router.push(`/story-page?id=${id}`);
   };
 
-  const handleHeartClick = (id) => {
+  const handleHeartClick = async (itemId) => {
     setHeartStatus(prev => ({
       ...prev,
-      [id]: !prev[id]
+      [itemId]: false,
     }));
-    
-    // Show notification when unfavoriting a place
-    if (heartStatus[id]) {
-      showNotificationPopup(`${getPlaceName(id)} removed from favorites`);
-    } else {
-      showNotificationPopup(`${getPlaceName(id)} added to favorites`);
+
+    try {
+      // หา location_id จาก favorites array
+      const favoriteItem = favorites.find(fav => fav.ID === itemId);
+      if (!favoriteItem) {
+        showNotificationPopup("ไม่พบข้อมูลสถานที่");
+        // รีเซ็ต heart กลับเป็น filled ถ้าเกิด error
+        setHeartStatus(prev => ({
+          ...prev,
+          [itemId]: true,
+        }));
+        return;
+      }
+
+      const token = localStorage.getItem("token");
+      const response = await fetch("http://localhost:8080/deletefavorite", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          location_id: favoriteItem.location_id
+        }),
+      });
+
+      if (response.ok) {
+        showNotificationPopup(`${getPlaceName(itemId)} removed from favorites`);
+        
+        // รอ 1.5 วินาทีแล้วค่อยลบออกจากรายการ
+        setTimeout(() => {
+          setFavorites(prev => prev.filter(fav => fav.ID !== itemId));
+          
+          setHeartStatus(prev => {
+            const newStatus = { ...prev };
+            delete newStatus[itemId];
+            return newStatus;
+          });
+          
+          setSelectedPlaces(prev => {
+            const newSelected = { ...prev };
+            delete newSelected[itemId];
+            return newSelected;
+          });
+        }, 1500);
+
+      } else {
+        const errorData = await response.json();
+        showNotificationPopup(errorData.error || "Failed to remove from favorites");
+        
+        // รีเซ็ต heart กลับเป็น filled ถ้าเกิด error
+        setHeartStatus(prev => ({
+          ...prev,
+          [itemId]: true,
+        }));
+      }
+    } catch (error) {
+      console.error("Error removing favorite:", error);
+      showNotificationPopup("เกิดข้อผิดพลาดในการลบรายการโปรด");
+      
+      // รีเซ็ต heart กลับเป็น filled ถ้าเกิด error
+      setHeartStatus(prev => ({
+        ...prev,
+        [itemId]: true,
+      }));
     }
   };
-  
+
   const handleMoreInfoClick = (id) => {
     setCurrentPlace(id);
     setShowPopup(true);
   };
-  
+
   const handleClosePopup = () => {
     setShowPopup(false);
   };
-  
+
   const handleSelectPlace = (id) => {
     setSelectedPlaces(prev => ({
       ...prev,
@@ -70,9 +169,8 @@ const Favourites = () => {
 
   const handleCreateRouteMap = () => {
     const selectedDestinations = Object.keys(selectedPlaces).filter(place => selectedPlaces[place]);
-    
+
     if (currentPlace && selectedDestinations.length > 0) {
-      // Implementation for creating route map with currentPlace as starting point
       showNotificationPopup(`Creating route map starting with ${getPlaceName(currentPlace)}`);
     } else {
       showNotificationPopup("Please select at least one destination for your route");
@@ -87,24 +185,32 @@ const Favourites = () => {
     setShowInfoPopup(false);
   };
 
-  // Get place name from ID
   const getPlaceName = (id) => {
-    const placeNames = {
-      'grand-canyon-chiangmai': 'แกรนด์แคนยอน เชียงใหม่',
-      'mon-hong-waterfall': 'น้ำตกม่อนฮ่อง (ป่าแป๋)',
-      'suan-bo-kaew': 'สวนบ่อแก้ว',
-      'hydrangea-royal-project': 'ทุ่งดอกไฮเดรนเยีย โครงการหลวงขุนแปะ'
-    };
-    return placeNames[id] || id;
+    const item = favorites.find(fav => fav.ID === id);
+    if (item && item.location) {
+      return item.location.LocationsName || item.location.title || `Location ${id}`;
+    }
+    return `Location ${id}`;
+  };
+
+  const getImageUrl = (images) => {
+    if (!images || images.length === 0) return "https://via.placeholder.com/300x200?text=No+Image";
+    
+    // หารูปหลัก (IsMain: true) ก่อน
+    const mainImage = images.find(img => img.IsMain === true);
+    if (mainImage && mainImage.URL) return mainImage.URL;
+    
+    // ถ้าไม่มีรูปหลัก ใช้รูปแรก
+    if (images[0] && images[0].URL) return images[0].URL;
+    
+    return "https://via.placeholder.com/300x200?text=No+Image";
   };
 
   return (
     <div className={styles.container}>
-      {/* Use the Header component */}
       <Header />
 
       <div className={styles.mainContent}>
-        {/* Page Title and More Info Button */}
         <div className={styles.titleContainer}>
           <h1 className={styles.pageTitle}>Favourites</h1>
           <button className={styles.moreInfoHeaderButton} onClick={handleInfoButtonClick}>
@@ -112,285 +218,121 @@ const Favourites = () => {
           </button>
         </div>
 
-        {/* Favourites List */}
         <div className={styles.favouritesList}>
-          {/* Favourite Item 1 */}
-          <div className={styles.favouriteItem}>
-            <div className={styles.selectCheckbox}>
-              <input 
-                type="checkbox" 
-                id="check-grand-canyon-chiangmai"
-                checked={selectedPlaces['grand-canyon-chiangmai']}
-                onChange={() => handleSelectPlace('grand-canyon-chiangmai')}
-              />
-              <label htmlFor="check-grand-canyon-chiangmai">Select for route</label>
-            </div>
-            <div className={styles.favouriteImage}>
-              <img src="https://jjubbbbb.wordpress.com/wp-content/uploads/2016/11/grand-canyon-of-chiang-mai2.jpg" alt="แกรนด์แคนยอน เชียงใหม่" />
-            </div>
-            <div className={styles.favouriteInfo}>
-              <h3 className={styles.favouriteTitle}>แกรนด์แคนยอน เชียงใหม่</h3>
-              
-              <div className={styles.infoItem}>
-                <span className={styles.infoIcon}>🚗</span>
-                <span className={styles.infoText}>20 km from city center</span>
-              </div>
-              
-              <div className={styles.infoItem}>
-                <span className={styles.infoIcon}>🎫</span>
-                <span className={styles.infoText}>Free entrance</span>
-              </div>
-              
-              <div className={styles.infoItem}>
-                <span className={styles.infoIcon}>🕒</span>
-                <span className={styles.infoText}>Open 08:00 am - 17:00 pm</span>
-              </div>
-              
-              <div className={styles.actionButtons}>
-                <button 
-                  className={styles.heartButton}
-                  onClick={() => handleHeartClick('grand-canyon-chiangmai')}
-                >
-                  <img 
-                    src={heartStatus['grand-canyon-chiangmai'] 
-                      ? "https://cdn-icons-png.flaticon.com/128/4340/4340223.png" 
-                      : "https://cdn-icons-png.flaticon.com/128/4340/4340091.png"} 
-                    alt="Favorite" 
-                    className={styles.heartButtonIcon} 
-                  />
-                </button>
-                <button 
-                  className={styles.moreInfoButton}
-                  onClick={() => handleMoreInfoClick('grand-canyon-chiangmai')}
-                >
-                  <img src="https://cdn-icons-png.flaticon.com/128/854/854878.png" alt="More Info" className={styles.moreInfoButtonIcon} />
-                </button>
-                <button 
-                  className={styles.viewButton}
-                  onClick={() => handleViewPlace('story-page')}
-                >
-                  View Place
-                </button>
-              </div>
-            </div>
+          {favorites.map((item, index) => {
+            // ตัวแปรสำหรับข้อมูล location 
+            const location = item.location || {};
+            const itemId = item.ID || index;
             
-            <div className={styles.destinationRating}>
-              <div className={styles.ratingScore}>5.0</div>
-              <div className={styles.ratingText}>Very Good</div>
-              <div className={styles.reviewCount}>25 reviews</div>
-            </div>
-          </div>
+            return (
+              <div key={itemId} className={styles.favouriteItem}>
+                <div className={styles.selectCheckbox}>
+                  <input
+                    type="checkbox"
+                    id={`check-${itemId}`}
+                    checked={selectedPlaces[itemId] || false}
+                    onChange={() => handleSelectPlace(itemId)}
+                  />
+                  <label htmlFor={`check-${itemId}`}>Select for route</label>
+                </div>
 
-          {/* Favourite Item 2 */}
-          <div className={styles.favouriteItem}>
-            <div className={styles.selectCheckbox}>
-              <input 
-                type="checkbox" 
-                id="check-mon-hong-waterfall"
-                checked={selectedPlaces['mon-hong-waterfall']}
-                onChange={() => handleSelectPlace('mon-hong-waterfall')}
-              />
-              <label htmlFor="check-mon-hong-waterfall">Select for route</label>
-            </div>
-            <div className={styles.favouriteImage}>
-              <img src="https://media.readthecloud.co/wp-content/uploads/2021/12/29133520/angkaew-11-750x500.jpg" alt="น้ำตกม่อนฮ่อง (ป่าแป๋)" />
-            </div>
-            <div className={styles.favouriteInfo}>
-              <h3 className={styles.favouriteTitle}>น้ำตกม่อนฮ่อง (ป่าแป๋)</h3>
-              
-              <div className={styles.infoItem}>
-                <span className={styles.infoIcon}>🚗</span>
-                <span className={styles.infoText}>20 km from city center</span>
-              </div>
-              
-              <div className={styles.infoItem}>
-                <span className={styles.infoIcon}>🎫</span>
-                <span className={styles.infoText}>Free entrance</span>
-              </div>
-              
-              <div className={styles.infoItem}>
-                <span className={styles.infoIcon}>🕒</span>
-                <span className={styles.infoText}>Open 08:00 am - 17:00 pm</span>
-              </div>
-              
-              <div className={styles.actionButtons}>
-                <button 
-                  className={styles.heartButton}
-                  onClick={() => handleHeartClick('mon-hong-waterfall')}
-                >
+                <div className={styles.favouriteImage}>
                   <img 
-                    src={heartStatus['mon-hong-waterfall'] 
-                      ? "https://cdn-icons-png.flaticon.com/128/4340/4340223.png" 
-                      : "https://cdn-icons-png.flaticon.com/128/4340/4340091.png"} 
-                    alt="Favorite" 
-                    className={styles.heartButtonIcon} 
+                    src={getImageUrl(location.Images)} 
+                    alt={location.LocationsName || "Location Image"} 
+                    onError={(e) => {
+                      e.target.src = "https://via.placeholder.com/300x200?text=No+Image";
+                    }}
                   />
-                </button>
-                <button 
-                  className={styles.moreInfoButton}
-                  onClick={() => handleMoreInfoClick('mon-hong-waterfall')}
-                >
-                  <img src="https://cdn-icons-png.flaticon.com/128/854/854878.png" alt="More Info" className={styles.moreInfoButtonIcon} />
-                </button>
-                <button 
-                  className={styles.viewButton}
-                  onClick={() => handleViewPlace('mon-hong-waterfall')}
-                >
-                  View Place
-                </button>
-              </div>
-            </div>
-            
-            <div className={styles.destinationRating}>
-              <div className={styles.ratingScore}>4.5</div>
-              <div className={styles.ratingText}>Very Good</div>
-              <div className={styles.reviewCount}>15 reviews</div>
-            </div>
-          </div>
+                </div>
 
-          {/* Favourite Item 3 */}
-          <div className={styles.favouriteItem}>
-            <div className={styles.selectCheckbox}>
-              <input 
-                type="checkbox" 
-                id="check-suan-bo-kaew"
-                checked={selectedPlaces['suan-bo-kaew']}
-                onChange={() => handleSelectPlace('suan-bo-kaew')}
-              />
-              <label htmlFor="check-suan-bo-kaew">Select for route</label>
-            </div>
-            <div className={styles.favouriteImage}>
-              <img src="https://i.ytimg.com/vi/9_0j8BOBiE8/maxresdefault.jpg" alt="สวนบ่อแก้ว" />
-            </div>
-            <div className={styles.favouriteInfo}>
-              <h3 className={styles.favouriteTitle}>สวนบ่อแก้ว</h3>
-              
-              <div className={styles.infoItem}>
-                <span className={styles.infoIcon}>🚗</span>
-                <span className={styles.infoText}>20 km from city center</span>
-              </div>
-              
-              <div className={styles.infoItem}>
-                <span className={styles.infoIcon}>🎫</span>
-                <span className={styles.infoText}>Free entrance</span>
-              </div>
-              
-              <div className={styles.infoItem}>
-                <span className={styles.infoIcon}>🕒</span>
-                <span className={styles.infoText}>Open 08:00 am - 17:00 pm</span>
-              </div>
-              
-              <div className={styles.actionButtons}>
-                <button 
-                  className={styles.heartButton}
-                  onClick={() => handleHeartClick('suan-bo-kaew')}
-                >
-                  <img 
-                    src={heartStatus['suan-bo-kaew'] 
-                      ? "https://cdn-icons-png.flaticon.com/128/4340/4340223.png" 
-                      : "https://cdn-icons-png.flaticon.com/128/4340/4340091.png"} 
-                    alt="Favorite" 
-                    className={styles.heartButtonIcon} 
-                  />
-                </button>
-                <button 
-                  className={styles.moreInfoButton}
-                  onClick={() => handleMoreInfoClick('suan-bo-kaew')}
-                >
-                  <img src="https://cdn-icons-png.flaticon.com/128/854/854878.png" alt="More Info" className={styles.moreInfoButtonIcon} />
-                </button>
-                <button 
-                  className={styles.viewButton}
-                  onClick={() => handleViewPlace('suan-bo-kaew')}
-                >
-                  View Place
-                </button>
-              </div>
-            </div>
-            
-            <div className={styles.destinationRating}>
-              <div className={styles.ratingScore}>4.2</div>
-              <div className={styles.ratingText}>Very Good</div>
-              <div className={styles.reviewCount}>12 reviews</div>
-            </div>
-          </div>
+                <div className={styles.favouriteInfo}>
+                  <h3 className={styles.favouriteTitle}>
+                    {location.LocationsName || "ไม่มีชื่อสถานที่"}
+                  </h3>
 
-          {/* Favourite Item 4 */}
-          <div className={styles.favouriteItem}>
-            <div className={styles.selectCheckbox}>
-              <input 
-                type="checkbox" 
-                id="check-hydrangea-royal-project"
-                checked={selectedPlaces['hydrangea-royal-project']}
-                onChange={() => handleSelectPlace('hydrangea-royal-project')}
-              />
-              <label htmlFor="check-hydrangea-royal-project">Select for route</label>
-            </div>
-            <div className={styles.favouriteImage}>
-              <img src="https://static.ticket2attraction.com/gallery/1ea4fe7f-71c1-4170-b95f-4f0b70f19ece/adcfe8c9-9316-4e4f-89c2-4669cec51d5d-1200.webp" alt="ทุ่งดอกไฮเดรนเยีย โครงการหลวงขุนแปะ" />
-            </div>
-            <div className={styles.favouriteInfo}>
-              <h3 className={styles.favouriteTitle}>ทุ่งดอกไฮเดรนเยีย โครงการหลวงขุนแปะ</h3>
-              
-              <div className={styles.infoItem}>
-                <span className={styles.infoIcon}>🚗</span>
-                <span className={styles.infoText}>20 km from city center</span>
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoIcon}>📍</span>
+                    <span className={styles.infoText}>
+                      {location.Address || "ไม่มีข้อมูลที่อยู่"}
+                    </span>
+                  </div>
+
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoIcon}>🎫</span>
+                    <span className={styles.infoText}>
+                      {location.EntranceDetails || "ไม่มีข้อมูลทางเข้า"}
+                    </span>
+                  </div>
+
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoIcon}>🕒</span>
+                    <span className={styles.infoText}>
+                      {location.OpenTime || "ไม่มีข้อมูลเวลาเปิด"}
+                    </span>
+                  </div>
+
+                  <div className={styles.actionButtons}>
+                    <button
+                      className={styles.heartButton}
+                      onClick={() => handleHeartClick(itemId)}
+                    >
+                      <img
+                        src={
+                          heartStatus[itemId]
+                            ? "https://cdn-icons-png.flaticon.com/128/4340/4340223.png"
+                            : "https://cdn-icons-png.flaticon.com/128/4340/4340091.png"
+                        }
+                        alt="Favorite"
+                        className={styles.heartButtonIcon}
+                      />
+                    </button>
+                    <button
+                      className={styles.moreInfoButton}
+                      onClick={() => handleMoreInfoClick(itemId)}
+                    >
+                      <img
+                        src="https://cdn-icons-png.flaticon.com/128/854/854878.png"
+                        alt="More Info"
+                        className={styles.moreInfoButtonIcon}
+                      />
+                    </button>
+                    <button
+                      className={styles.viewButton}
+                      onClick={() => handleViewPlace(location.ID || itemId)}
+                    >
+                      View Place
+                    </button>
+                  </div>
+                </div>
+
+                <div className={styles.destinationRating}>
+                  <div className={styles.ratingScore}>
+                    {location.LocationsRating || "N/A"}
+                  </div>
+                  <div className={styles.ratingText}>
+                    {(location.LocationsRating || 0) >= 4.5 ? "Very Good" : "Good"}
+                  </div>
+                  <div className={styles.reviewCount}>
+                    {location.ReviewCount || 0} reviews
+                  </div>
+                </div>
               </div>
-              
-              <div className={styles.infoItem}>
-                <span className={styles.infoIcon}>🎫</span>
-                <span className={styles.infoText}>Free entrance</span>
-              </div>
-              
-              <div className={styles.infoItem}>
-                <span className={styles.infoIcon}>🕒</span>
-                <span className={styles.infoText}>Open 08:00 am - 17:00 pm</span>
-              </div>
-              
-              <div className={styles.actionButtons}>
-                <button 
-                  className={styles.heartButton}
-                  onClick={() => handleHeartClick('hydrangea-royal-project')}
-                >
-                  <img 
-                    src={heartStatus['hydrangea-royal-project'] 
-                      ? "https://cdn-icons-png.flaticon.com/128/4340/4340223.png" 
-                      : "https://cdn-icons-png.flaticon.com/128/4340/4340091.png"} 
-                    alt="Favorite" 
-                    className={styles.heartButtonIcon} 
-                  />
-                </button>
-                <button 
-                  className={styles.moreInfoButton}
-                  onClick={() => handleMoreInfoClick('hydrangea-royal-project')}
-                >
-                  <img src="https://cdn-icons-png.flaticon.com/128/854/854878.png" alt="More Info" className={styles.moreInfoButtonIcon} />
-                </button>
-                <button 
-                  className={styles.viewButton}
-                  onClick={() => handleViewPlace('hydrangea-royal-project')}
-                >
-                  View Place
-                </button>
-              </div>
-            </div>
-            
-            <div className={styles.destinationRating}>
-              <div className={styles.ratingScore}>4.0</div>
-              <div className={styles.ratingText}>Very Good</div>
-              <div className={styles.reviewCount}>8 reviews</div>
-            </div>
-          </div>
+            );
+          })}
         </div>
 
-        {/* Create Route Map Button */}
+        {favorites.length === 0 && (
+          <div className={styles.emptyState}>
+            <p>ไม่มีสถานที่โปรดในขณะนี้</p>
+          </div>
+        )}
+
         <button className={styles.createRouteButton} onClick={handleCreateRouteMap}>
           Create Route Map
         </button>
-
       </div>
 
-      {/* Popup for More Info */}
       {showPopup && (
         <div className={styles.popupOverlay}>
           <div className={styles.popup}>
@@ -401,7 +343,6 @@ const Favourites = () => {
               <button 
                 className={styles.confirmButton}
                 onClick={() => {
-                  // Set this place as starting point logic
                   setSelectedPlaces(prev => ({...prev, [currentPlace]: true}));
                   showNotificationPopup(`${getPlaceName(currentPlace)} set as starting point`);
                   setShowPopup(false);
@@ -414,14 +355,13 @@ const Favourites = () => {
         </div>
       )}
 
-      {/* Info Popup (centered with Got it! button) */}
       {showInfoPopup && (
         <div className={styles.popupOverlay}>
           <div className={styles.infoPopup}>
             <button className={styles.closePopup} onClick={handleCloseInfoPopup}>×</button>
             <div className={styles.popupContent}>
               <h3>Route Planning Information</h3>
-              <p>The first location you select will be<br></br>set as the starting point of your route.</p>
+              <p>The first location you select will be<br/>set as the starting point of your route.</p>
               <button 
                 className={styles.gotItButton}
                 onClick={handleCloseInfoPopup}
@@ -433,16 +373,12 @@ const Favourites = () => {
         </div>
       )}
 
-      {/* Notification Popup */}
       {showNotification && (
         <div className={styles.notificationPopup}>
-          <div className={styles.notificationContent}>
-            {notificationMessage}
-          </div>
+          {notificationMessage}
         </div>
       )}
 
-      {/* Use the Footer component */}
       <Footer />
     </div>
   );

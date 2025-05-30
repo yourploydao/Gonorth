@@ -59,6 +59,11 @@ func main() {
 		auth.POST("/tags", InformationController.CreateTag)
 		auth.POST("/external-scores", InformationController.CreateExternalScore)
 		auth.POST("/reviews", InformationController.CreateReview)
+		auth.POST("/favorite", InformationController.AddFavorite)
+		auth.GET("favorite/:locationID", InformationController.CheckFavorite)
+		auth.DELETE("/favorite", InformationController.DeleteFavorite)
+		auth.GET("userfavorites", InformationController.GetFavorites)
+		auth.DELETE("/deletefavorite", InformationController.DeleteFavorite)
 	}
 
 	r.Run("localhost:8080")
