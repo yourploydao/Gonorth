@@ -15,6 +15,7 @@ const UserProfile = () => {
   const [tempPhone, setTempPhone] = useState("");
   const fileInputRef = useRef(null);
   const [user, setUser] = useState(null);
+  const [profileImage, setProfileImage] = useState(null);
   
   useEffect(() => {
     const fetchProfile = async () => {
@@ -56,17 +57,44 @@ const UserProfile = () => {
     }
   }, [user]);
 
-  const handleProfilePicChange = (event) => {
+  const handleProfilePicChange = async (event) => {
     const file = event.target.files[0];
-    if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfileImage(reader.result);
-      };
-      reader.readAsDataURL(file);
+    if (!file || !file.type.startsWith('image/')) return;
+
+    const formData = new FormData();
+    formData.append('image', file);
+
+    try {
+      const response = await fetch('http://localhost:8080/change-profileimage', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        },
+      });
+
+      const contentType = response.headers.get('content-type');
+      if (!response.ok) {
+        const errorMessage = contentType?.includes('application/json')
+          ? (await response.json()).error
+          : await response.text();
+        throw new Error(errorMessage || 'Upload failed');
+      }
+
+      const data = await response.json();
+      console.log('Uploaded image URL:', data.image_url);
+
+      setUser((prevUser) => ({
+        ...prevUser,
+        profileImage: data.image_url,
+      }));
+
+    } catch (error) {
+      console.error('Error uploading image:', error.message);
+      alert(`Upload failed: ${error.message}`);
     }
   };
-
+  
   const triggerFileInput = () => {
     fileInputRef.current.click();
   };
