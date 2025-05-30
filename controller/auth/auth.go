@@ -3,15 +3,21 @@ package auth
 import (
 	"Gonorth/orm"
 	"Gonorth/utils"
+	"bytes"
+	"context"
 	"fmt"
+	"io"
+	"log"
 	"math/rand"
 	"net/http"
 	"os"
 	"time"
-	"log"
 
+	"github.com/cloudinary/cloudinary-go/v2"
+	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+
 	// "github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
 	// "gopkg.in/gomail.v2"
@@ -440,4 +446,78 @@ func ChangePhone(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Phone number updated successfully"})
+}
+
+func ChangeProfileImage(c *gin.Context) {
+    userInterface, exists := c.Get("user")
+    if !exists {
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+        return
+    }
+
+    user, ok := userInterface.(orm.User)
+    if !ok {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user type"})
+        return
+    }
+
+    file, err := c.FormFile("image")
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Image is required"})
+        return
+    }
+
+    // เปิดไฟล์
+    openedFile, err := file.Open()
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Cannot open image"})
+        return
+    }
+    defer openedFile.Close()
+
+    // อ่านไฟล์เป็น bytes
+    fileBytes, err := io.ReadAll(openedFile)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Cannot read image"})
+        return
+    }
+
+    // ตั้งค่า Cloudinary
+    cld, err := cloudinary.NewFromParams(
+        os.Getenv("CLOUDINARY_CLOUD_NAME"),
+        os.Getenv("CLOUDINARY_API_KEY"),
+        os.Getenv("CLOUDINARY_API_SECRET"),
+    )
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Cloudinary config error"})
+        return
+    }
+
+    // อัปโหลดภาพไป Cloudinary
+    uploadResult, err := cld.Upload.Upload(context.Background(), bytes.NewReader(fileBytes), uploader.UploadParams{
+        Folder:   "Profile",
+        PublicID: fmt.Sprintf("user_%v_profile", user.ID),
+    })
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Upload failed", "details": err.Error()})
+        return
+    }
+
+    if uploadResult.SecureURL == "" {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Upload succeeded but URL is empty"})
+        return
+    }
+
+    // อัปเดต URL รูปโปรไฟล์ใน DB
+    user.ProfileImage = uploadResult.SecureURL
+
+    if err := orm.Db.Save(&user).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user"})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{
+        "message":   "Profile picture updated",
+        "image_url": uploadResult.SecureURL,
+    })
 }
