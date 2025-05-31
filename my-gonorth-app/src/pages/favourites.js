@@ -13,13 +13,22 @@ const Favourites = () => {
   const [notificationMessage, setNotificationMessage] = useState('');
   const [currentPlace, setCurrentPlace] = useState('');
   const [showInfoPopup, setShowInfoPopup] = useState(false);
-
   const router = useRouter();
-
+  
+  // เปลี่ยนจาก reviewStats เดี่ยว เป็น object ที่เก็บ stats ของแต่ละ location
+  const [locationReviewStats, setLocationReviewStats] = useState({});
+  const [isLoadingStats, setIsLoadingStats] = useState(false);
+  
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.error("No token found in localStorage");
+      return;
+    }
+
+    // ดึงข้อมูลรายการโปรด
     const fetchFavorites = async () => {
       try {
-        const token = localStorage.getItem("token");
         console.log("Token:", token);
 
         const res = await fetch("http://localhost:8080/userfavorites", {
@@ -38,7 +47,6 @@ const Favourites = () => {
 
         const data = await res.json();
         console.log("Data from API:", data);
-        console.log("Favorite IDs:", data.map(d => d.location_id));
 
         setFavorites(data);
 
@@ -46,13 +54,15 @@ const Favourites = () => {
         const dynamicSelectedPlaces = {};
 
         data.forEach(item => {
-          // ใช้ ID จาก response หลัก (item.ID) แทน location.ID
           dynamicHeartStatus[item.ID] = true;
           dynamicSelectedPlaces[item.ID] = false;
         });
 
         setHeartStatus(dynamicHeartStatus);
         setSelectedPlaces(dynamicSelectedPlaces);
+
+        // ดึงสถิติรีวิวสำหรับแต่ละ location
+        await fetchAllReviewStats(data, token);
 
       } catch (error) {
         console.error("Error fetching favorites:", error);
@@ -62,9 +72,52 @@ const Favourites = () => {
     fetchFavorites();
   }, []);
 
-  useEffect(() => {
-    console.log("Favorites in state:", favorites);
-  }, [favorites]);
+  // ฟังก์ชันใหม่สำหรับดึงสถิติรีวิวของทุก location
+  const fetchAllReviewStats = async (favoritesData, token) => {
+    setIsLoadingStats(true);
+    const statsPromises = favoritesData.map(async (item) => {
+      try {
+        const locationId = item.location?.ID || item.location_id;
+        if (!locationId) return null;
+
+        const res = await fetch(`http://localhost:8080/location/${locationId}/review-stats`, {
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          return {
+            locationId: locationId,
+            stats: data
+          };
+        }
+        return null;
+      } catch (error) {
+        console.error(`Error fetching review stats for location ${item.location?.ID}:`, error);
+        return null;
+      }
+    });
+
+    try {
+      const results = await Promise.all(statsPromises);
+      const statsObject = {};
+      
+      results.forEach(result => {
+        if (result) {
+          statsObject[result.locationId] = result.stats;
+        }
+      });
+      
+      setLocationReviewStats(statsObject);
+    } catch (error) {
+      console.error("Error processing review stats:", error);
+    } finally {
+      setIsLoadingStats(false);
+    }
+  };
 
   const handleViewPlace = (id) => {
     router.push(`/story-page?id=${id}`);
@@ -77,11 +130,9 @@ const Favourites = () => {
     }));
 
     try {
-      // หา location_id จาก favorites array
       const favoriteItem = favorites.find(fav => fav.ID === itemId);
       if (!favoriteItem) {
         showNotificationPopup("ไม่พบข้อมูลสถานที่");
-        // รีเซ็ต heart กลับเป็น filled ถ้าเกิด error
         setHeartStatus(prev => ({
           ...prev,
           [itemId]: true,
@@ -104,7 +155,6 @@ const Favourites = () => {
       if (response.ok) {
         showNotificationPopup(`${getPlaceName(itemId)} removed from favorites`);
         
-        // รอ 1.5 วินาทีแล้วค่อยลบออกจากรายการ
         setTimeout(() => {
           setFavorites(prev => prev.filter(fav => fav.ID !== itemId));
           
@@ -119,13 +169,22 @@ const Favourites = () => {
             delete newSelected[itemId];
             return newSelected;
           });
+
+          // ลบ review stats ของ location นี้ด้วย
+          setLocationReviewStats(prev => {
+            const newStats = { ...prev };
+            const locationId = favoriteItem.location?.ID || favoriteItem.location_id;
+            if (locationId) {
+              delete newStats[locationId];
+            }
+            return newStats;
+          });
         }, 1500);
 
       } else {
         const errorData = await response.json();
         showNotificationPopup(errorData.error || "Failed to remove from favorites");
         
-        // รีเซ็ต heart กลับเป็น filled ถ้าเกิด error
         setHeartStatus(prev => ({
           ...prev,
           [itemId]: true,
@@ -135,7 +194,6 @@ const Favourites = () => {
       console.error("Error removing favorite:", error);
       showNotificationPopup("เกิดข้อผิดพลาดในการลบรายการโปรด");
       
-      // รีเซ็ต heart กลับเป็น filled ถ้าเกิด error
       setHeartStatus(prev => ({
         ...prev,
         [itemId]: true,
@@ -196,14 +254,30 @@ const Favourites = () => {
   const getImageUrl = (images) => {
     if (!images || images.length === 0) return "https://via.placeholder.com/300x200?text=No+Image";
     
-    // หารูปหลัก (IsMain: true) ก่อน
     const mainImage = images.find(img => img.IsMain === true);
     if (mainImage && mainImage.URL) return mainImage.URL;
     
-    // ถ้าไม่มีรูปหลัก ใช้รูปแรก
     if (images[0] && images[0].URL) return images[0].URL;
     
     return "https://via.placeholder.com/300x200?text=No+Image";
+  };
+
+  // ฟังก์ชันใหม่สำหรับดึงข้อมูลรีวิวของแต่ละ location
+  const getLocationReviewStats = (locationId) => {
+    return locationReviewStats[locationId] || {
+      total_reviews: 0,
+      average_rating: 0,
+      rating_distribution: {}
+    };
+  };
+
+  const getRatingText = (rating) => {
+    if (rating >= 4.5) return "Excellent";
+    if (rating >= 4.0) return "Very Good";
+    if (rating >= 3.5) return "Good";
+    if (rating >= 3.0) return "Fair";
+    if (rating > 0) return "Poor";
+    return "No Reviews";
   };
 
   return (
@@ -220,9 +294,10 @@ const Favourites = () => {
 
         <div className={styles.favouritesList}>
           {favorites.map((item, index) => {
-            // ตัวแปรสำหรับข้อมูล location 
             const location = item.location || {};
             const itemId = item.ID || index;
+            const locationId = location.ID || item.location_id;
+            const reviewStats = getLocationReviewStats(locationId);
             
             return (
               <div key={itemId} className={styles.favouriteItem}>
@@ -299,7 +374,7 @@ const Favourites = () => {
                     </button>
                     <button
                       className={styles.viewButton}
-                      onClick={() => handleViewPlace(location.ID || itemId)}
+                      onClick={() => handleViewPlace(locationId)}
                     >
                       View Place
                     </button>
@@ -307,15 +382,21 @@ const Favourites = () => {
                 </div>
 
                 <div className={styles.destinationRating}>
-                  <div className={styles.ratingScore}>
-                    {location.LocationsRating || "N/A"}
-                  </div>
-                  <div className={styles.ratingText}>
-                    {(location.LocationsRating || 0) >= 4.5 ? "Very Good" : "Good"}
-                  </div>
-                  <div className={styles.reviewCount}>
-                    {location.ReviewCount || 0} reviews
-                  </div>
+                  {isLoadingStats ? (
+                    <div className={styles.loadingRating}>Loading...</div>
+                  ) : (
+                    <>
+                      <div className={styles.ratingScore}>
+                        {reviewStats.average_rating ? reviewStats.average_rating.toFixed(1) : "N/A"}
+                      </div>
+                      <div className={styles.ratingText}>
+                        {getRatingText(reviewStats.average_rating || 0)}
+                      </div>
+                      <div className={styles.reviewCount}>
+                        {reviewStats.total_reviews || 0} reviews
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             );

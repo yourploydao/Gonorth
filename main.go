@@ -55,15 +55,14 @@ func main() {
 		auth.GET("/locations-login/latest", InformationController.GetLatestLocations)
 		auth.GET("/locations-login/all", InformationController.GetAllLocations)
 		auth.GET("/locations-login/season/:season", InformationController.GetLocationsBySeason)
-		auth.POST("/activities", InformationController.CreateActivity)
-		auth.POST("/tags", InformationController.CreateTag)
-		auth.POST("/external-scores", InformationController.CreateExternalScore)
-		auth.POST("/reviews", InformationController.CreateReview)
 		auth.POST("/favorite", InformationController.AddFavorite)
 		auth.GET("favorite/:locationID", InformationController.CheckFavorite)
 		auth.DELETE("/favorite", InformationController.DeleteFavorite)
 		auth.GET("userfavorites", InformationController.GetFavorites)
 		auth.DELETE("/deletefavorite", InformationController.DeleteFavorite)
+		auth.GET("/location/:id/reviews", InformationController.GetLocationReviews)
+		auth.GET("/location/:id/review-stats", InformationController.GetLocationReviewStats)
+		auth.POST(("/reviews"), InformationController.CreateReviewForLocation)
 	}
 
 	r.Run("localhost:8080")
