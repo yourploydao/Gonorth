@@ -153,7 +153,7 @@ const Favourites = () => {
       });
 
       if (response.ok) {
-        showNotificationPopup(`${getPlaceName(itemId)} removed from favorites`);
+        showNotificationPopup(`${getPlaceName(itemId)} ลบออกจากรายการโปรด`);
         
         setTimeout(() => {
           setFavorites(prev => prev.filter(fav => fav.ID !== itemId));
@@ -229,9 +229,9 @@ const Favourites = () => {
     const selectedDestinations = Object.keys(selectedPlaces).filter(place => selectedPlaces[place]);
 
     if (currentPlace && selectedDestinations.length > 0) {
-      showNotificationPopup(`Creating route map starting with ${getPlaceName(currentPlace)}`);
+      showNotificationPopup(`กำลังสร้างแผนที่เส้นทางโดยเริ่มจาก... ${getPlaceName(currentPlace)}`);
     } else {
-      showNotificationPopup("Please select at least one destination for your route");
+      showNotificationPopup("คุณต้องเลือกอย่างน้อยหนึ่งจุดหมายเพื่อสร้างเส้นทาง");
     }
   };
 
@@ -285,13 +285,14 @@ const Favourites = () => {
 
       <div className={styles.mainContent}>
         <div className={styles.titleContainer}>
-          <h1 className={styles.pageTitle}>Favourites</h1>
+          <h1 className={styles.pageTitle}>รายการโปรด</h1>
           <button className={styles.moreInfoHeaderButton} onClick={handleInfoButtonClick}>
             <img src="https://cdn-icons-png.flaticon.com/128/14836/14836604.png" alt="info" className={styles.moreInfoIcon} />
           </button>
         </div>
 
         <div className={styles.favouritesList}>
+
           {favorites.map((item, index) => {
             const location = item.location || {};
             const itemId = item.ID || index;
@@ -307,7 +308,7 @@ const Favourites = () => {
                     checked={selectedPlaces[itemId] || false}
                     onChange={() => handleSelectPlace(itemId)}
                   />
-                  <label htmlFor={`check-${itemId}`}>Select for route</label>
+                  <label htmlFor={`check-${itemId}`}>เลือกจุดหมายสำหรับเส้นทาง</label>
                 </div>
 
                 <div className={styles.favouriteImage}>
@@ -375,7 +376,7 @@ const Favourites = () => {
                       className={styles.viewButton}
                       onClick={() => handleViewPlace(locationId)}
                     >
-                      View Place
+                      ชมสถานที่
                     </button>
                   </div>
                 </div>
@@ -409,7 +410,7 @@ const Favourites = () => {
         )}
 
         <button className={styles.createRouteButton} onClick={handleCreateRouteMap}>
-          Create Route Map
+        สร้างแผนที่การเดินทาง
         </button>
       </div>
 
@@ -418,17 +419,17 @@ const Favourites = () => {
           <div className={styles.popup}>
             <button className={styles.closePopup} onClick={handleClosePopup}>×</button>
             <div className={styles.popupContent}>
-              <h3>Set as Starting Point</h3>
-              <p>Do you want to set <strong>{getPlaceName(currentPlace)}</strong> as the starting point for your route?</p>
+              <h3>ถูกกำหนดเป็นจุดเริ่มต้น</h3>
+              <p>คุณต้องการตั้ง <strong>{getPlaceName(currentPlace)}</strong> เป็นจุดเริ่มต้นสำหรับเส้นทางของคุณหรือไม่?</p>
               <button 
                 className={styles.confirmButton}
                 onClick={() => {
                   setSelectedPlaces(prev => ({...prev, [currentPlace]: true}));
-                  showNotificationPopup(`${getPlaceName(currentPlace)} set as starting point`);
+                  showNotificationPopup(`${getPlaceName(currentPlace)} กำหนดเป็นจุดเริ่มต้น`);
                   setShowPopup(false);
                 }}
               >
-                Confirm
+                ยืนยัน
               </button>
             </div>
           </div>
@@ -440,13 +441,16 @@ const Favourites = () => {
           <div className={styles.infoPopup}>
             <button className={styles.closePopup} onClick={handleCloseInfoPopup}>×</button>
             <div className={styles.popupContent}>
+
               <h3>Route Planning Information</h3>
               <p>The first location you select will be<br/>set as the starting point of your route.</p>
+              <h3>รายละเอียดการวางแผนเส้นทาง</h3>
+              <p>สถานที่แรกที่คุณเลือก<br></br>จะถูกตั้งเป็นจุดเริ่มต้นของเส้นทางของคุณ</p>
               <button 
                 className={styles.gotItButton}
                 onClick={handleCloseInfoPopup}
               >
-                Got it!
+                เข้าใจแล้ว!
               </button>
             </div>
           </div>

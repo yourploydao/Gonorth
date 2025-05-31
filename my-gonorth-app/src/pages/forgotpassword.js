@@ -41,20 +41,18 @@ const ForgotPassword = () => {
       <div className={styles.recoveryCard}>
         <div className={styles.logoSection}>
           <div className={styles.logo}>
-            {/* Logo image would be here */}
-            {/* <img src="/assets/gonorth-logo.png" alt="GONORTH" className={styles.gonorthLogo} /> */}
           </div>
           
           <div className={styles.backLink}>
-            <a href="/login"><span className={styles.backArrow}>&#8249;</span> Back to login</a>
+            <a href="/login"><span className={styles.backArrow}>&#8249;</span> กลับไปที่หน้าเข้าสู่ระบบ</a>
           </div>
           
-          <h1 className={styles.title}>Forgot your password?</h1>
-          <p className={styles.subtitle}>Don't worry, happens to all of us.<br></br>Enter your email below to recover your password</p>
+          <h1 className={styles.title}>ลืมรหัสผ่านใช่ไหม?</h1>
+          <p className={styles.subtitle}>ไม่ต้องกังวล เรื่องนี้เกิดขึ้นได้กับทุกคน<br></br>กรอกอีเมลของคุณด้านล่างเพื่อกู้คืนรหัสผ่าน</p>
           
           <form onSubmit={handleSubmit}>
             <div className={styles.formField}>
-                <label className={styles.fieldLabel}>Email</label>
+                <label className={styles.fieldLabel}>อีเมล</label>
                 <input
                 type="email"
                 value={email}
@@ -64,12 +62,12 @@ const ForgotPassword = () => {
             </div>
 
             <button type="submit" className={styles.submitButton}>
-                Submit
+            ส่งคำขอ
             </button>
           </form>
           
           <div className={styles.divider}>
-            <span className={styles.dividerText}>Or login with</span>
+            <span className={styles.dividerText}>หรือเข้าสู่ระบบด้วย</span>
           </div>
           
           <div className={styles.socialButtons}>

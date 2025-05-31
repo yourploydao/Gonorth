@@ -14,8 +14,8 @@ import (
 // Location
 type LocationInput struct {
 	LocationsName   string         `json:"LocationsName"`
-	LocationsRating float64        `json:"LocationsRating"`
-	ReviewCount     int            `json:"ReviewCount"`
+	// LocationsRating float64        `json:"LocationsRating"`
+	// ReviewCount     int            `json:"ReviewCount"`
 	Address         string         `json:"Address"`
 	OpenTime        string         `json:"OpenTime"`
 	Topic           string         `json:"Topic"`
@@ -60,8 +60,8 @@ func CreateLocation(c *gin.Context) {
 
 	location := orm.Location{
 		LocationsName:   input.LocationsName,
-		LocationsRating: input.LocationsRating,
-		ReviewCount:     input.ReviewCount,
+		// LocationsRating: input.LocationsRating,
+		// ReviewCount:     input.ReviewCount,
 		Address:         input.Address,
 		OpenTime:        input.OpenTime,
 		Topic:           input.Topic,
@@ -400,7 +400,7 @@ func CreateReviewForLocation(c *gin.Context) {
 	}
 
 	// อัปเดต rating เฉลี่ยและจำนวนรีวิวของ Location
-	updateLocationRating(input.LocationID)
+	// updateLocationRating(input.LocationID)
 
 	// ดึงข้อมูลรีวิวพร้อม User เพื่อส่งกลับ
 	if err := orm.Db.Preload("User").First(&review, review.ID).Error; err != nil {
@@ -446,7 +446,7 @@ func GetLocationReviews(c *gin.Context) {
         Preload("User").
 		Preload("Location").
         Where("location_id = ?", locationID).
-        Order("rating DESC, created_at DESC").
+		Order("rating DESC, created_at DESC, updated_at DESC").
         Limit(limit).
         Offset(offset).
         Find(&reviews)
@@ -513,116 +513,116 @@ func GetLocationReviewStats(c *gin.Context) {
 }
 
 // ฟังก์ชันสำหรับแก้ไขรีวิว
-func UpdateReview(c *gin.Context) {
-	reviewID := c.Param("reviewId")
+// func UpdateReview(c *gin.Context) {
+// 	reviewID := c.Param("reviewId")
 	
-	var input struct {
-		Rating  int    `json:"rating"`
-		Comment string `json:"comment"`
-	}
+// 	var input struct {
+// 		Rating  int    `json:"rating"`
+// 		Comment string `json:"comment"`
+// 	}
 
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+// 	if err := c.ShouldBindJSON(&input); err != nil {
+// 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+// 		return
+// 	}
 
-	// ตรวจสอบ rating
-	if input.Rating < 1 || input.Rating > 5 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Rating must be between 1 and 5"})
-		return
-	}
+// 	// ตรวจสอบ rating
+// 	if input.Rating < 1 || input.Rating > 5 {
+// 		c.JSON(http.StatusBadRequest, gin.H{"error": "Rating must be between 1 and 5"})
+// 		return
+// 	}
 
-	// ดึงข้อมูล user
-	userRaw, exists := c.Get("user")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-		return
-	}
+// 	// ดึงข้อมูล user
+// 	userRaw, exists := c.Get("user")
+// 	if !exists {
+// 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+// 		return
+// 	}
 
-	user, ok := userRaw.(orm.User)
-	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user in context"})
-		return
-	}
+// 	user, ok := userRaw.(orm.User)
+// 	if !ok {
+// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user in context"})
+// 		return
+// 	}
 
-	// หารีวิวและตรวจสอบว่าเป็นของ user นี้หรือไม่
-	var review orm.Review
-	if err := orm.Db.Where("id = ? AND user_id = ?", reviewID, user.ID).First(&review).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Review not found or not authorized"})
-		return
-	}
+// 	// หารีวิวและตรวจสอบว่าเป็นของ user นี้หรือไม่
+// 	var review orm.Review
+// 	if err := orm.Db.Where("id = ? AND user_id = ?", reviewID, user.ID).First(&review).Error; err != nil {
+// 		c.JSON(http.StatusNotFound, gin.H{"error": "Review not found or not authorized"})
+// 		return
+// 	}
 
-	// อัปเดตรีวิว
-	review.Rating = input.Rating
-	review.Comment = input.Comment
+// 	// อัปเดตรีวิว
+// 	review.Rating = input.Rating
+// 	review.Comment = input.Comment
 
-	if err := orm.Db.Save(&review).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update review"})
-		return
-	}
+// 	if err := orm.Db.Save(&review).Error; err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update review"})
+// 		return
+// 	}
 
-	// อัปเดต rating เฉลี่ยของ Location
-	updateLocationRating(review.LocationID)
+// 	// อัปเดต rating เฉลี่ยของ Location
+// 	updateLocationRating(review.LocationID)
 
-	c.JSON(http.StatusOK, review)
-}
+// 	c.JSON(http.StatusOK, review)
+// }
 
 // ฟังก์ชันสำหรับลบรีวิว
-func DeleteReview(c *gin.Context) {
-	reviewID := c.Param("reviewId")
+// func DeleteReview(c *gin.Context) {
+// 	reviewID := c.Param("reviewId")
 
-	// ดึงข้อมูล user
-	userRaw, exists := c.Get("user")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-		return
-	}
+// 	// ดึงข้อมูล user
+// 	userRaw, exists := c.Get("user")
+// 	if !exists {
+// 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+// 		return
+// 	}
 
-	user, ok := userRaw.(orm.User)
-	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user in context"})
-		return
-	}
+// 	user, ok := userRaw.(orm.User)
+// 	if !ok {
+// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user in context"})
+// 		return
+// 	}
 
-	// หารีวิวและตรวจสอบ ownership
-	var review orm.Review
-	if err := orm.Db.Where("id = ? AND user_id = ?", reviewID, user.ID).First(&review).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Review not found or not authorized"})
-		return
-	}
+// 	// หารีวิวและตรวจสอบ ownership
+// 	var review orm.Review
+// 	if err := orm.Db.Where("id = ? AND user_id = ?", reviewID, user.ID).First(&review).Error; err != nil {
+// 		c.JSON(http.StatusNotFound, gin.H{"error": "Review not found or not authorized"})
+// 		return
+// 	}
 
-	locationID := review.LocationID
+// 	locationID := review.LocationID
 
-	// ลบรีวิว
-	if err := orm.Db.Delete(&review).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete review"})
-		return
-	}
+// 	// ลบรีวิว
+// 	if err := orm.Db.Delete(&review).Error; err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete review"})
+// 		return
+// 	}
 
-	// อัปเดต rating เฉลี่ยของ Location
-	updateLocationRating(locationID)
+// 	// อัปเดต rating เฉลี่ยของ Location
+// 	updateLocationRating(locationID)
 
-	c.JSON(http.StatusOK, gin.H{"message": "Review deleted successfully"})
-}
+// 	c.JSON(http.StatusOK, gin.H{"message": "Review deleted successfully"})
+// }
 
-// ฟังก์ชันช่วยสำหรับอัปเดต rating เฉลี่ยของ Location
-func updateLocationRating(locationID uint) {
-	var avgResult struct {
-		Avg   float64
-		Count int64
-	}
+// // ฟังก์ชันช่วยสำหรับอัปเดต rating เฉลี่ยของ Location
+// func updateLocationRating(locationID uint) {
+// 	var avgResult struct {
+// 		Avg   float64
+// 		Count int64
+// 	}
 
-	orm.Db.Model(&orm.Review{}).
-		Select("AVG(rating) as avg, COUNT(*) as count").
-		Where("location_id = ?", locationID).
-		Scan(&avgResult)
+// 	orm.Db.Model(&orm.Review{}).
+// 		Select("AVG(rating) as avg, COUNT(*) as count").
+// 		Where("location_id = ?", locationID).
+// 		Scan(&avgResult)
 
-	// อัปเดต Location
-	orm.Db.Model(&orm.Location{}).
-		Where("id = ?", locationID).
-		Updates(orm.Location{
-			LocationsRating: avgResult.Avg,
-			ReviewCount:     int(avgResult.Count),
-		})
-}
+// 	// อัปเดต Location
+// 	orm.Db.Model(&orm.Location{}).
+// 		Where("id = ?", locationID).
+// 		Updates(orm.Location{
+// 			LocationsRating: avgResult.Avg,
+// 			ReviewCount:     int(avgResult.Count),
+// 		})
+// }
 

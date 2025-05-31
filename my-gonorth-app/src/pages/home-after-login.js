@@ -105,7 +105,7 @@ const HomeAfterAuthen = () => {
     const month = new Date().getMonth() + 1; 
     
     if (month >= 3 && month <= 5) return "summer";
-    if (month >= 6 && month <= 10) return "rainny";
+    if (month >= 6 && month <= 10) return "rainy";
     return "winter";
   };
 
@@ -116,7 +116,7 @@ const HomeAfterAuthen = () => {
     switch (currentSeason) {
       case "summer":
         return "ฤดูร้อน";
-      case "rainny":
+      case "rainy":
         return "ฤดูฝน";
       case "winter":
         return "ฤดูหนาว";

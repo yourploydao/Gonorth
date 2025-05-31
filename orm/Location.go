@@ -5,8 +5,8 @@ import "gorm.io/gorm"
 type Location struct {
 	gorm.Model
 	LocationsName   string
-	LocationsRating float64 `gorm:"type:decimal(2,1)"`
-	ReviewCount     int     `gorm:"default:0"`
+	// LocationsRating float64 `gorm:"type:decimal(2,1)"`
+	// ReviewCount     int     `gorm:"default:0"`
 	Address         string
 	OpenTime        string
 	Topic			string
