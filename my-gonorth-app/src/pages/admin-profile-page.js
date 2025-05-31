@@ -1,263 +1,77 @@
-import { useState, useRef, useEffect } from "react";
-import styles from "../styles/profile-page.module.css";
+import { useState, useRef } from "react";
+import { useRouter } from "next/router";
+import styles from "../styles/admin-profile-page.module.css";
 import Header from "../components/navigation";
 import Footer from "../components/footer";
 
-const UserProfile = () => {
+const AdminProfile = () => {
+  const router = useRouter();
+  const [username, setUsername] = useState("John Doe");
+  const [email, setEmail] = useState("john.doe@gmail.com");
+  const [phone, setPhone] = useState("0000000000");
+  const [profileImage, setProfileImage] = useState("/assets/profile-placeholder.png");
   const [isEditingUsername, setIsEditingUsername] = useState(false);
   const [isEditingEmail, setIsEditingEmail] = useState(false);
   const [isEditingPassword, setIsEditingPassword] = useState(false);
   const [isEditingPhone, setIsEditingPhone] = useState(false);
-  const [tempUsername, setTempUsername] = useState("");
-  const [tempEmail, setTempEmail] = useState("");
+  const [tempUsername, setTempUsername] = useState(username);
+  const [tempEmail, setTempEmail] = useState(email);
   const [tempPassword, setTempPassword] = useState("");
   const [tempConfirmPassword, setTempConfirmPassword] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
-  const [tempPhone, setTempPhone] = useState("");
-  const fileInputRef = useRef(null);
-  const [user, setUser] = useState(null);
-  const [profileImage, setProfileImage] = useState(null);
+  const [tempPhone, setTempPhone] = useState(phone);
   
-  useEffect(() => {
-    const fetchProfile = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        console.error("No token found");
-        return;
-      }
+  const fileInputRef = useRef(null);
 
-      try {
-        const res = await fetch("http://localhost:8080/profile", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`, 
-          },
-        });
-
-        if (res.ok) {
-            const data = await res.json();
-            console.log("User profile:", data);
-            setUser(data.user);
-          } else {
-            console.error("Failed to fetch user profile");
-          }
-        } catch (err) {
-          console.error("Error fetching profile:", err);
-        }
-      };
-
-    fetchProfile();
-  }, []);
-
-  useEffect(() => {
-    if (user) {
-      setTempUsername(`${user.firstname} ${user.lastname}`);
-      setTempEmail(user.email);
-      setTempPhone(user.phone);
-    }
-  }, [user]);
-
-  const handleProfilePicChange = async (event) => {
+  const handleProfilePicChange = (event) => {
     const file = event.target.files[0];
-    if (!file || !file.type.startsWith('image/')) return;
-
-    const formData = new FormData();
-    formData.append('image', file);
-
-    try {
-      const response = await fetch('http://localhost:8080/change-profileimage', {
-        method: 'POST',
-        body: formData,
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        },
-      });
-
-      const contentType = response.headers.get('content-type');
-      if (!response.ok) {
-        const errorMessage = contentType?.includes('application/json')
-          ? (await response.json()).error
-          : await response.text();
-        throw new Error(errorMessage || 'Upload failed');
-      }
-
-      const data = await response.json();
-      console.log('Uploaded image URL:', data.image_url);
-
-      setUser((prevUser) => ({
-        ...prevUser,
-        profileImage: data.image_url,
-      }));
-
-    } catch (error) {
-      console.error('Error uploading image:', error.message);
-      alert(`Upload failed: ${error.message}`);
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileImage(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
   };
-  
+
   const triggerFileInput = () => {
     fileInputRef.current.click();
   };
 
-  const handleSaveUsername = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("Authentication token missing.");
-      return;
-    }
-
-    const [firstname, ...lastnameParts] = tempUsername.trim().split(" ");
-    const lastname = lastnameParts.join(" ");
-
-    try {
-      const res = await fetch("http://localhost:8080/change-username", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify({ firstname, lastname }),
-      });
-
-      if (res.ok) {
-        alert("Username updated successfully!");
-        setIsEditingUsername(false);
-        setUser(prev => ({ ...prev, firstname, lastname }));
-      } else {
-        const data = await res.json();
-        alert(`Failed to update name: ${data.error || "Unknown error"}`);
-      }
-    } catch (error) {
-      alert("Network error. Please check your connection.");
-    }
+  const handleSaveUsername = () => {
+    setUsername(tempUsername);
+    setIsEditingUsername(false);
   };
 
-  const handleSaveEmail = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("Authentication token missing.");
-      return;
-    }
-
-    try {
-      const res = await fetch("http://localhost:8080/change-email", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify({ email: tempEmail }),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        alert("Email updated successfully!");
-        setIsEditingEmail(false);
-        setUser(prev => ({ ...prev, email: tempEmail }));
-      } else {
-        alert(`Failed to update email: ${data.error || "Unknown error"}`);
-      }
-    } catch (error) {
-      alert("Network error. Please check your connection.");
-    }
+  const handleSaveEmail = () => {
+    setEmail(tempEmail);
+    setIsEditingEmail(false);
   };
 
-  const handleSavePassword = async () => {
-    if (tempPassword !== tempConfirmPassword) {
-      alert("New passwords do not match.");
-      return;
-    }
-
-    if (!currentPassword.trim()) {
-      alert("Please enter your current password.");
-      return;
-    }
-
-    if (!tempPassword.trim()) {
-      alert("Please enter a new password.");
-      return;
-    }
-
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("Authentication token missing.");
-      return;
-    }
-
-    try {
-      const res = await fetch("http://localhost:8080/change-password", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          currentPassword: currentPassword,
-          newPassword: tempPassword,
-        }),
-      });
-
-      const responseText = await res.text();
-      let responseData;
-      try {
-        responseData = JSON.parse(responseText);
-      } catch {
-        responseData = { error: responseText };
-      }
-
-      if (res.ok) {
-        alert("Password updated successfully!");
-        setIsEditingPassword(false);
-        setTempPassword("");
-        setTempConfirmPassword("");
-        setCurrentPassword("");
-      } else if (res.status === 401) {
-        alert("Authentication failed. Current password is incorrect.");
-      } else {
-        alert(`Failed to update password: ${responseData.error || responseText}`);
-      }
-    } catch (error) {
-      alert("Network error. Please check your connection.");
-    }
+  const handleSavePassword = () => {
+    // Here you would typically validate the password and send to backend
+    setIsEditingPassword(false);
+    setTempPassword("");
+    setTempConfirmPassword("");
+    setCurrentPassword("");
   };
 
-  const handleSavePhone = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("Authentication token missing.");
-      return;
-    }
+  const handleSavePhone = () => {
+    setPhone(tempPhone);
+    setIsEditingPhone(false);
+  };
 
-    try {
-      const res = await fetch("http://localhost:8080/change-phone", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify({ phone: tempPhone }),
-      });
+  const handleAddPlace = () => {
+    router.push('/admin-create-storypage');
+  };
 
-      const data = await res.json();
-
-      if (res.ok) {
-        alert("Phone number updated successfully!");
-        setIsEditingPhone(false);
-        setUser(prev => ({ ...prev, phone: tempPhone }));
-      } else {
-        alert(`Failed to update phone: ${data.error || "Unknown error"}`);
-      }
-    } catch (error) {
-      alert("Network error. Please check your connection.");
-    }
+  const handleManageUsers = () => {
+    router.push('/admin-user-management');
   };
 
   return (
     <div className={styles.container}>
-    {/* Use the Header component */}
-    <Header />
+      <Header />
 
       <div className={styles.mainContent}>
         {/* Profile Banner */}
@@ -265,11 +79,7 @@ const UserProfile = () => {
           <div className={styles.colorBanner}></div>
           <div className={styles.profileImageContainer}>
             <div className={styles.profileImageLarge}>
-              <img
-                src={user?.profileImage}
-                alt={`${user?.firstname} ${user?.lastname}`}
-                className={styles.profileImage}
-              />
+              <img src={profileImage} alt="Profile" />
             </div>
             <button className={styles.uploadPhotoBtn} onClick={triggerFileInput}>
               <span className={styles.cameraIcon}></span> อัปโหลดรูปใหม่
@@ -286,8 +96,8 @@ const UserProfile = () => {
 
         {/* User Info */}
         <section className={styles.userInfoSection}>
-          <h1 className={styles.userName}>{user?.firstname} {user?.lastname}</h1>
-          <p className={styles.userEmail}>{user?.email}</p>
+          <h1 className={styles.userName}>{username}</h1>
+          <p className={styles.userEmail}>{email}</p>
         </section>
 
         {/* Account Details */}
@@ -297,18 +107,16 @@ const UserProfile = () => {
           <div className={styles.formGroup}>
             <label className={styles.label}>ชื่อบัญชีผู้ใช้</label>
             <div className={styles.valueContainer}>
-              <span className={styles.value}>{user?.firstname} {user?.lastname}</span>
+              <span className={styles.value}>{username}</span>
               <button className={styles.changeButton} onClick={() => setIsEditingUsername(true)}>แก้ไข</button>
-
             </div>
           </div>
 
           <div className={styles.formGroup}>
             <label className={styles.label}>ที่อยู่อีเมล</label>
             <div className={styles.valueContainer}>
-              <span className={styles.value}>{user?.email}</span>
+              <span className={styles.value}>{email}</span>
               <button className={styles.changeButton} onClick={() => setIsEditingEmail(true)}>แก้ไข</button>
-
             </div>
           </div>
 
@@ -323,9 +131,60 @@ const UserProfile = () => {
           <div className={styles.formGroup}>
             <label className={styles.label}>เบอร์โทรศัพท์</label>
             <div className={styles.valueContainer}>
-              <span className={styles.value}>{user?.phone}</span>
+              <span className={styles.value}>{phone}</span>
               <button className={styles.changeButton} onClick={() => setIsEditingPhone(true)}>แก้ไข</button>
+            </div>
+          </div>
+        </section>
 
+        {/* Admin Control Section */}
+        <section className={styles.adminSection}>
+          <h2 className={styles.sectionTitle}>การจัดการระบบแอดมิน</h2>
+          
+          <div className={styles.adminControls}>
+            <div className={styles.adminControlCard}>
+              <div className={styles.adminControlContent}>
+                <h3 className={styles.adminControlTitle}>เพิ่มสถานที่ใหม่</h3>
+                <p className={styles.adminControlDescription}>
+                  เพิ่มสถานที่ท่องเที่ยว ร้านอาหาร หรือสถานที่น่าสนใจใหม่เข้าสู่ระบบ
+                </p>
+                <button 
+                  className={styles.adminControlButton} 
+                  onClick={handleAddPlace}
+                >
+                  เพิ่มสถานที่ใหม่
+                </button>
+              </div>
+            </div>
+
+            <div className={styles.adminControlCard}>
+              <div className={styles.adminControlContent}>
+                <h3 className={styles.adminControlTitle}>จัดการสถานที่</h3>
+                <p className={styles.adminControlDescription}>
+                  แก้ไขข้อมูลสถานที่ที่มีอยู่ ลบสถานที่ หรืออัปเดตรายละเอียด
+                </p>
+                <button 
+                  className={styles.adminControlButton} 
+                  onClick={() => router.push('/admin-place-management')}
+                >
+                  จัดการสถานที่
+                </button>
+              </div>
+            </div>
+
+            <div className={styles.adminControlCard}>
+              <div className={styles.adminControlContent}>
+                <h3 className={styles.adminControlTitle}>จัดการผู้ใช้</h3>
+                <p className={styles.adminControlDescription}>
+                  จัดการข้อมูลผู้ใช้ ดูสถิติการใช้งาน และควบคุมสิทธิ์การเข้าถึง
+                </p>
+                <button 
+                  className={styles.adminControlButton} 
+                  onClick={handleManageUsers}
+                >
+                  จัดการผู้ใช้
+                </button>
+              </div>
             </div>
           </div>
         </section>
@@ -432,10 +291,9 @@ const UserProfile = () => {
         </div>
       )}
 
-      {/* Footer */}
       <Footer />
     </div>
   );
 };
 
-export default UserProfile;
+export default AdminProfile;
