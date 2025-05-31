@@ -272,12 +272,11 @@ const Favourites = () => {
   };
 
   const getRatingText = (rating) => {
-    if (rating >= 4.5) return "Excellent";
-    if (rating >= 4.0) return "Very Good";
-    if (rating >= 3.5) return "Good";
-    if (rating >= 3.0) return "Fair";
-    if (rating > 0) return "Poor";
-    return "No Reviews";
+    if (rating >= 4.5) return "ยอดเยี่ยม";
+    if (rating >= 4.0) return "ดีเยี่ยม";
+    if (rating >= 3.0) return "ดี";
+    if (rating >= 2.0) return "พอใช้";
+    return "แย่";
   };
 
   return (
