@@ -15,19 +15,50 @@ const StoryPage = () => {
   const [locationData, setLocationData] = useState(null);
   const [currentMainImage, setCurrentMainImage] = useState(null);
   const [galleryImages, setGalleryImages] = useState([]);
+  
+  // เพิ่ม state สำหรับข้อมูลผู้ใช้
+  const [user, setUser] = useState(null);
+
+  const [reviews, setReviews] = useState([]);
+  const [reviewStats, setReviewStats] = useState({
+    total_reviews: 0,
+    average_rating: 0,
+    rating_distribution: {}
+  });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [isLoadingReviews, setIsLoadingReviews] = useState(false);
 
   useEffect(() => {
     if (!router.isReady || !id) {
-      console.log("Router not ready or no ID provided", { isReady: router.isReady, id });
       return;
     }
 
     const token = localStorage.getItem("token");  
 
+    const fetchUserProfile = async () => {
+      if (!token) return;
+
+      try {
+        const res = await fetch("http://localhost:8080/profile", {
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          console.log("User profile (review):", data);
+          setUser(data.user);
+        }
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+      }
+    };
+
     const fetchLocation = async () => {
       try {
-        console.log("Fetching location with ID:", id);
-
         const res = await fetch(`http://localhost:8080/location/${id}`, {
           method: "GET",
           headers: {
@@ -42,24 +73,16 @@ const StoryPage = () => {
         }
 
         const data = await res.json();
-        console.log("LocationsName:", data.LocationsName); 
-        console.log("Images:", data.Images); 
-        console.log("Activities:", data.Activities); 
-        
+        console.log("Location data:", data);
         setLocationData(data);
 
         if (data.Images && Array.isArray(data.Images) && data.Images.length > 0) {
-          console.log("Processing images...");
           const images = data.Images;
           const mainImage = images.find((img) => img.IsMain) || images[0];
-          
-          console.log("Main image found:", mainImage);
-          console.log("All image URLs:", images.map((img) => img.URL));
           
           setCurrentMainImage(mainImage?.URL || null);
           setGalleryImages(images.map((img) => img.URL));
         } else {
-          console.log("No images found or Images is not an array");
           setCurrentMainImage(null);
           setGalleryImages([]);
         }
@@ -74,12 +97,13 @@ const StoryPage = () => {
         const res = await fetch(`http://localhost:8080/favorite/${id}`, {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,  // ใช้ token ที่ประกาศข้างบน
+            Authorization: `Bearer ${token}`,
           },
         });
 
         if (res.ok) {
           const data = await res.json();
+          console.log("Favorite check data:", data);
           setIsInFavorites(data.isFavorite);
         } else {
           setIsInFavorites(false);
@@ -90,17 +114,67 @@ const StoryPage = () => {
       }
     };
 
+    // ดึงข้อมูลรีวิว
+    const fetchReviews = async () => {
+      setIsLoadingReviews(true);
+      try {
+        const res = await fetch(`http://localhost:8080/location/${id}/reviews?page=${currentPage}&limit=5`, {
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setReviews(data.reviews || []);
+          console.log("Fetched reviews:", data.reviews);
+          setTotalPages(data.pagination?.total_pages || 1);
+        } else {
+          console.error("Failed to fetch reviews:", res.status, res.statusText);
+          setReviews([]);
+        }
+      } catch (error) {
+        console.error("Error fetching reviews:", error);
+        setReviews([]);
+      } finally {
+        setIsLoadingReviews(false);
+      }
+    };
+
+    // ดึงสถิติรีวิว
+    const fetchReviewStats = async () => {
+      try {
+        const res = await fetch(`http://localhost:8080/location/${id}/review-stats`, {
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          console.log("Review stats data:", data);
+          setReviewStats(data);
+        }
+      } catch (error) {
+        console.error("Error fetching review stats:", error);
+      }
+    };
+
+    // เรียกฟังก์ชันทั้งหมด
     fetchLocation();
     checkFavorite();
-  }, [id, router.isReady]);
+    fetchReviews();
+    fetchReviewStats();
+    fetchUserProfile();
+  }, [id, router.isReady, currentPage]);
 
   const handleToggleFavorite = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
       return;
     }
-
-    console.log("Sending favorite toggle for location ID:", id);
 
     try {
       const url = `http://localhost:8080/favorite`;
@@ -114,11 +188,8 @@ const StoryPage = () => {
         body: JSON.stringify({ location_id: parseInt(id) }),
       });
 
-      console.log("Response status:", res.status);
-
       if (res.ok) {
         setIsInFavorites((prev) => !prev);
-        console.log(`${method} favorite success`);
       } else {
         const errorText = await res.text();
         console.error("Toggle favorite failed:", errorText);
@@ -129,7 +200,6 @@ const StoryPage = () => {
       alert("Server error");
     }
   };
-
 
   const handleThumbnailClick = (imageUrl) => {
     setCurrentMainImage(imageUrl);
@@ -145,20 +215,174 @@ const StoryPage = () => {
     setReviewText("");
   };
 
-  const handleSubmitReview = () => {
-    // Here you would implement the logic to submit the review to the database
-    console.log("Submitting review:", {
-      rating: reviewRating,
-      text: reviewText,
-      username: username
-    });
-    
-    // Close the modal after submission
-    handleCloseModal();
+  const handleSubmitReview = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("กรุณาเข้าสู่ระบบก่อนเขียนรีวิว");
+      return;
+    }
+
+    if (reviewRating === 0) {
+      alert("กรุณาให้คะแนน");
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:8080/reviews", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          location_id: parseInt(id),
+          rating: reviewRating,
+          comment: reviewText.trim()
+        }),
+      });
+
+      if (res.ok) {
+        alert("เขียนรีวิวสำเร็จ!");
+        handleCloseModal();
+        
+        // รีเฟรชข้อมูลรีวิว
+        const reviewsRes = await fetch(`http://localhost:8080/location/${id}/reviews?page=1&limit=5`, {
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+        
+        if (reviewsRes.ok) {
+          const reviewsData = await reviewsRes.json();
+          setReviews(reviewsData.reviews || []);
+          setCurrentPage(1);
+        }
+
+        // รีเฟรชสถิติรีวิว
+        const statsRes = await fetch(`http://localhost:8080/location/${id}/review-stats`, {
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+        
+        if (statsRes.ok) {
+          const statsData = await statsRes.json();
+          setReviewStats(statsData);
+        }
+
+      } else {
+        const errorData = await res.json();
+        alert(errorData.error || "เกิดข้อผิดพลาดในการเขียนรีวิว");
+      }
+    } catch (error) {
+      console.error("Error submitting review:", error);
+      alert("เกิดข้อผิดพลาดในการเขียนรีวิว");
+    }
   };
 
   const handleStarClick = (rating) => {
     setReviewRating(rating);
+  };
+
+  // Function สำหรับแปลงคะแนนเป็นข้อความ
+  const getRatingText = (rating) => {
+    if (rating >= 4.5) return "ยอดเยี่ยม";
+    if (rating >= 4.0) return "ดีเยี่ยม";
+    if (rating >= 3.0) return "ดี";
+    if (rating >= 2.0) return "พอใช้";
+    return "แย่";
+  };
+
+  // Function สำหรับ pagination
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
+
+  // Function สำหรับ format วันที่
+  const formatDate = (dateString) => {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('th-TH', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    } catch (error) {
+      return '';
+    }
+  };
+
+  // Function สำหรับแสดงชื่อผู้ใช้ - ปรับปรุงให้รับมือกับโครงสร้างข้อมูลที่หลากหลาย
+  const getReviewerName = (review) => {
+    // ตรวจสอบทุกความเป็นไปได้
+    if (review?.User?.username) {
+      return review.User.username;
+    }
+    
+    if (review?.User?.firstname && review?.User?.lastname) {
+      return `${review.User.firstname} ${review.User.lastname}`;
+    }
+    
+    if (review?.User?.firstname) {
+      return review.User.firstname;
+    }
+    
+    if (review?.username) {
+      return review.username;
+    }
+    
+    if (review?.user_name) {
+      return review.user_name;
+    }
+    
+    if (review?.reviewer_name) {
+      return review.reviewer_name;
+    }
+    
+    // ตรวจสอบ fields อื่นๆ ที่อาจมี
+    const possibleNameFields = [
+      'name', 'full_name', 'display_name', 'first_name', 'last_name'
+    ];
+    
+    for (const field of possibleNameFields) {
+      if (review?.[field]) {
+        return review[field];
+      }
+    }
+    
+    return 'ผู้ใช้งาน';
+  };
+
+  // Function สำหรับแสดงความคิดเห็น - ปรับปรุงให้รับมือกับโครงสร้างข้อมูลที่หลากหลาย
+  const getReviewComment = (review) => {
+    if (review?.comment && review.comment.trim() !== '') {
+      return review.comment;
+    }
+    
+    if (review?.review_text && review.review_text.trim() !== '') {
+      return review.review_text;
+    }
+    
+    if (review?.text && review.text.trim() !== '') {
+      return review.text;
+    }
+    
+    // ตรวจสอบ fields อื่นๆ ที่อาจมี
+    const possibleCommentFields = [
+      'content', 'description', 'message', 'review_content'
+    ];
+    
+    for (const field of possibleCommentFields) {
+      if (review?.[field] && review[field].trim() !== '') {
+        return review[field];
+      }
+    }
+    
+    return 'ไม่มีความคิดเห็นเพิ่มเติม';
   };
 
   return (
@@ -170,7 +394,6 @@ const StoryPage = () => {
         {/* Destination Title with Favorite Button */}
         <div className={styles.destinationTitleSection}>
           <h1 className={styles.destinationTitle}>{locationData?.LocationsName}</h1>
-          {/* <p className={styles.subtitle}>{locationData?.Topic}</p> */}
           <button 
             className={`${styles.favoriteButton} ${isInFavorites ? styles.active : ''}`}
             onClick={handleToggleFavorite}
@@ -181,11 +404,17 @@ const StoryPage = () => {
           </button>
         </div>
 
-        {/* Rating Display */}
+        {/* Rating Display - ใช้ข้อมูลจาก reviewStats */}
         <div className={styles.ratingContainer}>
-          <div className={styles.ratingScore}>4.2</div>
-          <div className={styles.ratingText}>ดีเยี่ยม</div>
-          <div className={styles.reviewCount}>54 รีวิว</div>
+          <div className={styles.ratingScore}>
+            {reviewStats.average_rating ? reviewStats.average_rating.toFixed(1) : '0.0'}
+          </div>
+          <div className={styles.ratingText}>
+            {reviewStats.average_rating ? getRatingText(reviewStats.average_rating) : 'ไม่มีรีวิว'}
+          </div>
+          <div className={styles.reviewCount}>
+            {reviewStats.total_reviews} รีวิว
+          </div>
         </div>
 
         <div className={styles.mainImageContainer}>
@@ -215,16 +444,15 @@ const StoryPage = () => {
           <h2 className={styles.infoTitle}>Address & Time</h2>
           <div className={styles.infoContent}>
             <div className={styles.addressInfo}>
-
-            <span className={styles.infoIcon}>
-              <img src="https://cdn-icons-png.flaticon.com/128/684/684908.png" alt="Location Icon" />
-            </span>
+              <span className={styles.infoIcon}>
+                <img src="https://cdn-icons-png.flaticon.com/128/684/684908.png" alt="Location Icon" />
+              </span>
               <span className={styles.infoText}>{locationData?.Address}</span>
             </div>
             <div className={styles.timeInfo}>
-            <span className={styles.infoIcon}>
-              <img src="https://cdn-icons-png.flaticon.com/128/2972/2972531.png" alt="Location Icon" />
-            </span>
+              <span className={styles.infoIcon}>
+                <img src="https://cdn-icons-png.flaticon.com/128/2972/2972531.png" alt="Location Icon" />
+              </span>
               <span className={styles.infoText}>เปิดให้เข้าชม : {locationData?.OpenTime}</span>
             </div>
           </div>
@@ -240,7 +468,7 @@ const StoryPage = () => {
 
             <h3 className={styles.activitiesTitle}>กิจกรรมแนะนำ</h3>
             <ul className={styles.activitiesList}>
-              {locationData?.Activities.map((activity, index) => (
+              {locationData?.Activities && locationData.Activities.map((activity, index) => (
                 <li key={index}>
                   <span className={styles.activityDot}></span>
                   {activity.ActivityName}
@@ -263,77 +491,99 @@ const StoryPage = () => {
           </div>
           
           <div className={styles.overallRating}>
-            <div className={styles.ratingNumber}>4.2</div>
-            <div className={styles.ratingLabel}>ดีเยี่ยม</div>
+            <div className={styles.ratingNumber}>
+              {reviewStats.average_rating ? reviewStats.average_rating.toFixed(1) : '0.0'}
+            </div>
+            <div className={styles.ratingLabel}>
+              {reviewStats.average_rating ? getRatingText(reviewStats.average_rating) : 'ไม่มีรีวิว'}
+            </div>
           </div>
           
           {/* Individual Reviews */}
           <div className={styles.reviewList}>
-            <div className={styles.reviewItem}>
-              <div className={styles.reviewHeader}>
-                <div className={styles.reviewerInfo}>
-                  <img src="https://cdn-icons-png.flaticon.com/128/847/847969.png" alt="User" className={styles.reviewerImage} />
-                  <div className={styles.reviewerDetails}>
-                    <div className={styles.reviewRating}>5.0 ยอดเยี่ยม</div>
-                    <div className={styles.reviewerName}>จอนจองกุก</div>
+            {isLoadingReviews ? (
+              <div className={styles.loadingMessage}>กำลังโหลดรีวิว...</div>
+            ) : reviews.length > 0 ? (
+              [...reviews]
+                .sort((a, b) => (b.Rating || 0) - (a.Rating || 0))
+                .map((review, index) => (
+                <div key={review?.ID || index} className={styles.reviewItem}>
+                  <div className={styles.reviewHeader}>
+                    <div className={styles.reviewerInfo}>
+                      <img
+                        src={review?.user?.ProfileImage || "https://cdn-icons-png.flaticon.com/128/847/847969.png"}
+                        alt={`${review?.user?.Firstname || ""} ${review?.user?.Lastname || ""}`}
+                        className={styles.reviewerImage}
+                      />
+                      <div className={styles.reviewerDetails}>
+                        <div className={styles.reviewRating}>
+                          {/* ใช้ดาวแสดง rating แทน ถ้าจะใช้เลขก้เอาที่คอมเมนต์ได้เลย */}
+                          {/* <div className={styles.reviewRating}>
+                            {review?.Rating || 0}.0 {getRatingText(review?.Rating || 0)}
+                          </div> */}
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <span
+                              key={star}
+                              className={review?.Rating >= star ? styles.activeStar : styles.inactiveStar}
+                              style={{ color: review?.Rating >= star ? '#FFD700' : '#ccc' }} // gold or gray
+                            >
+                              ★
+                            </span>
+                          ))}
+                          <span className={styles.ratingText}>
+                            {getRatingText(review?.Rating || 0)}
+                          </span>
+                        </div>
+                        <div className={styles.reviewerName}>
+                          {review?.user?.Firstname} {review?.user?.Lastname}
+                        </div>
+                      </div>
+                    </div>
+                    <div className={styles.reviewFlag}>
+                      <img src="https://cdn-icons-png.flaticon.com/128/11244/11244136.png" alt="Flag Icon" />
+                    </div>
                   </div>
-                </div>
-                <div className={styles.reviewFlag}>
-                <img src="https://cdn-icons-png.flaticon.com/128/11244/11244136.png" alt="Flag Icon" />
-              </div>
-              </div>
-              <div className={styles.reviewContent}>
-              สวนสนบ่อแก้วบรรยากาศดีมาก ร่มรื่นและเงียบสงบ เหมาะสำหรับพักผ่อนสุด ๆ ครับ
-              </div>
-            </div>
-            
-            <div className={styles.reviewItem}>
-              <div className={styles.reviewHeader}>
-                <div className={styles.reviewerInfo}>
-                  <img src="https://cdn-icons-png.flaticon.com/128/847/847969.png" alt="User" className={styles.reviewerImage} />
-                  <div className={styles.reviewerDetails}>
-                    <div className={styles.reviewRating}>5.0 ดีเยี่ยม</div>
-                    <div className={styles.reviewerName}>เจคคึ</div>
+                  <div className={styles.reviewContent}>
+                    {review?.Comment || "ไม่มีความคิดเห็น"}
                   </div>
+                  {review?.created_at && (
+                    <div className={styles.reviewDate}>
+                      {formatDate(review.created_at)}
+                    </div>
+                  )}
                 </div>
-                <div className={styles.reviewFlag}>
-                <img src="https://cdn-icons-png.flaticon.com/128/11244/11244136.png" alt="Flag Icon" />
-              </div>
-              </div>
-              <div className={styles.reviewContent}>
-              ชอบที่นี่มาก ต้นสนเยอะ อากาศสดชื่น เดินเล่นสบาย ๆ ได้ทั้งวันเลย
-              </div>
-            </div>
-            
-            <div className={styles.reviewItem}>
-              <div className={styles.reviewHeader}>
-                <div className={styles.reviewerInfo}>
-                  <img src="https://cdn-icons-png.flaticon.com/128/847/847969.png" alt="User" className={styles.reviewerImage} />
-                  <div className={styles.reviewerDetails}>
-                    <div className={styles.reviewRating}>5.0 ดีเยี่ยม</div>
-                    <div className={styles.reviewerName}>จอนละจอนละจอห์นนี่</div>
-                  </div>
-                </div>
-                <div className={styles.reviewFlag}>
-                <img src="https://cdn-icons-png.flaticon.com/128/11244/11244136.png" alt="Flag Icon" />
-              </div>
-              </div>
-              <div className={styles.reviewContent}>
-              เป็นสวนที่สงบ เหมาะกับการมานั่งพักผ่อน ถ่ายรูปก็สวย แนะนำเลยครับ
-              </div>
-            </div>
+              ))
+            ) : (
+              <div className={styles.noReviews}>ยังไม่มีรีวิวสำหรับสถานที่นี้</div>
+            )}
           </div>
           
           {/* Pagination */}
-          <div className={styles.pagination}>
-            <button className={styles.paginationArrow}>←</button>
-            <div className={styles.paginationText}>1 จาก 2</div>
-            <button className={styles.paginationArrow}>→</button>
-          </div>
+          {totalPages > 1 && (
+            <div className={styles.pagination}>
+              <button 
+                className={styles.paginationArrow}
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                ←
+              </button>
+              <div className={styles.paginationText}>
+                {currentPage} จาก {totalPages}
+              </div>
+              <button 
+                className={styles.paginationArrow}
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
+                →
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Review Modal */}
+      {/* Review Modal - แก้ไขให้แสดงข้อมูลผู้ใช้จาก profile */}
       {showReviewModal && (
         <div className={styles.modalOverlay}>
           <div className={styles.modalContent}>
@@ -342,11 +592,18 @@ const StoryPage = () => {
               <button className={styles.closeModalButton} onClick={handleCloseModal}>×</button>
             </div>
             <div className={styles.modalBody}>
-              <div className={styles.userReviewInfo}>
-                <img src="/assets/Profile.jpg" alt={username} className={styles.reviewerImage} />
-                <span className={styles.reviewerName}>{username}</span>
-              </div>
-
+              {user && (
+                <div className={styles.userReviewInfo}>
+                  <img
+                    src={user.profileImage}
+                    alt={`${user.firstname} ${user.lastname}`}
+                    className={styles.reviewerImage}
+                  />
+                  <span className={styles.profileName}>
+                    {user.firstname} {user.lastname} 
+                  </span>
+                </div>
+              )}
               <div className={styles.starRatingContainer}>
                 <div className={styles.starRatingLabel}>การให้คะแนนของคุณ</div>
                 <div className={styles.starRating}>
@@ -395,7 +652,7 @@ const StoryPage = () => {
         </div>
       )}
 
-      {/* Footer - Replaced with Footer component */}
+      {/* Footer */}
       <Footer />
     </div>
   );

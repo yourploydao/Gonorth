@@ -20,7 +20,7 @@ type Location struct {
 	Tags            []Tag    `gorm:"many2many:location_tags;"`
 	BudgetRange 	string 	 `gorm:"type:varchar(20)" json:"budget_range"`
 	Season 			string 	 `gorm:"type:varchar(10);default:'summer'" json:"season"`
-	// ExternalScores  []ExternalScore
-	// Reviews         []Review
+	ExternalScores  []ExternalScore
+	Reviews         []Review
 	FavoritedBy     []User     `gorm:"many2many:user_favorite"`
 }
