@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from 'next/router';
 import styles from "../styles/verifycode.module.css";
 
@@ -119,6 +119,7 @@ const VerifyCode = () => {
                   ส่งรหัสใหม่
                 </button>
               </p>
+
             </div>
 
             <button type="submit" className={styles.verifyButton}>

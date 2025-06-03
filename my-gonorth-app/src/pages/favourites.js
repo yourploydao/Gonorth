@@ -1,56 +1,212 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import styles from "../styles/favourites.module.css";
 
 const Favourites = () => {
-  const router = useRouter();
-  const [heartStatus, setHeartStatus] = useState({
-    'grand-canyon-chiangmai': true,
-    'mon-hong-waterfall': true,
-    'suan-bo-kaew': true,
-    'hydrangea-royal-project': true
-  });
-  
-  const [selectedPlaces, setSelectedPlaces] = useState({
-    'grand-canyon-chiangmai': false,
-    'mon-hong-waterfall': false,
-    'suan-bo-kaew': false,
-    'hydrangea-royal-project': false
-  });
-  
+  const [favorites, setFavorites] = useState([]);
+  const [heartStatus, setHeartStatus] = useState({});
+  const [selectedPlaces, setSelectedPlaces] = useState({});
   const [showPopup, setShowPopup] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState('');
   const [currentPlace, setCurrentPlace] = useState('');
   const [showInfoPopup, setShowInfoPopup] = useState(false);
+  const router = useRouter();
+  
+  // เปลี่ยนจาก reviewStats เดี่ยว เป็น object ที่เก็บ stats ของแต่ละ location
+  const [locationReviewStats, setLocationReviewStats] = useState({});
+  const [isLoadingStats, setIsLoadingStats] = useState(false);
+  
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.error("No token found in localStorage");
+      return;
+    }
 
-  const handleViewPlace = () => {
-    router.push('/story-page');
-  };
+    // ดึงข้อมูลรายการโปรด
+    const fetchFavorites = async () => {
+      try {
+        console.log("Token:", token);
+        const res = await fetch("http://localhost:8080/userfavorites", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+        });
 
-  const handleHeartClick = (id) => {
-    setHeartStatus(prev => ({
-      ...prev,
-      [id]: !prev[id]
-    }));
-    
-    // Show notification when unfavoriting a place
-    if (heartStatus[id]) {
-      showNotificationPopup(`${getPlaceName(id)} ลบออกจากรายการโปรด`);
-    } else {
-      showNotificationPopup(`${getPlaceName(id)} เพิ่มเข้าไปในรายการโปรดแล้ว`);
+        console.log("Response status:", res.status);
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch");
+        }
+
+        const data = await res.json();
+        console.log("Data from API:", data);
+
+        setFavorites(data);
+
+        const dynamicHeartStatus = {};
+        const dynamicSelectedPlaces = {};
+
+        data.forEach(item => {
+          dynamicHeartStatus[item.ID] = true;
+          dynamicSelectedPlaces[item.ID] = false;
+        });
+
+        setHeartStatus(dynamicHeartStatus);
+        setSelectedPlaces(dynamicSelectedPlaces);
+
+        // ดึงสถิติรีวิวสำหรับแต่ละ location
+        await fetchAllReviewStats(data, token);
+
+      } catch (error) {
+        console.error("Error fetching favorites:", error);
+      }
+    };
+
+    fetchFavorites();
+  }, []);
+
+  // ฟังก์ชันใหม่สำหรับดึงสถิติรีวิวของทุก location
+  const fetchAllReviewStats = async (favoritesData, token) => {
+    setIsLoadingStats(true);
+    const statsPromises = favoritesData.map(async (item) => {
+      try {
+        const locationId = item.location?.ID || item.location_id;
+        if (!locationId) return null;
+
+        const res = await fetch(`http://localhost:8080/location/${locationId}/review-stats`, {
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          return {
+            locationId: locationId,
+            stats: data
+          };
+        }
+        return null;
+      } catch (error) {
+        console.error(`Error fetching review stats for location ${item.location?.ID}:`, error);
+        return null;
+      }
+    });
+
+    try {
+      const results = await Promise.all(statsPromises);
+      const statsObject = {};
+      
+      results.forEach(result => {
+        if (result) {
+          statsObject[result.locationId] = result.stats;
+        }
+      });
+      
+      setLocationReviewStats(statsObject);
+    } catch (error) {
+      console.error("Error processing review stats:", error);
+    } finally {
+      setIsLoadingStats(false);
     }
   };
-  
+
+  const handleViewPlace = (id) => {
+    router.push(`/story-page?id=${id}`);
+  };
+
+  const handleHeartClick = async (itemId) => {
+    setHeartStatus(prev => ({
+      ...prev,
+      [itemId]: false,
+    }));
+
+    try {
+      const favoriteItem = favorites.find(fav => fav.ID === itemId);
+      if (!favoriteItem) {
+        showNotificationPopup("ไม่พบข้อมูลสถานที่");
+        setHeartStatus(prev => ({
+          ...prev,
+          [itemId]: true,
+        }));
+        return;
+      }
+
+      const token = localStorage.getItem("token");
+      const response = await fetch("http://localhost:8080/deletefavorite", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          location_id: favoriteItem.location_id
+        }),
+      });
+
+      if (response.ok) {
+        showNotificationPopup(`${getPlaceName(itemId)} ลบออกจากรายการโปรด`);
+        
+        setTimeout(() => {
+          setFavorites(prev => prev.filter(fav => fav.ID !== itemId));
+          
+          setHeartStatus(prev => {
+            const newStatus = { ...prev };
+            delete newStatus[itemId];
+            return newStatus;
+          });
+          
+          setSelectedPlaces(prev => {
+            const newSelected = { ...prev };
+            delete newSelected[itemId];
+            return newSelected;
+          });
+
+          // ลบ review stats ของ location นี้ด้วย
+          setLocationReviewStats(prev => {
+            const newStats = { ...prev };
+            const locationId = favoriteItem.location?.ID || favoriteItem.location_id;
+            if (locationId) {
+              delete newStats[locationId];
+            }
+            return newStats;
+          });
+        }, 1500);
+
+      } else {
+        const errorData = await response.json();
+        showNotificationPopup(errorData.error || "Failed to remove from favorites");
+        
+        setHeartStatus(prev => ({
+          ...prev,
+          [itemId]: true,
+        }));
+      }
+    } catch (error) {
+      console.error("Error removing favorite:", error);
+      showNotificationPopup("เกิดข้อผิดพลาดในการลบรายการโปรด");
+      
+      setHeartStatus(prev => ({
+        ...prev,
+        [itemId]: true,
+      }));
+    }
+  };
+
   const handleMoreInfoClick = (id) => {
     setCurrentPlace(id);
     setShowPopup(true);
   };
-  
+
   const handleClosePopup = () => {
     setShowPopup(false);
   };
-  
+
   const handleSelectPlace = (id) => {
     setSelectedPlaces(prev => ({
       ...prev,
@@ -68,9 +224,8 @@ const Favourites = () => {
 
   const handleCreateRouteMap = () => {
     const selectedDestinations = Object.keys(selectedPlaces).filter(place => selectedPlaces[place]);
-    
+
     if (currentPlace && selectedDestinations.length > 0) {
-      // Implementation for creating route map with currentPlace as starting point
       showNotificationPopup(`กำลังสร้างแผนที่เส้นทางโดยเริ่มจาก... ${getPlaceName(currentPlace)}`);
     } else {
       showNotificationPopup("คุณต้องเลือกอย่างน้อยหนึ่งจุดหมายเพื่อสร้างเส้นทาง");
@@ -85,21 +240,45 @@ const Favourites = () => {
     setShowInfoPopup(false);
   };
 
-  // Get place name from ID
   const getPlaceName = (id) => {
-    const placeNames = {
-      'grand-canyon-chiangmai': 'แกรนด์แคนยอน เชียงใหม่',
-      'mon-hong-waterfall': 'น้ำตกม่อนฮ่อง (ป่าแป๋)',
-      'suan-bo-kaew': 'สวนบ่อแก้ว',
-      'hydrangea-royal-project': 'ทุ่งดอกไฮเดรนเยีย โครงการหลวงขุนแปะ'
+    const item = favorites.find(fav => fav.ID === id);
+    if (item && item.location) {
+      return item.location.LocationsName || item.location.title || `Location ${id}`;
+    }
+    return `Location ${id}`;
+  };
+
+  const getImageUrl = (images) => {
+    if (!images || images.length === 0) return "https://via.placeholder.com/300x200?text=No+Image";
+    
+    const mainImage = images.find(img => img.IsMain === true);
+    if (mainImage && mainImage.URL) return mainImage.URL;
+    
+    if (images[0] && images[0].URL) return images[0].URL;
+    
+    return "https://via.placeholder.com/300x200?text=No+Image";
+  };
+
+  // ฟังก์ชันใหม่สำหรับดึงข้อมูลรีวิวของแต่ละ location
+  const getLocationReviewStats = (locationId) => {
+    return locationReviewStats[locationId] || {
+      total_reviews: 0,
+      average_rating: 0,
+      rating_distribution: {}
     };
-    return placeNames[id] || id;
+  };
+
+  const getRatingText = (rating) => {
+    if (rating >= 4.5) return "ยอดเยี่ยม";
+    if (rating >= 4.0) return "ดีเยี่ยม";
+    if (rating >= 3.0) return "ดี";
+    if (rating >= 2.0) return "พอใช้";
+    return "แย่";
   };
 
   return (
     <div className={styles.container}>
       <div className={styles.mainContent}>
-        {/* Page Title and More Info Button */}
         <div className={styles.titleContainer}>
           <h1 className={styles.pageTitle}>รายการโปรด</h1>
           <button className={styles.moreInfoHeaderButton} onClick={handleInfoButtonClick}>
@@ -107,309 +286,129 @@ const Favourites = () => {
           </button>
         </div>
 
-        {/* Favourites List */}
         <div className={styles.favouritesList}>
-          {/* Favourite Item 1 */}
-          <div className={styles.favouriteItem}>
-            <div className={styles.selectCheckbox}>
-              <input 
-                type="checkbox" 
-                id="check-grand-canyon-chiangmai"
-                checked={selectedPlaces['grand-canyon-chiangmai']}
-                onChange={() => handleSelectPlace('grand-canyon-chiangmai')}
-              />
-              <label htmlFor="check-grand-canyon-chiangmai">เลือกจุดหมายสำหรับเส้นทาง</label>
-            </div>
-            <div className={styles.favouriteImage}>
-              <img src="https://jjubbbbb.wordpress.com/wp-content/uploads/2016/11/grand-canyon-of-chiang-mai2.jpg" alt="แกรนด์แคนยอน เชียงใหม่" />
-            </div>
-            <div className={styles.favouriteInfo}>
-              <h3 className={styles.favouriteTitle}>แกรนด์แคนยอน เชียงใหม่</h3>
-              
-              <div className={styles.infoItem}>
-              <span className={styles.infoIcon}>
-                  <img src="https://cdn-icons-png.flaticon.com/128/526/526754.png" alt="Car Icon" />
-              </span>
-                <span className={styles.infoText}>ห่างจากใจกลางเมือง 20 กิโลเมตร</span>
-              </div>
-              
-              <div className={styles.infoItem}>
-              <span className={styles.infoIcon}>
-                  <img src="https://cdn-icons-png.flaticon.com/128/1614/1614997.png" alt="Ticket Icon" />
-                </span>
-                <span className={styles.infoText}>เข้าชมฟรี</span>
-              </div>
-              
-              <div className={styles.infoItem}>
-              <span className={styles.infoIcon}>
-                  <img src="https://cdn-icons-png.flaticon.com/128/2972/2972531.png" alt="Time Icon" />
-                </span>
-                <span className={styles.infoText}>เปิดทำการ เวลา 09:00 น. – 16:00 น.</span>
-              </div>
-              
-              <div className={styles.actionButtons}>
-                <button 
-                  className={styles.heartButton}
-                  onClick={() => handleHeartClick('grand-canyon-chiangmai')}
-                >
-                  <img 
-                    src={heartStatus['grand-canyon-chiangmai'] 
-                      ? "https://cdn-icons-png.flaticon.com/128/4340/4340223.png" 
-                      : "https://cdn-icons-png.flaticon.com/128/4340/4340091.png"} 
-                    alt="Favorite" 
-                    className={styles.heartButtonIcon} 
-                  />
-                </button>
-                <button 
-                  className={styles.moreInfoButton}
-                  onClick={() => handleMoreInfoClick('grand-canyon-chiangmai')}
-                >
-                  <img src="https://cdn-icons-png.flaticon.com/128/854/854878.png" alt="More Info" className={styles.moreInfoButtonIcon} />
-                </button>
-                <button 
-                  className={styles.viewButton}
-                  onClick={() => handleViewPlace('story-page')}
-                >
-                  ชมสถานที่
-                </button>
-              </div>
-            </div>
-            
-            <div className={styles.destinationRating}>
-              <div className={styles.ratingScore}>5.0</div>
-              <div className={styles.ratingText}>ดีเยี่ยม</div>
-              <div className={styles.reviewCount}>25 รีวิว</div>
-            </div>
-          </div>
 
-          {/* Favourite Item 2 */}
-          <div className={styles.favouriteItem}>
-            <div className={styles.selectCheckbox}>
-              <input 
-                type="checkbox" 
-                id="check-mon-hong-waterfall"
-                checked={selectedPlaces['mon-hong-waterfall']}
-                onChange={() => handleSelectPlace('mon-hong-waterfall')}
-              />
-              <label htmlFor="check-mon-hong-waterfall">เลือกจุดหมายสำหรับเส้นทาง</label>
-            </div>
-            <div className={styles.favouriteImage}>
-              <img src="https://media.readthecloud.co/wp-content/uploads/2021/12/29133520/angkaew-11-750x500.jpg" alt="น้ำตกม่อนฮ่อง (ป่าแป๋)" />
-            </div>
-            <div className={styles.favouriteInfo}>
-              <h3 className={styles.favouriteTitle}>น้ำตกม่อนฮ่อง (ป่าแป๋)</h3>
-              
-              <div className={styles.infoItem}>
-              <span className={styles.infoIcon}>
-                  <img src="https://cdn-icons-png.flaticon.com/128/526/526754.png" alt="Car Icon" />
-              </span>
-                <span className={styles.infoText}>ห่างจากใจกลางเมือง 20 กิโลเมตร</span>
-              </div>
-              
-              <div className={styles.infoItem}>
-              <span className={styles.infoIcon}>
-                  <img src="https://cdn-icons-png.flaticon.com/128/1614/1614997.png" alt="Ticket Icon" />
-                </span>
-                <span className={styles.infoText}>เข้าชมฟรี</span>
-              </div>
-              
-              <div className={styles.infoItem}>
-              <span className={styles.infoIcon}>
-                  <img src="https://cdn-icons-png.flaticon.com/128/2972/2972531.png" alt="Time Icon" />
-                </span>
-                <span className={styles.infoText}>เปิดทำการ เวลา 09:00 น. – 16:00 น.</span>
-              </div>
-              
-              <div className={styles.actionButtons}>
-                <button 
-                  className={styles.heartButton}
-                  onClick={() => handleHeartClick('mon-hong-waterfall')}
-                >
-                  <img 
-                    src={heartStatus['mon-hong-waterfall'] 
-                      ? "https://cdn-icons-png.flaticon.com/128/4340/4340223.png" 
-                      : "https://cdn-icons-png.flaticon.com/128/4340/4340091.png"} 
-                    alt="Favorite" 
-                    className={styles.heartButtonIcon} 
-                  />
-                </button>
-                <button 
-                  className={styles.moreInfoButton}
-                  onClick={() => handleMoreInfoClick('mon-hong-waterfall')}
-                >
-                  <img src="https://cdn-icons-png.flaticon.com/128/854/854878.png" alt="More Info" className={styles.moreInfoButtonIcon} />
-                </button>
-                <button 
-                  className={styles.viewButton}
-                  onClick={() => handleViewPlace('mon-hong-waterfall')}
-                >
-                  ชมสถานที่
-                </button>
-              </div>
-            </div>
+          {favorites.map((item, index) => {
+            const location = item.location || {};
+            const itemId = item.ID || index;
+            const locationId = location.ID || item.location_id;
+            const reviewStats = getLocationReviewStats(locationId);
             
-            <div className={styles.destinationRating}>
-              <div className={styles.ratingScore}>4.5</div>
-              <div className={styles.ratingText}>ดีเยี่ยม</div>
-              <div className={styles.reviewCount}>15 รีวิว</div>
-            </div>
-          </div>
+            return (
+              <div key={itemId} className={styles.favouriteItem}>
+                <div className={styles.selectCheckbox}>
+                  <input
+                    type="checkbox"
+                    id={`check-${itemId}`}
+                    checked={selectedPlaces[itemId] || false}
+                    onChange={() => handleSelectPlace(itemId)}
+                  />
+                  <label htmlFor={`check-${itemId}`}>เลือกจุดหมายสำหรับเส้นทาง</label>
+                </div>
 
-          {/* Favourite Item 3 */}
-          <div className={styles.favouriteItem}>
-            <div className={styles.selectCheckbox}>
-              <input 
-                type="checkbox" 
-                id="check-suan-bo-kaew"
-                checked={selectedPlaces['suan-bo-kaew']}
-                onChange={() => handleSelectPlace('suan-bo-kaew')}
-              />
-              <label htmlFor="check-suan-bo-kaew">เลือกจุดหมายสำหรับเส้นทาง</label>
-            </div>
-            <div className={styles.favouriteImage}>
-              <img src="https://i.ytimg.com/vi/9_0j8BOBiE8/maxresdefault.jpg" alt="สวนบ่อแก้ว" />
-            </div>
-            <div className={styles.favouriteInfo}>
-              <h3 className={styles.favouriteTitle}>สวนบ่อแก้ว</h3>
-              
-              <div className={styles.infoItem}>
-              <span className={styles.infoIcon}>
-                  <img src="https://cdn-icons-png.flaticon.com/128/526/526754.png" alt="Car Icon" />
-              </span>
-                <span className={styles.infoText}>ห่างจากใจกลางเมือง 20 กิโลเมตร</span>
-              </div>
-              
-              <div className={styles.infoItem}>
-              <span className={styles.infoIcon}>
-                  <img src="https://cdn-icons-png.flaticon.com/128/1614/1614997.png" alt="Ticket Icon" />
-                </span>
-                <span className={styles.infoText}>เข้าชมฟรี</span>
-              </div>
-              
-              <div className={styles.infoItem}>
-              <span className={styles.infoIcon}>
-                  <img src="https://cdn-icons-png.flaticon.com/128/2972/2972531.png" alt="Time Icon" />
-                </span>
-                <span className={styles.infoText}>เปิดทำการ เวลา 09:00 น. – 16:00 น.</span>
-              </div>
-              
-              <div className={styles.actionButtons}>
-                <button 
-                  className={styles.heartButton}
-                  onClick={() => handleHeartClick('suan-bo-kaew')}
-                >
+                <div className={styles.favouriteImage}>
                   <img 
-                    src={heartStatus['suan-bo-kaew'] 
-                      ? "https://cdn-icons-png.flaticon.com/128/4340/4340223.png" 
-                      : "https://cdn-icons-png.flaticon.com/128/4340/4340091.png"} 
-                    alt="Favorite" 
-                    className={styles.heartButtonIcon} 
+                    src={getImageUrl(location.Images)} 
+                    alt={location.LocationsName || "Location Image"} 
+                    onError={(e) => {
+                      e.target.src = "https://via.placeholder.com/300x200?text=No+Image";
+                    }}
                   />
-                </button>
-                <button 
-                  className={styles.moreInfoButton}
-                  onClick={() => handleMoreInfoClick('suan-bo-kaew')}
-                >
-                  <img src="https://cdn-icons-png.flaticon.com/128/854/854878.png" alt="More Info" className={styles.moreInfoButtonIcon} />
-                </button>
-                <button 
-                  className={styles.viewButton}
-                  onClick={() => handleViewPlace('suan-bo-kaew')}
-                >
-                  ชมสถานที่
-                </button>
-              </div>
-            </div>
-            
-            <div className={styles.destinationRating}>
-              <div className={styles.ratingScore}>4.2</div>
-              <div className={styles.ratingText}>ดีเยี่ยม</div>
-              <div className={styles.reviewCount}>12 รีวิว</div>
-            </div>
-          </div>
+                </div>
 
-          {/* Favourite Item 4 */}
-          <div className={styles.favouriteItem}>
-            <div className={styles.selectCheckbox}>
-              <input 
-                type="checkbox" 
-                id="check-hydrangea-royal-project"
-                checked={selectedPlaces['hydrangea-royal-project']}
-                onChange={() => handleSelectPlace('hydrangea-royal-project')}
-              />
-              <label htmlFor="check-hydrangea-royal-project">Select for route</label>
-            </div>
-            <div className={styles.favouriteImage}>
-              <img src="https://static.ticket2attraction.com/gallery/1ea4fe7f-71c1-4170-b95f-4f0b70f19ece/adcfe8c9-9316-4e4f-89c2-4669cec51d5d-1200.webp" alt="ทุ่งดอกไฮเดรนเยีย โครงการหลวงขุนแปะ" />
-            </div>
-            <div className={styles.favouriteInfo}>
-              <h3 className={styles.favouriteTitle}>ทุ่งดอกไฮเดรนเยีย โครงการหลวงขุนแปะ</h3>
-              
-              <div className={styles.infoItem}>
-              <span className={styles.infoIcon}>
-                  <img src="https://cdn-icons-png.flaticon.com/128/526/526754.png" alt="Car Icon" />
-              </span>
-                <span className={styles.infoText}>ห่างจากใจกลางเมือง 20 กิโลเมตร</span>
+                <div className={styles.favouriteInfo}>
+                  <h3 className={styles.favouriteTitle}>
+                    {location.LocationsName || "ไม่มีชื่อสถานที่"}
+                  </h3>
+
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoIcon}>📍</span>
+                    <span className={styles.infoText}>
+                      {location.Address || "ไม่มีข้อมูลที่อยู่"}
+                    </span>
+                  </div>
+
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoIcon}>🎫</span>
+                    <span className={styles.infoText}>
+                      {location.EntranceDetails || "ไม่มีข้อมูลทางเข้า"}
+                    </span>
+                  </div>
+
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoIcon}>🕒</span>
+                    <span className={styles.infoText}>
+                      {location.OpenTime || "ไม่มีข้อมูลเวลาเปิด"}
+                    </span>
+                  </div>
+
+                  <div className={styles.actionButtons}>
+                    <button
+                      className={styles.heartButton}
+                      onClick={() => handleHeartClick(itemId)}
+                    >
+                      <img
+                        src={
+                          heartStatus[itemId]
+                            ? "https://cdn-icons-png.flaticon.com/128/4340/4340223.png"
+                            : "https://cdn-icons-png.flaticon.com/128/4340/4340091.png"
+                        }
+                        alt="Favorite"
+                        className={styles.heartButtonIcon}
+                      />
+                    </button>
+                    <button
+                      className={styles.moreInfoButton}
+                      onClick={() => handleMoreInfoClick(itemId)}
+                    >
+                      <img
+                        src="https://cdn-icons-png.flaticon.com/128/854/854878.png"
+                        alt="More Info"
+                        className={styles.moreInfoButtonIcon}
+                      />
+                    </button>
+                    <button
+                      className={styles.viewButton}
+                      onClick={() => handleViewPlace(locationId)}
+                    >
+                      ชมสถานที่
+                    </button>
+                  </div>
+                </div>
+
+                <div className={styles.destinationRating}>
+                  {isLoadingStats ? (
+                    <div className={styles.loadingRating}>Loading...</div>
+                  ) : (
+                    <>
+                      <div className={styles.ratingScore}>
+                        {reviewStats.average_rating ? reviewStats.average_rating.toFixed(1) : "N/A"}
+                      </div>
+                      <div className={styles.ratingText}>
+                        {getRatingText(reviewStats.average_rating || 0)}
+                      </div>
+                      <div className={styles.reviewCount}>
+                        {reviewStats.total_reviews || 0} reviews
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
-              
-              <div className={styles.infoItem}>
-              <span className={styles.infoIcon}>
-                  <img src="https://cdn-icons-png.flaticon.com/128/1614/1614997.png" alt="Ticket Icon" />
-                </span>
-                <span className={styles.infoText}>เข้าชมฟรี</span>
-              </div>
-              
-              <div className={styles.infoItem}>
-              <span className={styles.infoIcon}>
-                  <img src="https://cdn-icons-png.flaticon.com/128/2972/2972531.png" alt="Time Icon" />
-                </span>
-                <span className={styles.infoText}>เปิดทำการ เวลา 09:00 น. – 16:00 น.</span>
-              </div>
-              
-              <div className={styles.actionButtons}>
-                <button 
-                  className={styles.heartButton}
-                  onClick={() => handleHeartClick('hydrangea-royal-project')}
-                >
-                  <img 
-                    src={heartStatus['hydrangea-royal-project'] 
-                      ? "https://cdn-icons-png.flaticon.com/128/4340/4340223.png" 
-                      : "https://cdn-icons-png.flaticon.com/128/4340/4340091.png"} 
-                    alt="Favorite" 
-                    className={styles.heartButtonIcon} 
-                  />
-                </button>
-                <button 
-                  className={styles.moreInfoButton}
-                  onClick={() => handleMoreInfoClick('hydrangea-royal-project')}
-                >
-                  <img src="https://cdn-icons-png.flaticon.com/128/854/854878.png" alt="More Info" className={styles.moreInfoButtonIcon} />
-                </button>
-                <button 
-                  className={styles.viewButton}
-                  onClick={() => handleViewPlace('hydrangea-royal-project')}
-                >
-                  ชมสถานที่
-                </button>
-              </div>
-            </div>
-            
-            <div className={styles.destinationRating}>
-              <div className={styles.ratingScore}>4.0</div>
-              <div className={styles.ratingText}>ดี</div>
-              <div className={styles.reviewCount}>8 reviews</div>
-            </div>
-          </div>
+            );
+          })}
         </div>
 
-        {/* Create Route Map Button */}
+        {favorites.length === 0 && (
+          <div className={styles.emptyState}>
+            <p>ไม่มีสถานที่โปรดในขณะนี้</p>
+          </div>
+        )}
+
         <button className={styles.createRouteButton} onClick={handleCreateRouteMap}>
         สร้างแผนที่การเดินทาง
         </button>
-
       </div>
 
-      {/* Popup for More Info */}
       {showPopup && (
         <div className={styles.popupOverlay}>
           <div className={styles.popup}>
@@ -420,7 +419,6 @@ const Favourites = () => {
               <button 
                 className={styles.confirmButton}
                 onClick={() => {
-                  // Set this place as starting point logic
                   setSelectedPlaces(prev => ({...prev, [currentPlace]: true}));
                   showNotificationPopup(`${getPlaceName(currentPlace)} กำหนดเป็นจุดเริ่มต้น`);
                   setShowPopup(false);
@@ -433,7 +431,6 @@ const Favourites = () => {
         </div>
       )}
 
-      {/* Info Popup (centered with Got it! button) */}
       {showInfoPopup && (
         <div className={styles.popupOverlay}>
           <div className={styles.infoPopup}>
@@ -452,12 +449,9 @@ const Favourites = () => {
         </div>
       )}
 
-      {/* Notification Popup */}
       {showNotification && (
         <div className={styles.notificationPopup}>
-          <div className={styles.notificationContent}>
-            {notificationMessage}
-          </div>
+          {notificationMessage}
         </div>
       )}
     </div>

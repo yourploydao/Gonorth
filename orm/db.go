@@ -24,11 +24,11 @@ func InitDB() {
 		&PasswordReset{},
 		&Location{},
 		&Image{},
-		&Budget{},
 		&Activity{},
 		&Tag{},
 		&ExternalScore{},
 		&Review{},
+		&UserFavorite{},
 	)
 	if err != nil {
 		panic("AutoMigrate failed: " + err.Error())
