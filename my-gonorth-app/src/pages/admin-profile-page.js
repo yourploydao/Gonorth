@@ -1,8 +1,6 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/router";
 import styles from "../styles/admin-profile-page.module.css";
-import Header from "../components/navigation";
-import Footer from "../components/footer";
 
 const AdminProfile = () => {
   const router = useRouter();
@@ -71,8 +69,6 @@ const AdminProfile = () => {
 
   return (
     <div className={styles.container}>
-      <Header />
-
       <div className={styles.mainContent}>
         {/* Profile Banner */}
         <section className={styles.profileBanner}>
@@ -165,7 +161,7 @@ const AdminProfile = () => {
                 </p>
                 <button 
                   className={styles.adminControlButton} 
-                  onClick={() => router.push('/admin-place-management')}
+                  onClick={() => router.push('/admin-destination-control')}
                 >
                   จัดการสถานที่
                 </button>
@@ -290,8 +286,6 @@ const AdminProfile = () => {
           </div>
         </div>
       )}
-
-      <Footer />
     </div>
   );
 };

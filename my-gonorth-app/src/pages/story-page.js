@@ -2,8 +2,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import styles from "../styles/story-page.module.css";
-import Header from "../components/navigation";
-import Footer from "../components/footer";
 
 const StoryPage = () => {
   const router = useRouter();
@@ -109,9 +107,6 @@ const StoryPage = () => {
 
   return (
     <div className={styles.container}>
-      {/* Use the Header component */}
-      <Header />
-
       <div className={styles.mainContent}>
         {/* Destination Title with Favorite Button */}
         <div className={styles.destinationTitleSection}>
@@ -224,9 +219,6 @@ const StoryPage = () => {
                     <div className={styles.reviewerName}>จอนจองกุก</div>
                   </div>
                 </div>
-                <div className={styles.reviewFlag}>
-                <img src="https://cdn-icons-png.flaticon.com/128/11244/11244136.png" alt="Flag Icon" />
-              </div>
               </div>
               <div className={styles.reviewContent}>
               สวนสนบ่อแก้วบรรยากาศดีมาก ร่มรื่นและเงียบสงบ เหมาะสำหรับพักผ่อนสุด ๆ ครับ
@@ -242,9 +234,6 @@ const StoryPage = () => {
                     <div className={styles.reviewerName}>เจคคึ</div>
                   </div>
                 </div>
-                <div className={styles.reviewFlag}>
-                <img src="https://cdn-icons-png.flaticon.com/128/11244/11244136.png" alt="Flag Icon" />
-              </div>
               </div>
               <div className={styles.reviewContent}>
               ชอบที่นี่มาก ต้นสนเยอะ อากาศสดชื่น เดินเล่นสบาย ๆ ได้ทั้งวันเลย
@@ -260,9 +249,6 @@ const StoryPage = () => {
                     <div className={styles.reviewerName}>จอนละจอนละจอห์นนี่</div>
                   </div>
                 </div>
-                <div className={styles.reviewFlag}>
-                <img src="https://cdn-icons-png.flaticon.com/128/11244/11244136.png" alt="Flag Icon" />
-              </div>
               </div>
               <div className={styles.reviewContent}>
               เป็นสวนที่สงบ เหมาะกับการมานั่งพักผ่อน ถ่ายรูปก็สวย แนะนำเลยครับ
@@ -340,9 +326,6 @@ const StoryPage = () => {
           </div>
         </div>
       )}
-
-      {/* Footer - Replaced with Footer component */}
-      <Footer />
     </div>
   );
 };

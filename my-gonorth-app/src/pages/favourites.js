@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
 import styles from "../styles/favourites.module.css";
-import Header from "../components/navigation";
-import Footer from "../components/footer";
 
 const Favourites = () => {
   const router = useRouter();
@@ -100,9 +98,6 @@ const Favourites = () => {
 
   return (
     <div className={styles.container}>
-      {/* Use the Header component */}
-      <Header />
-
       <div className={styles.mainContent}>
         {/* Page Title and More Info Button */}
         <div className={styles.titleContainer}>
@@ -465,9 +460,6 @@ const Favourites = () => {
           </div>
         </div>
       )}
-
-      {/* Use the Footer component */}
-      <Footer />
     </div>
   );
 };

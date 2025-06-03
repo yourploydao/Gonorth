@@ -2,8 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import dynamic from "next/dynamic";
 import styles from "../styles/admin-create-storypage.module.css";
-import Header from "../components/navigation";
-import Footer from "../components/footer";
 import 'leaflet/dist/leaflet.css';
 
 // Dynamic import สำหรับ MapSelector
@@ -21,16 +19,18 @@ const AdminCreateDestination = () => {
   // Form state
   const [formData, setFormData] = useState({
     name: "",
+    topic: "",
     description: "",
     category: "",
     address: "",
     latitude: "",
     longitude: "",
-    budget: "",
+    admissionFee: "",
     distance: "",
     drivingTime: "",
     openTime: "",
     closeTime: "",
+    parking: "มี", // เพิ่มฟีลด์ที่จอดรถ default เป็น "มี"
     images: [],
     amenities: {
       baggageStorage: false,
@@ -91,8 +91,8 @@ const AdminCreateDestination = () => {
       ...prev,
       latitude: lat.toFixed(6),
       longitude: lng.toFixed(6),
-      distance: `${distance} km from Chiang Mai City Hall`,
-      drivingTime: `${drivingTime} minutes by car`
+      distance: `${distance} กิโลเมตรจากศาลากลางจังหวัดเชียงใหม่`,
+      drivingTime: `${drivingTime} นาทีด้วยรถยนต์`
     }));
   };
 
@@ -160,75 +160,84 @@ const AdminCreateDestination = () => {
 
   return (
     <div className={styles.container}>
-      <Header />
-      
       <div className={styles.mainContent}>
         <div className={styles.pageHeader}>
-          <h1 className={styles.pageTitle}>Create New Destination</h1>
-          <p className={styles.pageSubtitle}>Add a new destination to the system</p>
+          <h1 className={styles.pageTitle}>สร้างสถานที่ท่องเที่ยวใหม่</h1>
+          <p className={styles.pageSubtitle}>เพิ่มสถานที่ใหม่เข้าสู่ระบบ</p>
         </div>
 
         <form onSubmit={handleSubmit} className={styles.createForm}>
           {/* Basic Information Section */}
           <div className={styles.formSection}>
-            <h2 className={styles.sectionTitle}>Basic Information</h2>
+            <h2 className={styles.sectionTitle}>ข้อมูลพื้นฐาน</h2>
             
             <div className={styles.formRow}>
               <div className={styles.formField}>
-                <label>Destination Name *</label>
+                <label>ชื่อสถานที่ท่องเที่ยว *</label>
                 <input
                   type="text"
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  placeholder="Enter destination name"
+                  placeholder="กรอกชื่อสถานที่ท่องเที่ยว"
                   required
                 />
               </div>
               
               <div className={styles.formField}>
-                <label>Category</label>
+                <label>ประเภทสถานที่</label>
                 <select
                   name="category"
                   value={formData.category}
                   onChange={handleInputChange}
                 >
-                  <option value="">Select Category</option>
-                  <option value="Nature">Nature</option>
-                  <option value="Culture">Culture</option>
-                  <option value="Food">Food</option>
-                  <option value="Adventure">Adventure</option>
+                  <option value="">ตัวเลือก</option>
+                  <option value="Nature">ธรรมชาติ</option>
+                  <option value="Culture">วัฒนธรรม</option>
+                  <option value="Food">อาหาร</option>
+                  <option value="Adventure">ผจญภัย</option>
                 </select>
               </div>
             </div>
 
             <div className={styles.formField}>
-              <label>Description</label>
+              <label>ชื่อเรื่องเล่า</label>
+              <input
+                type="text"
+                name="topic"
+                value={formData.topic}
+                onChange={handleInputChange}
+                placeholder="กรอกชื่อเรื่องเล่าหรือประวัติที่เกี่ยวข้อง"
+              />
+            </div>
+
+            <div className={styles.formField}>
+              <label>คำอธิบายสถานที่ท่องเที่ยว</label>
               <textarea
                 name="description"
                 value={formData.description}
                 onChange={handleInputChange}
-                placeholder="Enter destination description"
+                placeholder="กรอกเรื่องเล่าหรือประวัติของสถานที่ท่องเที่ยวและรายละเอียดเพิ่มเติม"
                 rows={4}
               />
             </div>
 
             <div className={styles.formField}>
-              <label>Address</label>
+              <label>ที่อยู่</label>
               <input
                 type="text"
                 name="address"
                 value={formData.address}
                 onChange={handleInputChange}
-                placeholder="Enter full address"
+                placeholder="กรอกที่อยู่ของสถานที่ท่องเที่ยว"
               />
             </div>
           </div>
 
           {/* Location & Map Section */}
           <div className={styles.formSection}>
-            <h2 className={styles.sectionTitle}>Location & Map</h2>
-            <p className={styles.sectionNote}>Click "Select Location" to choose the destination location on map</p>
+            <h2 className={styles.sectionTitle}>ตำแหน่งที่ตั้งและแผนที่</h2>
+            <p className={styles.sectionNote}>กด "เลือกตำแหน่ง" เพื่อกำหนดตำแหน่งจุดหมายบนแผนที่</p>
             
             <div className={styles.mapSelectorContainer}>
               <button
@@ -236,40 +245,40 @@ const AdminCreateDestination = () => {
                 onClick={openMapModal}
                 className={styles.selectLocationBtn}
               >
-                {mapLocation ? 'Change Location' : 'Select Location on Map'}
+                {mapLocation ? 'เปลี่ยนตำแหน่ง' : 'เลือกตำแหน่ง'}
               </button>
               
               {mapLocation && (
                 <div className={styles.selectedLocation}>
-                  <h4>Selected Location:</h4>
-                  <p>Coordinates: {mapLocation.address}</p>
-                  <p>Distance: {distanceKm} km from Chiang Mai City Hall</p>
-                  <p>Driving Time: {drivingTimeMinutes} minutes by car</p>
+                  <h4>เลือกตำแหน่ง:</h4>
+                  <p>พิกัด: {mapLocation.address}</p>
+                  <p>ระยะทาง: {distanceKm} กิโลเมตรจากศาลากลางจังหวัดเชียงใหม่</p>
+                  <p>ระยะเวลาเดินทางโดยรถยนต์: {drivingTimeMinutes} นาทีด้วยรถยนต์</p>
                 </div>
               )}
             </div>
 
             <div className={styles.formRow}>
               <div className={styles.formField}>
-                <label>Latitude *</label>
+                <label>ละติจูด *</label>
                 <input
                   type="text"
                   name="latitude"
                   value={formData.latitude}
                   onChange={handleInputChange}
-                  placeholder="Select location on map"
+                  placeholder="เลือกตำแหน่ง"
                   readOnly
                 />
               </div>
               
               <div className={styles.formField}>
-                <label>Longitude *</label>
+                <label>ลองจิจูด *</label>
                 <input
                   type="text"
                   name="longitude"
                   value={formData.longitude}
                   onChange={handleInputChange}
-                  placeholder="Select location on map"
+                  placeholder="เลือกตำแหน่ง"
                   readOnly
                 />
               </div>
@@ -277,25 +286,25 @@ const AdminCreateDestination = () => {
 
             <div className={styles.formRow}>
               <div className={styles.formField}>
-                <label>Distance from Chiang Mai City Hall</label>
+                <label>ระยะทางห่างจากศาลากลางเชียงใหม่</label>
                 <input
                   type="text"
                   name="distance"
                   value={formData.distance}
                   onChange={handleInputChange}
-                  placeholder="Auto-calculated when location is selected"
+                  placeholder="คำนวณอัตโนมัติเมื่อเลือกตำแหน่งแล้ว"
                   readOnly
                 />
               </div>
               
               <div className={styles.formField}>
-                <label>Driving Time from City Hall</label>
+                <label>ระยะเวลาเดินทางโดยรถยนต์จากศาลากลาง</label>
                 <input
                   type="text"
                   name="drivingTime"
                   value={formData.drivingTime}
                   onChange={handleInputChange}
-                  placeholder="Auto-calculated when location is selected"
+                  placeholder="คำนวณอัตโนมัติเมื่อเลือกตำแหน่งแล้ว"
                   readOnly
                 />
               </div>
@@ -304,28 +313,25 @@ const AdminCreateDestination = () => {
 
           {/* Details Section */}
           <div className={styles.formSection}>
-            <h2 className={styles.sectionTitle}>Details</h2>
+            <h2 className={styles.sectionTitle}>รายละเอียด</h2>
             
             <div className={styles.formRow}>
               <div className={styles.formField}>
-                <label>Budget Range</label>
-                <select
-                  name="budget"
-                  value={formData.budget}
+                <label>ค่าเข้าชม (บาท)</label>
+                <input
+                  type="number"
+                  name="admissionFee"
+                  value={formData.admissionFee}
                   onChange={handleInputChange}
-                >
-                  <option value="">Select Budget Range</option>
-                  <option value="0 - 2,000 THB">0 - 2,000 THB</option>
-                  <option value="2,000 - 5,000 THB">2,000 - 5,000 THB</option>
-                  <option value="5,000 - 10,000 THB">5,000 - 10,000 THB</option>
-                  <option value="10,000+ THB">10,000+ THB</option>
-                </select>
+                  placeholder="กรอกค่าเข้าชม (เช่น 50, 100) หรือ 0 ถ้าฟรี"
+                  min="0"
+                />
               </div>
             </div>
 
             <div className={styles.formRow}>
               <div className={styles.formField}>
-                <label>Opening Time</label>
+                <label>เวลาเปิดทำการ</label>
                 <input
                   type="time"
                   name="openTime"
@@ -335,7 +341,7 @@ const AdminCreateDestination = () => {
               </div>
               
               <div className={styles.formField}>
-                <label>Closing Time</label>
+                <label>เวลาปิดทำการ</label>
                 <input
                   type="time"
                   name="closeTime"
@@ -344,14 +350,42 @@ const AdminCreateDestination = () => {
                 />
               </div>
             </div>
+
+            {/* Parking Section */}
+            <div className={styles.formField}>
+              <label>ที่จอดรถ</label>
+              <div className={styles.radioGroup}>
+                <label className={styles.radioItem}>
+                  <input
+                    type="radio"
+                    name="parking"
+                    value="มี"
+                    checked={formData.parking === "มี"}
+                    onChange={handleInputChange}
+                  />
+                  <span>มี</span>
+                </label>
+                
+                <label className={styles.radioItem}>
+                  <input
+                    type="radio"
+                    name="parking"
+                    value="ไม่มี"
+                    checked={formData.parking === "ไม่มี"}
+                    onChange={handleInputChange}
+                  />
+                  <span>ไม่มี</span>
+                </label>
+              </div>
+            </div>
           </div>
 
           {/* Images Section */}
           <div className={styles.formSection}>
-            <h2 className={styles.sectionTitle}>Images</h2>
+            <h2 className={styles.sectionTitle}>รูปภาพสถานที่ท่องเที่ยว</h2>
             
             <div className={styles.formField}>
-              <label>Upload Images</label>
+              <label>อัพโหลดรูปสถานที่ท่องเที่ยว</label>
               <input
                 type="file"
                 multiple
@@ -385,7 +419,7 @@ const AdminCreateDestination = () => {
 
           {/* Amenities Section */}
           <div className={styles.formSection}>
-            <h2 className={styles.sectionTitle}>Amenities</h2>
+            <h2 className={styles.sectionTitle}>สิ่งอำนวยความสะดวก</h2>
             
             <div className={styles.checkboxGrid}>
               <label className={styles.checkboxItem}>
@@ -394,7 +428,7 @@ const AdminCreateDestination = () => {
                   checked={formData.amenities.baggageStorage}
                   onChange={() => handleCheckboxChange('amenities', 'baggageStorage')}
                 />
-                <span>Baggage Storage</span>
+                <span>ห้องฝากสัมภาระ</span>
               </label>
               
               <label className={styles.checkboxItem}>
@@ -403,7 +437,7 @@ const AdminCreateDestination = () => {
                   checked={formData.amenities.freeWifi}
                   onChange={() => handleCheckboxChange('amenities', 'freeWifi')}
                 />
-                <span>Free Wi-Fi</span>
+                <span>อินเทอร์เน็ตฟรี</span>
               </label>
               
               <label className={styles.checkboxItem}>
@@ -412,7 +446,7 @@ const AdminCreateDestination = () => {
                   checked={formData.amenities.toilet}
                   onChange={() => handleCheckboxChange('amenities', 'toilet')}
                 />
-                <span>Toilet</span>
+                <span>ห้องน้ำ</span>
               </label>
               
               <label className={styles.checkboxItem}>
@@ -421,7 +455,7 @@ const AdminCreateDestination = () => {
                   checked={formData.amenities.restaurant}
                   onChange={() => handleCheckboxChange('amenities', 'restaurant')}
                 />
-                <span>Restaurant</span>
+                <span>ร้านอาหาร</span>
               </label>
               
               <label className={styles.checkboxItem}>
@@ -430,14 +464,41 @@ const AdminCreateDestination = () => {
                   checked={formData.amenities.barOnSite}
                   onChange={() => handleCheckboxChange('amenities', 'barOnSite')}
                 />
-                <span>Bar on Site</span>
+                <span>บาร์ในสถานที่ท่องเที่ยว</span>
+              </label>
+
+              <label className={styles.checkboxItem}>
+                <input
+                  type="checkbox"
+                  checked={formData.amenities.souvenirShop}
+                  onChange={() => handleCheckboxChange('amenities', 'souvenirShop')}
+                />
+                <span>ร้านขายของที่ระลึก</span>
+              </label>
+
+              <label className={styles.checkboxItem}>
+                <input
+                  type="checkbox"
+                  checked={formData.amenities.informationCenter}
+                  onChange={() => handleCheckboxChange('amenities', 'informationCenter')}
+                />
+                <span>จุดบริการข้อมูลนักท่องเที่ยว</span>
+              </label>
+
+              <label className={styles.checkboxItem}>
+                <input
+                  type="checkbox"
+                  checked={formData.amenities.shuttleService}
+                  onChange={() => handleCheckboxChange('amenities', 'shuttleService')}
+                />
+                <span>จุดบริการรถรับส่ง</span>
               </label>
             </div>
           </div>
 
           {/* Accessibility Section */}
           <div className={styles.formSection}>
-            <h2 className={styles.sectionTitle}>Accessibility</h2>
+            <h2 className={styles.sectionTitle}>ความสะดวกในการเข้าถึง</h2>
             
             <div className={styles.checkboxGrid}>
               <label className={styles.checkboxItem}>
@@ -446,7 +507,7 @@ const AdminCreateDestination = () => {
                   checked={formData.accessibility.wheelchairCarPark}
                   onChange={() => handleCheckboxChange('accessibility', 'wheelchairCarPark')}
                 />
-                <span>Wheelchair-accessible Car Park</span>
+                <span>ที่จอดรถสำหรับผู้ใช้รถเข็น</span>
               </label>
               
               <label className={styles.checkboxItem}>
@@ -455,7 +516,7 @@ const AdminCreateDestination = () => {
                   checked={formData.accessibility.wheelchairEntrance}
                   onChange={() => handleCheckboxChange('accessibility', 'wheelchairEntrance')}
                 />
-                <span>Wheelchair-accessible Entrance</span>
+                <span>ทางเข้าเหมาะสำหรับผู้ใช้รถเข็น</span>
               </label>
               
               <label className={styles.checkboxItem}>
@@ -464,7 +525,7 @@ const AdminCreateDestination = () => {
                   checked={formData.accessibility.wheelchairToilet}
                   onChange={() => handleCheckboxChange('accessibility', 'wheelchairToilet')}
                 />
-                <span>Wheelchair-accessible Toilet</span>
+                <span>มีห้องน้ำสำหรับผู้ใช้รถเข็นใกล้ทางเข้า</span>
               </label>
               
               <label className={styles.checkboxItem}>
@@ -473,7 +534,7 @@ const AdminCreateDestination = () => {
                   checked={formData.accessibility.goodForKids}
                   onChange={() => handleCheckboxChange('accessibility', 'goodForKids')}
                 />
-                <span>Good for Kids</span>
+                <span>เหมาะสำหรับเด็ก</span>
               </label>
             </div>
           </div>
@@ -485,13 +546,13 @@ const AdminCreateDestination = () => {
               onClick={handleCancel}
               className={styles.cancelButton}
             >
-              Cancel
+              ยกเลิก
             </button>
             <button
               type="submit"
               className={styles.submitButton}
             >
-              Create Destination
+              สร้างสถานที่ท่องเที่ยว
             </button>
           </div>
         </form>
@@ -502,7 +563,7 @@ const AdminCreateDestination = () => {
         <div className={styles.mapModal}>
           <div className={styles.mapModalContent}>
             <div className={styles.mapModalHeader}>
-              <h3>Select Location on Map</h3>
+              <h3>เลือกตำแหน่งจากแผนที่</h3>
               <button onClick={closeMapModal} className={styles.closeBtn}>×</button>
             </div>
             <div className={styles.mapModalBody}>
@@ -511,8 +572,6 @@ const AdminCreateDestination = () => {
           </div>
         </div>
       )}
-
-      <Footer />
     </div>
   );
 };

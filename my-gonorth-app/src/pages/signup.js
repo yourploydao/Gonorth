@@ -165,7 +165,7 @@ const SignUp = () => {
                 >
                   <img 
                     src={
-                      showPassword
+                      showConfirmPassword  // เปลี่ยนจาก showPassword เป็น showConfirmPassword
                       ? "https://cdn-icons-png.flaticon.com/128/2767/2767194.png" // show password icon
                       : "https://cdn-icons-png.flaticon.com/128/4855/4855030.png" // hide password icon
                     }

@@ -1,4 +1,4 @@
-/* styles/header.module.css */
+/* styles/navigation.module.css */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
 
 .header {
@@ -11,7 +11,7 @@
   font-family: 'Montserrat', sans-serif;
   margin-bottom: 20px;
   
-  /* ทำให้ header อยู่คงที่เมื่อเลื่อนหน้าจอ */
+  /* Fixed positioning */
   position: fixed;
   top: 0;
   left: 0;
@@ -19,125 +19,180 @@
   z-index: 1000;
   box-sizing: border-box;
   
-  /* เพิ่ม transition เพื่อให้การเปลี่ยนแปลงเรียบ */
+  /* Smooth transitions */
   transition: all 0.2s ease-in-out;
   
-  /* ป้องกันการเปลี่ยนแปลงขนาดของ header */
+  /* Consistent header height */
   min-height: 65px;
   max-height: 65px;
 }
 
-/* สไตล์สำหรับช่วงที่กำลัง transition */
 .headerTransitioning {
-  opacity: 0.95;
+  opacity: 0.98;
 }
 
+/* Logo Section */
 .logo {
   height: 45px;
   display: flex;
   align-items: center;
-  margin-left: -40px;
   cursor: pointer;
-  /* เพิ่มการคงรูปร่างของ logo */
   flex-shrink: 0;
+  margin-left: -40px; /* ลบ negative margin */
 }
 
 .logoImage {
   height: 250%;
   object-fit: contain;
-  /* ป้องกันการเปลี่ยนแปลงขนาดของรูป */
   width: auto;
   max-width: none;
 }
 
+/* Header Buttons Container */
 .headerButtons {
   display: flex;
-  gap: 10px;
+  gap: 15px;
   align-items: center;
-  /* ป้องกันการหดขยาย */
   flex-shrink: 0;
+  margin-right: 0; /* ลบ negative margin */
 }
 
+/* Favourites Button */
 .favouritesButton {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 8px;
   color: #000;
   text-decoration: none;
   font-weight: 500;
   padding: 8px 15px;
   border-radius: 4px;
   font-size: 14px;
-  /* เพิ่มการคงรูปร่าง */
   white-space: nowrap;
   flex-shrink: 0;
+  transition: background-color 0.2s ease;
+  border: none;
+  background: none;
+  cursor: pointer;
+  
+  /* ป้องกันการหายไป */
+  min-width: 120px;
+  justify-content: center;
+}
+
+.favouritesButton:hover {
+  background-color: #f5f5f5;
+}
+
+.favouritesButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 .heartIcon {
   width: 20px;
   height: 20px;
-  margin-right: 5px;
-  /* ป้องกันการเปลี่ยนแปลงขนาด */
   flex-shrink: 0;
 }
 
+/* Header Divider */
 .headerDivider {
   height: 24px;
   width: 1px;
   background-color: #363636;
-  margin: 0 5px;
-  /* ป้องกันการหดขยาย */
+  margin: 0;
   flex-shrink: 0;
 }
 
-/* ส่วน userProfile */
+/* User Profile Container */
+.userProfileContainer {
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+  min-width: 120px; /* ให้ความกว้างขั้นต่ำ */
+}
+
+/* User Profile */
 .userProfile {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   cursor: pointer;
-  /* ป้องกันการหดขยาย */
+  padding: 5px 10px;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
   flex-shrink: 0;
   white-space: nowrap;
+  min-height: 45px; /* ให้ความสูงคงที่ */
+}
+
+.userProfile:hover {
+  background-color: #f5f5f5;
 }
 
 .profileImage {
-  width: 32px;
-  height: 32px;
+  width: 35px;
+  height: 35px;
   border-radius: 50%;
   object-fit: cover;
-  /* ป้องกันการเปลี่ยนแปลงขนาด */
   flex-shrink: 0;
 }
 
 .profileName {
   font-weight: 500;
   font-size: 14px;
-  /* ป้องกันการตัดคำ */
   white-space: nowrap;
+  color: #333;
 }
 
-/* สไตล์สำหรับ dropdown menu */
-.userProfileContainer {
-  position: relative;
-  display: inline-block;
-  /* ป้องกันการหดขยาย */
-  flex-shrink: 0;
+/* Loading Skeleton Styles */
+.userProfileSkeleton {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 10px;
+  min-height: 45px;
 }
 
+.skeletonAvatar {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+.skeletonName {
+  height: 16px;
+  width: 80px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Profile Dropdown */
 .profileDropdown {
   position: absolute;
-  top: 45px;
+  top: 55px;
   right: 0;
   background-color: white;
   border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   width: 300px;
   z-index: 1100;
   overflow: hidden;
   border: 1px solid #eaeaea;
-  
-  /* เพิ่ม animation เพื่อให้เรียบ */
   animation: dropdownFadeIn 0.2s ease-in-out;
 }
 
@@ -155,7 +210,8 @@
 .profileHeader {
   display: flex;
   align-items: center;
-  padding: 16px 20px;
+  padding: 20px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
 }
 
 .dropdownProfileImage {
@@ -164,7 +220,8 @@
   border-radius: 50%;
   object-fit: cover;
   margin-right: 15px;
-  /* ป้องกันการเปลี่ยนแปลงขนาด */
+  border: 2px solid #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
 }
 
@@ -173,7 +230,7 @@
 }
 
 .profileFullName {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 600;
   margin: 0;
   padding: 0;
@@ -184,7 +241,7 @@
   color: #666;
   margin: 5px 0 0 0;
   padding: 0;
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .dropdownDivider {
@@ -199,6 +256,7 @@
   padding: 16px 20px;
   cursor: pointer;
   transition: background-color 0.2s;
+  color: #333;
 }
 
 .dropdownItem:hover {
@@ -209,57 +267,136 @@
   width: 24px;
   height: 24px;
   margin-right: 15px;
-  color: #333;
+  color: #555;
   display: flex;
   align-items: center;
   justify-content: center;
-  /* ป้องกันการหดขยาย */
   flex-shrink: 0;
 }
 
 .arrowIcon {
   margin-left: auto;
   color: #999;
-  /* ป้องกันการหดขยาย */
   flex-shrink: 0;
 }
 
-/* สไตล์สำหรับ content เพื่อให้ไม่ถูก fixed header ทับ */
+/* Page Container */
 .pageContainer {
-  padding-top: 80px; /* ปรับตามความสูงของ header */
+  padding-top: 80px;
 }
 
-/* Responsive styles */
+/* Responsive Styles */
+@media (max-width: 1024px) {
+  .header {
+    padding: 10px 30px;
+  }
+  
+  .headerButtons {
+    gap: 12px;
+  }
+  
+  .profileDropdown {
+    width: 280px;
+  }
+}
+
 @media (max-width: 768px) {
   .header {
-    padding: 8px 15px;
+    padding: 8px 20px;
     min-height: 60px;
     max-height: 60px;
   }
   
   .logo {
     height: 40px;
-    margin-left: -20px;
   }
   
   .logoImage {
     height: 200%;
   }
   
-  .moreInfoHeaderButton {
-    padding: 3px;
+  .headerButtons {
+    gap: 10px;
   }
   
-  .moreInfoIcon {
-    width: 28px;
-    height: 28px;
+  .favouritesButton {
+    padding: 6px 10px;
+    font-size: 13px;
+    min-width: 100px;
+  }
+  
+  .heartIcon {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .profileImage, .skeletonAvatar {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .profileName {
+    font-size: 13px;
+  }
+  
+  .skeletonName {
+    width: 70px;
+    height: 14px;
+  }
+  
+  .userProfileContainer {
+    min-width: 100px;
   }
   
   .profileDropdown {
     width: 260px;
+    right: -10px;
   }
   
   .pageContainer {
     padding-top: 70px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 8px 15px;
+  }
+  
+  .favouritesButton {
+    gap: 5px;
+    padding: 5px 8px;
+    min-width: 90px;
+  }
+  
+  .headerDivider {
+    margin: 0 5px;
+  }
+  
+  .userProfile, .userProfileSkeleton {
+    gap: 8px;
+    padding: 4px 8px;
+  }
+  
+  .userProfileContainer {
+    min-width: 90px;
+  }
+  
+  .profileDropdown {
+    width: 240px;
+    right: -15px;
+  }
+  
+  .profileHeader {
+    padding: 16px;
+  }
+  
+  .dropdownProfileImage {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .profileFullName {
+    font-size: 18px;
   }
 }
