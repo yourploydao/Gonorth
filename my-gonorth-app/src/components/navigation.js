@@ -1,3 +1,4 @@
+{/*Edit ล่าสุด*/}
 import React, { useState, useEffect, useRef } from "react";
 import styles from "../styles/navigation.module.css";
 import { useRouter } from "next/router";
