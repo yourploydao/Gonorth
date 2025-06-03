@@ -58,10 +58,10 @@ const NewDestinations = () => {
                 onChange={(e) => setSortBy(e.target.value)}
                 className={styles.sortSelect}
               >
-                <option value="Recommended">แนะนำ</option>
-                <option value="Price">ราคาเข้าชม</option>
-                <option value="Distance">ระยะทาง</option>
+                <option value="" disabled>ตัวเลือก</option>
                 <option value="ratings">คะแนนรีวิว</option>
+                <option value="Distance">ระยะทาง</option>
+                <option value="Price">ราคาเข้าชม</option>
               </select>
             </div>
           </div>

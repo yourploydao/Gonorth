@@ -53,10 +53,10 @@ const RainySeasonTravel = () => {
                 onChange={(e) => setSortBy(e.target.value)}
                 className={styles.sortSelect}
               >
-                <option value="แนะนำ">แนะนำ</option>
-                <option value="ระยะทาง">ระยะทาง</option>
-                <option value="งบประมาณ">งบประมาณ</option>
+                <option value="" disabled>ตัวเลือก</option>
                 <option value="คะแนน">คะแนนรีวิว</option>
+                <option value="ระยะทาง">ระยะทาง</option>
+                <option value="งบประมาณ">ราคาเข้าชม</option>
               </select>
             </div>
           </div>
