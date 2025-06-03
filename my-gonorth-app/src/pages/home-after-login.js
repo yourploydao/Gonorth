@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import styles from "../styles/home-after-login.module.css";
+import Header from "../components/navigation";
+import Footer from "../components/footer";
 
 const HomeAfterAuthen = () => {
   const router = useRouter();
