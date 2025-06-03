@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import styles from "../styles/results-after-search.module.css";
 import Header from "../components/navigation";
-import Footer from "../components/footer";
 
 const DestinationList = () => {
   const router = useRouter();
@@ -462,8 +461,6 @@ const DestinationList = () => {
         </div>
       </div>
 
-      {/* Footer - Replaced with Footer component */}
-      <Footer />
     </div>
   );
 };
