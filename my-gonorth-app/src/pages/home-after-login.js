@@ -331,7 +331,7 @@ const HomeAfterAuthen = () => {
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>สถานที่ใหม่ ๆ ที่น่าไป</h2>
             <p className={styles.sectionSubtitle}>ออกตามหาจุดหมายปลายทางใหม่ ๆ</p>
-            <a href="/destinations" className={styles.seeMoreLink}>สำรวจสถานที่เพิ่มเติม</a>
+            <a href="/new-destinations" className={styles.seeMoreLink}>สำรวจสถานที่เพิ่มเติม</a>
           </div>
 
           <div className={styles.destinationCards}>
@@ -369,8 +369,8 @@ const HomeAfterAuthen = () => {
             <h2 className={styles.sectionTitle}>
               วางแผนการเดินทาง{getSeasonDisplayName()}สุดสมบูรณ์แบบของคุณ
             </h2>
-            <p className={styles.sectionSubtitle}>ค้นหาจุดหมายปลายทางที่แนะนำมากที่สุด</p>
-            <a href="/summer-trips" className={styles.seeMoreLink}>สำรวจสถานที่เพิ่มเติม</a>
+            <p className={styles.sectionSubtitle}>ค้นพบเสน่ห์สถานที่ท่องเที่ยวในเชียงใหม่ที่สวยงามแม้ในวันฝนตก</p>
+            <a href="/rainy-season-travel" className={styles.seeMoreLink}>สำรวจสถานที่เพิ่มเติม</a>
           </div>
           
           <div className={styles.destinationCards}>

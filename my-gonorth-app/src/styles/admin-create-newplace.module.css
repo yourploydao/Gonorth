@@ -1,0 +1,724 @@
+/* Base Container */
+.container {
+    width: 100%;
+    min-height: 100vh;
+    font-family: 'Montserrat', sans-serif;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    background-color: #f9f9f9;
+  }
+  
+  /* Reset for all children */
+  .container * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  /* Main content area */
+  .mainContent {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 0 20px;
+    position: relative;
+    margin-top: 90px;
+    flex: 1;
+  }
+  
+  /* Page Header */
+  .pageHeader {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 20px 0;
+  }
+  
+  .pageTitle {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: #1b413c;
+  }
+  
+  .pageSubtitle {
+    font-size: 16px;
+    color: #666;
+  }
+  
+  /* Form Styles */
+  .createForm {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 40px;
+  }
+  
+  .formSection {
+    padding: 30px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .formSection:last-of-type {
+    border-bottom: none;
+  }
+  
+  .sectionTitle {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #1b413c;
+  }
+  
+  .sectionNote {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 20px;
+  }
+  
+  /* Form Rows and Fields */
+  .formRow {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .formRow:last-child {
+    margin-bottom: 0;
+  }
+  
+  .formField {
+    flex: 1;
+    margin-bottom: 20px;
+  }
+  
+  .formField:last-child {
+    margin-bottom: 0;
+  }
+  
+  .formField label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #333;
+  }
+  
+  .formField input,
+  .formField select,
+  .formField textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: 'Montserrat', sans-serif;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  
+  .formField input:focus,
+  .formField select:focus,
+  .formField textarea:focus {
+    outline: none;
+    border-color: #09f;
+    box-shadow: 0 0 0 3px rgba(0, 153, 255, 0.1);
+  }
+  
+  .formField input[readonly] {
+    background-color: #f8f9fa;
+    color: #666;
+  }
+  
+  .formField textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+  
+  /* Radio Group Styles */
+  .radioGroup {
+    display: flex;
+    gap: 20px;
+    margin-top: 8px;
+  }
+  
+  .radioItem {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+    border: 1px solid #ddd;
+    background-color: #f8f9fa;
+  }
+  
+  .radioItem:hover {
+    background-color: #e9ecef;
+  }
+  
+  .radioItem input[type="radio"] {
+    width: auto;
+    margin-right: 10px;
+    transform: scale(1.2);
+    accent-color: #09f;
+  }
+  
+  .radioItem span {
+    font-size: 14px;
+    color: #333;
+    font-weight: 500;
+  }
+  
+  .radioItem input[type="radio"]:checked + span {
+    color: #09f;
+    font-weight: 600;
+  }
+  
+  /* Map Selector Container */
+  .mapSelectorContainer {
+    margin-bottom: 20px;
+  }
+  
+  .selectLocationBtn {
+    background-color: #09f;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-bottom: 15px;
+  }
+  
+  .selectLocationBtn:hover {
+    background-color: #0080d6;
+  }
+  
+  .selectedLocation {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 6px;
+    border-left: 4px solid #09f;
+  }
+  
+  .selectedLocation h4 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #1b413c;
+  }
+  
+  .selectedLocation p {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 4px;
+  }
+  
+  .selectedLocation p:last-child {
+    margin-bottom: 0;
+  }
+  
+  /* Map Modal */
+  .mapModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .mapModalContent {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 800px;
+    height: 80%;
+    max-height: 600px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .mapModalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .mapModalHeader h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1b413c;
+    margin: 0;
+  }
+  
+  .closeBtn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    font-weight: bold;
+    color: #666;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s, color 0.2s;
+  }
+  
+  .closeBtn:hover {
+    background-color: #f0f0f0;
+    color: #333;
+  }
+  
+  .mapModalBody {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  /* Map Container (for general map usage) */
+  .mapContainer {
+    margin-bottom: 20px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .map {
+    width: 100%;
+    height: 400px;
+    min-height: 400px;
+  }
+  
+  /* File Input */
+  .fileInput {
+    padding: 8px !important;
+    border: 2px dashed #ddd !important;
+    background-color: #f8f9fa;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  
+  .fileInput:hover {
+    border-color: #09f !important;
+  }
+  
+  /* Image Preview */
+  .imagePreview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 15px;
+  }
+  
+  .imageItem {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .previewImage {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    display: block;
+  }
+  
+  .removeImageBtn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: rgba(255, 0, 0, 0.8);
+    color: white;
+    border: none;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+  }
+  
+  .removeImageBtn:hover {
+    background-color: rgba(255, 0, 0, 1);
+  }
+  
+  /* Checkbox Grid */
+  .checkboxGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+  }
+  
+  .checkboxItem {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+  }
+  
+  .checkboxItem:hover {
+    background-color: #f8f9fa;
+  }
+  
+  .checkboxItem input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+    transform: scale(1.2);
+  }
+  
+  .checkboxItem span {
+    font-size: 14px;
+    color: #333;
+  }
+  
+  /* Form Actions */
+  .formActions {
+    padding: 30px;
+    background-color: #f8f9fa;
+    border-radius: 0 0 12px 12px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+  }
+  
+  .cancelButton {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .cancelButton:hover {
+    background-color: #5a6268;
+  }
+  
+  .submitButton {
+    background-color: #09f;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .submitButton:hover {
+    background-color: #0080d6;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .mainContent {
+      padding: 0 15px;
+      margin-top: 60px;
+    }
+    
+    .pageTitle {
+      font-size: 24px;
+    }
+    
+    .formSection {
+      padding: 20px;
+    }
+    
+    .formRow {
+      flex-direction: column;
+      gap: 0;
+    }
+    
+    .radioGroup {
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .checkboxGrid {
+      grid-template-columns: 1fr;
+    }
+    
+    .formActions {
+      padding: 20px;
+      flex-direction: column;
+    }
+    
+    .cancelButton,
+    .submitButton {
+      width: 100%;
+      justify-content: center;
+    }
+    
+    .map {
+      height: 300px;
+      min-height: 300px;
+    }
+    
+    .imagePreview {
+      justify-content: center;
+    }
+  
+    /* Map Modal Responsive */
+    .mapModalContent {
+      width: 95%;
+      height: 85%;
+      max-height: none;
+    }
+  
+    .mapModalHeader {
+      padding: 15px;
+    }
+  
+    .mapModalHeader h3 {
+      font-size: 16px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .pageTitle {
+      font-size: 20px;
+    }
+    
+    .sectionTitle {
+      font-size: 18px;
+    }
+    
+    .formSection {
+      padding: 15px;
+    }
+    
+    .formActions {
+      padding: 15px;
+    }
+  
+    .mapModalContent {
+      width: 98%;
+      height: 90%;
+    }
+  
+    .mapModalHeader {
+      padding: 10px 15px;
+    }
+  
+    .selectLocationBtn {
+      width: 100%;
+      text-align: center;
+    }
+  }
+  
+  /* Loading States */
+  .loading {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+  
+  /* Validation States */
+  .formField input:invalid,
+  .formField select:invalid,
+  .formField textarea:invalid {
+    border-color: #dc3545;
+  }
+  
+  .formField input:valid,
+  .formField select:valid,
+  .formField textarea:valid {
+    border-color: #28a745;
+  }
+  
+  /* Required Field Indicator */
+  .formField label::after {
+    content: " *";
+    color: #dc3545;
+    font-weight: bold;
+  }
+  
+  .formField label:not([for*="required"])::after {
+    content: "";
+  }
+  
+  /* Map specific styles */
+  .leaflet-container {
+    font-family: 'Montserrat', sans-serif;
+  }
+  
+  .leaflet-popup-content {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14px;
+  }
+  
+  .leaflet-routing-container {
+    background-color: white;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .leaflet-routing-container h2 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1b413c;
+  }
+  
+  /* Custom scrollbar for form */
+  .formSection::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .formSection::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+  }
+  
+  .formSection::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+  }
+  
+  .formSection::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+  }
+  
+  /* Animation for modal */
+  .mapModal {
+    animation: fadeIn 0.3s ease-out;
+  }
+  
+  .mapModalContent {
+    animation: slideIn 0.3s ease-out;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  @keyframes slideIn {
+    from {
+      transform: translateY(-50px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  /* Focus states for accessibility */
+  .selectLocationBtn:focus,
+  .closeBtn:focus,
+  .cancelButton:focus,
+  .submitButton:focus {
+    outline: 2px solid #09f;
+    outline-offset: 2px;
+  }
+  
+  .radioItem:focus-within {
+    background-color: #e3f2fd;
+    border-color: #09f;
+  }
+  
+  .checkboxItem:focus-within {
+    background-color: #e3f2fd;
+  }
+  
+  /* Print styles */
+  @media print {
+    .mapModal {
+      display: none;
+    }
+    
+    .formActions {
+      display: none;
+    }
+    
+    .container {
+      background-color: white;
+    }
+    
+    .createForm {
+      box-shadow: none;
+      border: 1px solid #ddd;
+    }
+  }
+  
+  /* Additional utility classes */
+  .text-center {
+    text-align: center;
+  }
+  
+  .text-left {
+    text-align: left;
+  }
+  
+  .text-right {
+    text-align: right;
+  }
+  
+  .mb-0 {
+    margin-bottom: 0 !important;
+  }
+  
+  .mt-0 {
+    margin-top: 0 !important;
+  }
+  
+  .p-0 {
+    padding: 0 !important;
+  }
+  
+  /* Error states */
+  .error {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1) !important;
+  }
+  
+  .errorMessage {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 4px;
+  }
+  
+  /* Success states */
+  .success {
+    border-color: #28a745 !important;
+    box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1) !important;
+  }
+  
+  .successMessage {
+    color: #28a745;
+    font-size: 12px;
+    margin-top: 4px;
+  }

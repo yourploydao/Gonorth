@@ -1,0 +1,571 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+/* Base Container */
+.container {
+  width: 100%;
+  min-height: 100vh;
+  font-family: 'Montserrat', sans-serif;
+  color: #333;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  background-color: #f9f9f9;
+}
+
+/* Reset for all children */
+.container * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Main content area */
+.mainContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 0 20px;
+  position: relative;
+  margin-top: 75px; 
+}
+
+/* Header Styles - White space above hero image */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: white;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.logo {
+  height: 45px;
+  display: flex;
+  align-items: center;
+  margin-left: -40px;
+}
+
+.logoImage {
+  height: 250%;
+  object-fit: contain;
+}
+  
+.headerButtons {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+/* New Header Styles for User Profile and Favorites */
+.favouritesButton {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #000;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 8px 15px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.heartIcon {
+  width: 16px;
+  height: 16px;
+}
+
+/* Divider between favourites and profile */
+.headerDivider {
+  height: 24px;
+  width: 1px;
+  background-color: #363636;
+  margin: 0 5px;
+}
+
+.userProfile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.profileImage {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profileName {
+  font-weight: 500;
+  font-size: 14px;
+}
+
+/* Search Box Styles */
+.destinationSearchContainer {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin: 20px 0;
+}
+
+.searchForm {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.searchField {
+  flex: 1;
+  min-width: 180px;
+  text-align: left;
+}
+
+.searchField label {
+  display: block;
+  font-size: 12px;
+  margin-bottom: 5px;
+  color: #666;
+  text-align: left;
+}
+
+.searchField input,
+.searchField select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+  font-family: 'Montserrat', sans-serif;
+  height: 40px;
+}
+
+.inputWithIcon {
+  position: relative;
+}
+
+.inputWithIcon input {
+  padding-right: 30px;
+}
+
+.searchIcon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+}
+
+.searchIcon img {
+  width: 20px;
+  height: 20px;
+}
+
+.searchButton {
+  background-color: #09f;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  height: 40px;
+  white-space: nowrap;
+  transition: background-color 0.2s;
+}
+
+.searchButton:hover {
+  background-color: #0080d6;
+}
+
+/* Results Section */
+.resultsContainer {
+  margin-top: 20px;
+}
+
+/* Results Header */
+.resultsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding: 0 5px;
+}
+
+.resultsCount {
+  font-size: 14px;
+  color: #333333;
+}
+
+.sortContainer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.sortSelect {
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: 'Montserrat', sans-serif;
+  color: #333;
+  background-color: white;
+  cursor: pointer;
+}
+
+/* Placeholder style for select */
+.placeholderSelect {
+  color: #888;
+}
+
+.placeholderSelect option:first-child {
+  color: #888;
+}
+
+.placeholderSelect option {
+  color: black;
+}
+
+/* Destination List */
+.destinationList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Destination Item Styles - Updated to match results layout */
+.destinationItem {
+  display: flex;
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  padding: 20px;
+  gap: 25px;
+}
+
+.destinationImage {
+  width: 280px;
+  height: 325px;
+  overflow: hidden;
+  flex-shrink: 0;
+  border-radius: 12px;
+}
+
+.destinationImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+  border-radius: 8px;
+}
+
+.destinationItem:hover .destinationImage img {
+  transform: scale(1.05);
+}
+
+.destinationInfo {
+  padding: 5px 0;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.destinationTitle {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+/* History Section */
+.historySection {
+  background-color: #f8f9fa;
+  padding: 12px 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  border-left: 4px solid #09f;
+}
+
+.historyText {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #555;
+  text-align: justify;
+}
+
+/* Info Item Styles */
+.infoItem {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: #666;
+}
+
+.infoIcon {
+  margin-right: 10px;
+  font-size: 16px;
+}
+
+.infoIcon img {
+  width: 20px;
+  height: 20px;
+}
+
+.infoText {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Facilities Section */
+.facilitiesSection {
+  margin-bottom: 20px;
+}
+
+.facilitiesTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.facilitiesList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.facilityTag {
+  background-color: #e3f2fd;
+  color: #1565c0;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid #bbdefb;
+}
+
+/* Action Buttons */
+.actionButtons {
+  display: flex;
+  margin-top: auto;
+  align-items: center;
+  gap: 15px;
+}
+
+.viewButton {
+  background-color: #09f;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 30px;
+  font-weight: 500;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  width: 100%;
+  display: block;
+}
+
+.viewButton:hover {
+  background-color: #0080d6;
+}
+
+/* Rating Section - Added from results layout */
+.destinationRating {
+  width: 120px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-left: 1px solid #eee;
+  flex-shrink: 0;
+}
+
+.ratingScore {
+  font-size: 24px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.ratingText {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.reviewCount {
+  font-size: 12px;
+  color: #666;
+}
+
+/* Show More Button */
+.showMoreButton {
+  width: 100%;
+  padding: 12px;
+  background-color: #1b3a36;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  margin-top: 20px;
+  margin-bottom: 30px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.showMoreButton:hover {
+  background-color: #122b28;
+}
+
+/* Footer */
+.footer {
+  background-color: #09f;
+  color: #000;
+  padding: 40px;
+  width: 100%;
+  margin-top: 40px;
+}
+
+.footerContent {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footerLogo {
+  flex: 1;
+  min-width: 150px;
+}
+
+.footerLogoImage {
+  max-width: 500px;
+  margin-top: -70px;
+  margin-left: -150px;
+}
+
+.footerSection {
+  flex: 1;
+  min-width: 200px;
+}
+
+.footerTitle {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+.footerLinks {
+  list-style: none;
+}
+
+.footerLinks li {
+  margin-bottom: 10px;
+}
+
+.footerLinks a {
+  color: #000;
+  text-decoration: none;
+  font-size: 14px;
+  transition: opacity 0.2s;
+}
+
+.footerLinks a:hover {
+  opacity: 0.8;
+}
+
+.contactInfo, .contactDetail {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .searchForm {
+    flex-direction: column;
+  }
+  
+  .searchButton {
+    width: 100%;
+    justify-content: center;
+    margin-top: 10px;
+  }
+  
+  .footerContent {
+    flex-direction: column;
+    gap: 30px;
+  }
+  
+  .destinationItem {
+    flex-direction: column;
+    padding: 15px;
+    gap: 15px;
+  }
+  
+  .destinationImage {
+    width: 100%;
+    height: 200px;
+    margin-bottom: 8px;
+  }
+  
+  .destinationImage img {
+    border-radius: 8px;
+  }
+  
+  .destinationRating {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-left: none;
+    border-top: 1px solid #eee;
+    margin-top: 10px;
+  }
+
+  .ratingScore, .ratingText, .reviewCount {
+    text-align: left;
+  }
+
+  .mainContent {
+    margin-top: 20px;
+    padding: 0 15px;
+  }
+
+  .destinationTitle {
+    font-size: 20px;
+  }
+
+  .historySection {
+    padding: 10px 12px;
+  }
+
+  .facilitiesList {
+    gap: 6px;
+  }
+
+  .facilityTag {
+    font-size: 11px;
+    padding: 3px 8px;
+  }
+}

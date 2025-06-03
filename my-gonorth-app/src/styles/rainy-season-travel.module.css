@@ -1,0 +1,591 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+/* Base Container */
+.container {
+  width: 100%;
+  min-height: 100vh;
+  font-family: 'Montserrat', sans-serif;
+  color: #333;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  background-color: #f9f9f9;
+}
+
+/* Reset for all children */
+.container * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Main content area */
+.mainContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 0 20px;
+  position: relative;
+  margin-top: 75px;
+}
+
+/* Search Box Styles */
+.destinationSearchContainer {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin: 20px 0;
+}
+
+.searchForm {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.searchField {
+  flex: 1;
+  min-width: 180px;
+  text-align: left;
+}
+
+.searchField label {
+  display: block;
+  font-size: 12px;
+  margin-bottom: 5px;
+  color: #666;
+  font-weight: 500;
+  text-align: left;
+}
+
+.searchField input,
+.searchField select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+  font-family: 'Montserrat', sans-serif;
+  height: 40px;
+  transition: border-color 0.3s;
+}
+
+.searchField input:focus,
+.searchField select:focus {
+  outline: none;
+  border-color: #09f;
+}
+
+.inputWithIcon {
+  position: relative;
+}
+
+.inputWithIcon input {
+  padding-right: 30px;
+}
+
+.searchIcon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+}
+
+.searchIcon img {
+  width: 20px;
+  height: 20px;
+  opacity: 0.6;
+}
+
+.searchButton {
+  background-color: #09f;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  height: 40px;
+  white-space: nowrap;
+  transition: background-color 0.2s;
+}
+
+.searchButton:hover {
+  background-color: #0080d6;
+}
+
+/* Placeholder style for select */
+.placeholderSelect {
+  color: #888;
+}
+
+.placeholderSelect option:first-child {
+  color: #888;
+}
+
+.placeholderSelect option {
+  color: black;
+}
+
+/* Results Section */
+.resultsContainer {
+  margin-top: 20px;
+}
+
+/* Results Header */
+.resultsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding: 0 5px;
+}
+
+.resultsCount {
+  font-size: 14px;
+  color: #333333;
+  font-weight: 400;
+}
+
+.sortContainer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #666;
+}
+
+.sortSelect {
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: 'Montserrat', sans-serif;
+  color: #333;
+  background-color: white;
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+
+.sortSelect:focus {
+  outline: none;
+  border-color: #09f;
+}
+
+/* Destination List */
+.destinationList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Destination Item Styles */
+.destinationItem {
+  display: flex;
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  padding: 20px;
+  gap: 25px;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.destinationItem:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.destinationImage {
+  width: 280px;
+  height: 325px;
+  overflow: hidden;
+  flex-shrink: 0;
+  border-radius: 12px;
+}
+
+.destinationImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+  border-radius: 8px;
+}
+
+.destinationItem:hover .destinationImage img {
+  transform: scale(1.05);
+}
+
+.destinationInfo {
+  padding: 5px 0;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.destinationTitle {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+/* Rain Feature Section */
+.rainFeatureSection {
+  background-color: #f8f9fa;
+  padding: 12px 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  border-left: 4px solid #09f;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.rainIcon {
+  font-size: 20px;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.rainFeatureText {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #555;
+  text-align: justify;
+  flex: 1;
+}
+
+/* Info Item Styles */
+.infoItem {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: #666;
+}
+
+.infoIcon {
+  margin-right: 10px;
+  font-size: 16px;
+}
+
+.infoIcon img {
+  width: 20px;
+  height: 20px;
+}
+
+.infoText {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Facilities Section */
+.facilitiesSection {
+  margin-bottom: 20px;
+}
+
+.facilitiesTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.facilitiesList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.facilityTag {
+  background-color: #e3f2fd;
+  color: #1565c0;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid #bbdefb;
+}
+
+/* Action Buttons */
+.actionButtons {
+  display: flex;
+  margin-top: auto;
+  align-items: center;
+  gap: 15px;
+}
+
+.viewButton {
+  background-color: #09f;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 30px;
+  font-weight: 500;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  width: 100%;
+  display: block;
+}
+
+.viewButton:hover {
+  background-color: #0080d6;
+}
+
+/* Rating Section */
+.destinationRating {
+  width: 120px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-left: 1px solid #eee;
+  flex-shrink: 0;
+  border-radius: 12px;
+  margin-left: 10px;
+}
+
+.ratingScore {
+  font-size: 24px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.ratingText {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.reviewCount {
+  font-size: 12px;
+  color: #666;
+}
+
+/* Show More Button */
+.showMoreButton {
+  width: 100%;
+  padding: 12px;
+  background-color: #1b3a36;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  margin-top: 20px;
+  margin-bottom: 30px;
+  font-weight: 500;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.showMoreButton:hover {
+  background-color: #122b28;
+}
+
+/* Tips Section */
+.tipsSection {
+  background: white;
+  border-radius: 10px;
+  padding: 40px;
+  margin-top: 40px;
+  margin-bottom: 40px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tipsTitle {
+  font-size: 28px;
+  font-weight: 700;
+  color: #333;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.tipsList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 25px;
+}
+
+.tipItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  border-left: 4px solid #09f;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.tipItem:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.tipIcon {
+  font-size: 24px;
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+.tipContent h4 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.tipContent p {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.6;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .heroTitle {
+    font-size: 26px;
+  }
+  
+  .heroSubtitle {
+    font-size: 14px;
+  }
+  
+  .heroSection {
+    padding: 40px 20px;
+  }
+  
+  .destinationSearchContainer {
+    padding: 20px;
+  }
+  
+  .searchForm {
+    flex-direction: column;
+  }
+  
+  .searchButton {
+    width: 100%;
+    justify-content: center;
+    margin-top: 10px;
+  }
+  
+  .destinationItem {
+    flex-direction: column;
+    padding: 15px;
+    gap: 15px;
+  }
+  
+  .destinationImage {
+    width: 100%;
+    height: 200px;
+    margin-bottom: 8px;
+  }
+  
+  .destinationImage img {
+    border-radius: 8px;
+  }
+  
+  .destinationRating {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-left: none;
+    border-top: 1px solid #eee;
+    margin-top: 10px;
+    margin-left: 0;
+    background: none;
+  }
+
+  .ratingScore, .ratingText, .reviewCount {
+    text-align: left;
+  }
+
+  .mainContent {
+    margin-top: 20px;
+    padding: 0 15px;
+  }
+
+  .destinationTitle {
+    font-size: 20px;
+  }
+
+  .rainFeatureSection {
+    padding: 10px 12px;
+  }
+
+  .facilitiesList {
+    gap: 6px;
+  }
+
+  .facilityTag {
+    font-size: 11px;
+    padding: 3px 8px;
+  }
+  
+  .tipsSection {
+    padding: 25px 20px;
+  }
+  
+  .tipsTitle {
+    font-size: 24px;
+  }
+  
+  .tipsList {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .tipItem {
+    padding: 15px;
+  }
+  
+  .tipContent h4 {
+    font-size: 16px;
+  }
+  
+  .tipContent p {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .heroTitle {
+    font-size: 24px;
+  }
+  
+  .heroSubtitle {
+    font-size: 13px;
+  }
+  
+  .destinationTitle {
+    font-size: 18px;
+  }
+  
+  .tipItem {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .tipIcon {
+    margin-bottom: 10px;
+  }
+}
