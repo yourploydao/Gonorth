@@ -10,6 +10,8 @@ const HomeBeforeAuthen = () => {
   const [selectedBudget, setSelectedBudget] = useState("");
   const [latestLocations, setLatestLocations] = useState([]);
   const [randomLocations, setRandomLocations] = useState([]);
+  const [seasonalLocations, setSeasonalLocations] = useState([]);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     const fetchLatestLocations = async () => {
@@ -52,9 +54,8 @@ const HomeBeforeAuthen = () => {
       if (!allRes.ok) throw new Error("Failed to fetch all locations");
       const allData = await allRes.json();
 
-      // สุ่ม 3 สถานที่จากทั้งหมด
       const shuffled = allData.sort(() => 0.5 - Math.random());
-      const selected = shuffled.slice(0, 3);
+      const selected = shuffled.slice(0, 5);
       setRandomLocations(selected);
 
     } catch (error) {
@@ -62,9 +63,78 @@ const HomeBeforeAuthen = () => {
     }
   };
 
+  const fetchSeasonalLocations = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const currentSeason = getCurrentSeason(); 
+
+      const res = await fetch(`http://localhost:8080/locations/season/${currentSeason}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`, 
+        },
+      });
+
+      if (!res.ok) {
+        console.error("API response not OK:", res.status, res.statusText);
+        return;
+      }
+      
+      const data = await res.json();
+
+      const shuffled = data.sort(() => 0.5 - Math.random());
+      const selected = shuffled.slice(0, 3);
+
+      console.log("Fetched seasonal data:", selected);
+      setSeasonalLocations(selected);
+    } catch (error) {
+      console.error("Error fetching seasonal locations:", error);
+    }
+  };
+
     fetchLatestLocations();
     fetchRandomLocations();
+    fetchSeasonalLocations();
   }, []);
+
+  // หาฤดูกาลปัจจุบัน
+  const getCurrentSeason = () => {
+    const month = new Date().getMonth() + 1; 
+    
+    if (month >= 3 && month <= 5) return "summer";
+    if (month >= 6 && month <= 10) return "rainy";
+    return "winter";
+  };
+
+  // แปลงชื่อฤดูเป็นภาษาไทย
+  const getSeasonDisplayName = () => {
+    const currentSeason = getCurrentSeason();
+
+    switch (currentSeason) {
+      case "summer":
+        return "ฤดูร้อน";
+      case "rainy":
+        return "ฤดูฝน";
+      case "winter":
+        return "ฤดูหนาว";
+      default:
+        return "ไม่ทราบฤดูกาล";
+    }
+  };
+
+  const [currentHistoryCard, setCurrentHistoryCard] = useState(0);
+
+  // Auto-rotate history cards
+  useEffect(() => {
+    if (randomLocations.length === 0) return;
+
+    const interval = setInterval(() => {
+      setCurrentHistoryCard((prev) => (prev + 1) % randomLocations.length);
+    }, 6000);
+
+    return () => clearInterval(interval);
+  }, [randomLocations.length]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -173,6 +243,79 @@ const HomeBeforeAuthen = () => {
           </div>
         </div>
 
+        {/* History Flash Cards Section - เพิ่มส่วนใหม่ */}
+        <section className={styles.historySection}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>เรื่องเล่าจากอดีต</h2>
+            <p className={styles.sectionSubtitle}>
+              ประวัติและตำนานของสถานที่ท่องเที่ยวในเชียงใหม่
+            </p>
+          </div>
+
+          {/* แสดงผลเฉพาะตอนที่ randomLocations มีข้อมูลแล้วเท่านั้น  */}
+          {randomLocations.length > 0 && (
+            <div className={styles.historyCardContainer}>
+              <div
+                className={styles.historyCard}
+                style={{
+                  background:
+                    "linear-gradient(135deg,#FFF8E1 0%,#FFCC80 100%)",
+                }}
+              >
+                <div className={styles.historyCardContent}>
+                  <div className={styles.historyCardText}>
+                    <h2 className={styles.historyCardTitle}>
+                      {randomLocations[currentHistoryCard]?.Topic}
+                    </h2>
+                    <h3 className={styles.historyCardSubtitle}>
+                      {randomLocations[currentHistoryCard]?.LocationsName ||
+                        "ไม่มีข้อมูล"}
+                    </h3>
+                    <p className={styles.historyCardDescription}>
+                      {expanded
+                        ? randomLocations[currentHistoryCard]?.History
+                        : randomLocations[currentHistoryCard]?.History.slice(0, 200) + "..."}
+                      <button
+                        className={styles.showHistory}
+                        onClick={() => handleDestinationClick()}
+                      >
+                        ดูรายละเอียดเพิ่มเติม
+                      </button>
+                    </p>
+                  </div>
+
+                  <div className={styles.historyCardImageContainer}>
+                    <img
+                      src={
+                        randomLocations[currentHistoryCard]?.Images?.find(
+                          (img) => img.IsMain,
+                        )?.URL ||
+                        randomLocations[currentHistoryCard]?.Images?.[0]?.URL ||
+                        "/images/placeholder.jpg"
+                      }
+                      alt={randomLocations[currentHistoryCard]?.LocationsName}
+                      className={styles.historyCardImage}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Indicators */}
+              <div className={styles.historyCardIndicators}>
+                {randomLocations.map((_, index) => (
+                  <button
+                    key={index}
+                    className={`${styles.historyIndicator} ${
+                      index === currentHistoryCard ? styles.active : ""
+                    }`}
+                    onClick={() => handleHistoryCardClick(index)}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+        </section>
+
         {/* New Destinations Section */}
         <section className={styles.destinationsSection}>
           <div className={styles.sectionHeader}>
@@ -213,37 +356,44 @@ const HomeBeforeAuthen = () => {
         {/* New Journey */}
         <section className={styles.destinationsSection}>
           <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>วางแผนการเดินทางฤดูฝนสุดสมบูรณ์แบบของคุณ</h2>
+            <h2 className={styles.sectionTitle}>
+              วางแผนการเดินทาง{getSeasonDisplayName()}สุดสมบูรณ์แบบของคุณ
+            </h2>
             <p className={styles.sectionSubtitle}>ค้นหาจุดหมายปลายทางที่แนะนำมากที่สุด</p>
-            <a href="/summer-trips" className={styles.seeMoreLink}>สำรวจสถานที่เพิ่มเติม</a> 
-          </div> 
-
+            <a href="/summer-trips" className={styles.seeMoreLink}>สำรวจสถานที่เพิ่มเติม</a>
+          </div>
+          
           <div className={styles.destinationCards}>
-            {randomLocations.map((location) => (
-              <div key={location.ID} className={styles.destinationCard}>
-                <div
-                  className={styles.cardImage}
-                  style={{
-                    backgroundImage: `url('${
-                      location.Images?.find(img => img.IsMain)?.URL || location.Images?.[0]?.URL 
-                    }')`
-                  }}
-                >
-                  <div className={styles.cardOverlay}>
-                    <h3 className={styles.cardTitle}>{location.Topic}</h3>
-                    {location.Address && (
-                      <h4 className={styles.cardSubtitle}>{location.Address}</h4>
-                    )}
-                    <button
-                      className={styles.showDetailButton}
-                      onClick={() => handleDestinationClick()}
-                    >
-                      ดูรายละเอียด
-                    </button>
+            {seasonalLocations.length > 0 ? (
+              seasonalLocations.map((location) => (
+                <div key={location.ID} className={styles.destinationCard}>
+                  <div
+                    className={styles.cardImage}
+                    style={{
+                      backgroundImage: `url('${
+                        location.Images?.find(img => img.IsMain)?.URL || location.Images?.[0]?.URL 
+                      }')`
+                    }}
+                  >
+                    <div className={styles.cardOverlay}>
+                      <h3 className={styles.cardTitle}>{location.LocationsName}</h3>
+                      {location.Address && (
+                        <h4 className={styles.cardSubtitle}>{location.Address}</h4>
+                      )}
+                      <button
+                        className={styles.showDetailButton}
+                        onClick={() => handleDestinationClick()}
+                      >
+                        ดูรายละเอียด
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              // Fallback ถ้าไม่มีข้อมูลจาก database
+              <p>ไม่มีข้อมูลสถานที่ในฤดูกาลนี้</p>
+            )}
           </div>
         </section>
       </div>

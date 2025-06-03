@@ -74,10 +74,7 @@ const Header = () => {
     if (isRouting) return;
     setIsRouting(true);
     setShowDropdown(false);
-    
-    localStorage.removeItem("token");
-    setUser(null);
-    
+    // ใส่โค้ดสำหรับ logout ที่นี่
     router.push('/home-before-login').finally(() => {
       setTimeout(() => setIsRouting(false), 300);
     });
@@ -197,17 +194,12 @@ const Header = () => {
             <div className={styles.profileDropdown}>
               <div className={styles.profileHeader}>
                 <img
-                  src={user.profileImage || '/assets/default-avatar.png'}
+                  src={user.profileImage}
                   alt={`${user.firstname} ${user.lastname}`}
-                  className={styles.dropdownProfileImage}
-                  onError={(e) => {
-                    e.target.src = '/assets/default-avatar.png';
-                  }}
+                  className={styles.dropdownProfileImage} 
                 />
                 <div className={styles.profileInfo}>
-                  <h3 className={styles.profileFullName}>
-                    {user.firstname} {user.lastname}
-                  </h3>
+                  <h3 className={styles.profileFullName}>{user.firstname} {user.lastname}</h3>
                 </div>
               </div>
 

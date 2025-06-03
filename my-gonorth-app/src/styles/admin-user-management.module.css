@@ -30,7 +30,6 @@
   padding: 0 20px;
   position: relative;
   margin-top: 90px;
-}
 
 /* Page Header */
 .pageHeader {
@@ -547,4 +546,5 @@
     flex-direction: column;
     gap: 4px;
   }
+}
 }

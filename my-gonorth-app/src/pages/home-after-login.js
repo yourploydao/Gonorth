@@ -1,4 +1,3 @@
-// ยังไม่แยก nav and footer เป็น components แยกออกมา
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import styles from "../styles/home-after-login.module.css";
@@ -11,6 +10,8 @@ const HomeAfterAuthen = () => {
   const [selectedBudget, setSelectedBudget] = useState("");
   const [latestLocations, setLatestLocations] = useState([]);
   const [randomLocations, setRandomLocations] = useState([]);
+  const [seasonalLocations, setSeasonalLocations] = useState([]);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     const fetchLatestLocations = async () => {
@@ -53,9 +54,8 @@ const HomeAfterAuthen = () => {
       if (!allRes.ok) throw new Error("Failed to fetch all locations");
       const allData = await allRes.json();
 
-      // สุ่ม 3 สถานที่จากทั้งหมด
       const shuffled = allData.sort(() => 0.5 - Math.random());
-      const selected = shuffled.slice(0, 3);
+      const selected = shuffled.slice(0, 5);
       setRandomLocations(selected);
 
     } catch (error) {
@@ -63,99 +63,78 @@ const HomeAfterAuthen = () => {
     }
   };
 
+  const fetchSeasonalLocations = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const currentSeason = getCurrentSeason(); 
+
+      const res = await fetch(`http://localhost:8080/locations-login/season/${currentSeason}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`, 
+        },
+      });
+
+      if (!res.ok) {
+        console.error("API response not OK:", res.status, res.statusText);
+        return;
+      }
+      
+      const data = await res.json();
+
+      const shuffled = data.sort(() => 0.5 - Math.random());
+      const selected = shuffled.slice(0, 3);
+
+      console.log("Fetched seasonal data:", selected);
+      setSeasonalLocations(selected);
+    } catch (error) {
+      console.error("Error fetching seasonal locations:", error);
+    }
+  };
+
     fetchLatestLocations();
     fetchRandomLocations();
+    fetchSeasonalLocations();
   }, []);
 
-  const [currentFlashCard, setCurrentFlashCard] = useState(0);
+  // หาฤดูกาลปัจจุบัน
+  const getCurrentSeason = () => {
+    const month = new Date().getMonth() + 1; 
+    
+    if (month >= 3 && month <= 5) return "summer";
+    if (month >= 6 && month <= 10) return "rainy";
+    return "winter";
+  };
+
+  // แปลงชื่อฤดูเป็นภาษาไทย
+  const getSeasonDisplayName = () => {
+    const currentSeason = getCurrentSeason();
+
+    switch (currentSeason) {
+      case "summer":
+        return "ฤดูร้อน";
+      case "rainy":
+        return "ฤดูฝน";
+      case "winter":
+        return "ฤดูหนาว";
+      default:
+        return "ไม่ทราบฤดูกาล";
+    }
+  };
+
   const [currentHistoryCard, setCurrentHistoryCard] = useState(0);
-
-  // Flash Cards Data
-  const flashCards = [
-    {
-      title: "อ่างแก้ว",
-      subtitle: "ของขวัญแห่งกาลเวลา",
-      description: "อ่างแก้วเกิดจากการที่ธรรมชาติสร้างสรรค์ขึ้นมาเป็นเวลานับล้านปี ด้วยการพัดพาของลมและฝน ทำให้เกิดเป็นอ่างน้ำใสใสที่สะท้อนท้องฟ้าได้อย่างสวยงาม",
-      image: "https://media.readthecloud.co/wp-content/uploads/2021/12/29133520/angkaew-11-750x500.jpg",
-      bgColor: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-    },
-    {
-      title: "แกรนด์แคนยอน เชียงใหม่",
-      subtitle: "ปาฏิหาริย์แห่งดินแดน",
-      description: "เกิดจากการขุดดินเหนียวเพื่อทำอิฐ จนกลายเป็นหลุมลึกขนาดใหญ่ เมื่อเติมน้ำลงไป จึงกลายเป็นทะเลสาบสีฟ้าครามที่งดงามราวกับแกรนด์แคนยอนจริง",
-      image: "https://jjubbbbb.wordpress.com/wp-content/uploads/2016/11/grand-canyon-of-chiang-mai2.jpg",
-      bgColor: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)"
-    },
-    {
-      title: "น้ำตกม่อนฮ่อง",
-      subtitle: "เสียงเพลงแห่งป่าใหญ่",
-      description: "น้ำตกที่ซ่อนตัวอยู่ในป่าลึก มีเสียงน้ำตกดังก้องเป็นเสียงเพลงของธรรมชาติ เล่ากันว่าเป็นที่อาศัยของเทพธิดาแห่งป่า ที่คอยปกป้องผืนป่าไว้",
-      image: "https://www.govivigo.com/content/upload/images/Lampang/Kau-Fau-Waterfall.jpg",
-      bgColor: "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)"
-    },
-    {
-      title: "บ้านข้างวัด",
-      subtitle: "ร่มไผ่และเสียงระฆัง",
-      description: "บ้านไม้เก่าแก่ที่ตั้งอยู่ข้างวัดเก่า สร้างมาตั้งแต่สมัยล้านนา ล้อมรอบด้วยไผ่เขียวและเสียงระฆังที่ดังขึ้นทุกเช้าเย็น เป็นสถานที่ที่ให้ความสงบและความสุข",
-      image: "https://today-obs.line-scdn.net/0hD9HSJp0yGxZ1KgpR3SxkQU18F2dGTAEfV08GIAMoFXVcBl9BGkpIdVIoQjpREwsVVRhScFZ6EiIMTl5AGg/w644",
-      bgColor: "linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)"
-    }
-  ];
-
-  // History Cards Data - เพิ่มข้อมูลประวัติสถานที่
-  const historyCards = [
-    {
-      title: "อ่างแก้ว",
-      subtitle: "ของขวัญแห่งกาลเวลา",
-      description: "เล่าขานกันว่าอ่างแก้วเกิดขึ้นจากน้ำตาของนางฟ้าที่เสียใจจากการจากลาคนรัก หยดน้ำตาที่หลั่งลงสู่แผ่นดินกลายเป็นอ่างน้ำใสดุจแก้วใส สะท้อนความทรงจำอันงดงามไว้ตลอดกาล",
-      image: "https://media.readthecloud.co/wp-content/uploads/2021/12/29133520/angkaew-11-750x500.jpg",
-      bgColor: "linear-gradient(135deg, #8EC5FC 0%, #E0C3FC 100%)",
-      period: "ตำนานโบราณ"
-    },
-    {
-      title: "แกรนด์แคนยอน เชียงใหม่", 
-      subtitle: "ปาฏิหาริย์แห่งดินแดน",
-      description: "ในอดีตที่นี่เป็นแหล่งขุดดินเหนียวของชาวบ้าน ใช้ทำอิฐปูนสร้างบ้านเรือน หลังจากขุดไปนานปี ฝนฟ้าได้เติมน้ำลงในหลุมลึก กลายเป็นทะเลสาบสีฟ้าครามที่มีความงามไม่แพ้แกรนด์แคนยอนแท้",
-      image: "https://jjubbbbb.wordpress.com/wp-content/uploads/2016/11/grand-canyon-of-chiang-mai2.jpg",
-      bgColor: "linear-gradient(135deg, #FFEAF2 0%, #FF8A80 100%)",
-      period: "ศตวรรษที่ 20"
-    },
-    {
-      title: "น้ำตกม่อนฮ่อง",
-      subtitle: "เสียงเพลงแห่งป่าใหญ่", 
-      description: "ตามตำนานของชาวม้ง น้ำตกแห่งนี้เป็นที่ประทับของวิญญาณป่า เสียงน้ำตกที่ดังก้องไปทั่วป่าคือเสียงเพลงที่วิญญาณป่าขับร้องเพื่อปกป้องสัตว์ป่าและต้นไม้ให้อยู่ในความสงบสุข",
-      image: "https://www.govivigo.com/content/upload/images/Lampang/Kau-Fau-Waterfall.jpg",
-      bgColor: "linear-gradient(135deg, #E8F5E8 0%, #B8E6B8 100%)",
-      period: "ตำนานชาวเขา"
-    },
-    {
-      title: "บ้านข้างวัด",
-      subtitle: "ร่มไผ่และเสียงระฆัง",
-      description: "บ้านไม้สักโบราณแห่งนี้สร้างขึ้นในสมัยพระเจ้ามังราย เป็นที่พักของพระสงฆ์และผู้แสวงบุญ ไผ่รอบบ้านปลูกไว้เพื่อให้ร่มเงาและสร้างความเย็นใจ เสียงระฆังวัดที่ดังขึ้นทุกเช้าเย็นเป็นสัญญาณแห่งความสงบและการดำรงอยู่ของวิถีชีวิตแบบล้านนา",
-      image: "https://today-obs.line-scdn.net/0hD9HSJp0yGxZ1KgpR3SxkQU18F2dGTAEfV08GIAMoFXVcBl9BGkpIdVIoQjpREwsVVRhScFZ6EiIMTl5AGg/w644",
-      bgColor: "linear-gradient(135deg, #FFF8E1 0%, #FFCC80 100%)",
-      period: "สมัยล้านนา"
-    }
-  ];
-
-  // Auto-rotate flash cards
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentFlashCard((prev) => (prev + 1) % flashCards.length);
-    }, 5000); // Change every 5 seconds
-
-    return () => clearInterval(interval);
-  }, [flashCards.length]);
 
   // Auto-rotate history cards
   useEffect(() => {
+    if (randomLocations.length === 0) return;
+
     const interval = setInterval(() => {
-      setCurrentHistoryCard((prev) => (prev + 1) % historyCards.length);
-    }, 6000); // Change every 6 seconds
+      setCurrentHistoryCard((prev) => (prev + 1) % randomLocations.length);
+    }, 6000);
 
     return () => clearInterval(interval);
-  }, [historyCards.length]);
-
+  }, [randomLocations.length]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -278,50 +257,73 @@ const HomeAfterAuthen = () => {
         <section className={styles.historySection}>
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>เรื่องเล่าจากอดีต</h2>
-            <p className={styles.sectionSubtitle}>ประวัติและตำนานของสถานที่ท่องเที่ยวในเชียงใหม่</p>
+            <p className={styles.sectionSubtitle}>
+              ประวัติและตำนานของสถานที่ท่องเที่ยวในเชียงใหม่
+            </p>
           </div>
-          
-          <div className={styles.historyCardContainer}>
-            <div 
-              className={styles.historyCard}
-              style={{ background: historyCards[currentHistoryCard].bgColor }}
-            >
-              <div className={styles.historyCardContent}>
-                <div className={styles.historyCardText}>
-                  <div className={styles.historyPeriod}>
-                    {historyCards[currentHistoryCard].period}
+
+          {/* แสดงผลเฉพาะตอนที่ randomLocations มีข้อมูลแล้วเท่านั้น  */}
+          {randomLocations.length > 0 && (
+            <div className={styles.historyCardContainer}>
+              <div
+                className={styles.historyCard}
+                style={{
+                  background:
+                    "linear-gradient(135deg,#FFF8E1 0%,#FFCC80 100%)",
+                }}
+              >
+                <div className={styles.historyCardContent}>
+                  <div className={styles.historyCardText}>
+                    <h2 className={styles.historyCardTitle}>
+                      {randomLocations[currentHistoryCard]?.Topic}
+                    </h2>
+                    <h3 className={styles.historyCardSubtitle}>
+                      {randomLocations[currentHistoryCard]?.LocationsName ||
+                        "ไม่มีข้อมูล"}
+                    </h3>
+                    <p className={styles.historyCardDescription}>
+                      {expanded
+                        ? randomLocations[currentHistoryCard]?.History
+                        : randomLocations[currentHistoryCard]?.History.slice(0, 200) + "..."}
+                      <button
+                        className={styles.showHistory}
+                        onClick={() => handleDestinationClick(randomLocations[currentHistoryCard]?.ID)}
+                      >
+                        ดูรายละเอียดเพิ่มเติม
+                      </button>
+                    </p>
                   </div>
-                  <h2 className={styles.historyCardTitle}>
-                    {historyCards[currentHistoryCard].title}
-                  </h2>
-                  <h3 className={styles.historyCardSubtitle}>
-                    {historyCards[currentHistoryCard].subtitle}
-                  </h3>
-                  <p className={styles.historyCardDescription}>
-                    {historyCards[currentHistoryCard].description}
-                  </p>
-                </div>
-                <div className={styles.historyCardImageContainer}>
-                  <img 
-                    src={historyCards[currentHistoryCard].image} 
-                    alt={historyCards[currentHistoryCard].title}
-                    className={styles.historyCardImage}
-                  />
+
+                  <div className={styles.historyCardImageContainer}>
+                    <img
+                      src={
+                        randomLocations[currentHistoryCard]?.Images?.find(
+                          (img) => img.IsMain,
+                        )?.URL ||
+                        randomLocations[currentHistoryCard]?.Images?.[0]?.URL ||
+                        "/images/placeholder.jpg"
+                      }
+                      alt={randomLocations[currentHistoryCard]?.LocationsName}
+                      className={styles.historyCardImage}
+                    />
+                  </div>
                 </div>
               </div>
+
+              {/* Indicators */}
+              <div className={styles.historyCardIndicators}>
+                {randomLocations.map((_, index) => (
+                  <button
+                    key={index}
+                    className={`${styles.historyIndicator} ${
+                      index === currentHistoryCard ? styles.active : ""
+                    }`}
+                    onClick={() => handleHistoryCardClick(index)}
+                  />
+                ))}
+              </div>
             </div>
-            
-            {/* History Card Indicators */}
-            <div className={styles.historyCardIndicators}>
-              {historyCards.map((_, index) => (
-                <button
-                  key={index}
-                  className={`${styles.historyIndicator} ${index === currentHistoryCard ? styles.active : ''}`}
-                  onClick={() => handleHistoryCardClick(index)}
-                />
-              ))}
-            </div>
-          </div>
+          )}
         </section>
 
         {/* New Destinations Section */}
@@ -364,53 +366,44 @@ const HomeAfterAuthen = () => {
         {/* New Journey */}
         <section className={styles.destinationsSection}>
           <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>วางแผนการเดินทางฤดูฝนสุดสมบูรณ์แบบของคุณ</h2>
+            <h2 className={styles.sectionTitle}>
+              วางแผนการเดินทาง{getSeasonDisplayName()}สุดสมบูรณ์แบบของคุณ
+            </h2>
             <p className={styles.sectionSubtitle}>ค้นหาจุดหมายปลายทางที่แนะนำมากที่สุด</p>
             <a href="/summer-trips" className={styles.seeMoreLink}>สำรวจสถานที่เพิ่มเติม</a>
           </div>
-
+          
           <div className={styles.destinationCards}>
-            <div className={styles.destinationCard}>
-              <div className={styles.cardImage} style={{ backgroundImage: `url('https://www.govivigo.com/content/upload/images/Lampang/Kau-Fau-Waterfall.jpg')` }}>
-                <div className={styles.cardOverlay}>
-                  <h3 className={styles.cardTitle}>น้ำตกม่อนฮ่อง (ป่าแป๋)</h3>
-                  <button 
-                    className={styles.showDetailButton}
-                    onClick={() => handleDestinationClick('mon-hong-waterfall')}
+            {seasonalLocations.length > 0 ? (
+              seasonalLocations.map((location) => (
+                <div key={location.ID} className={styles.destinationCard}>
+                  <div
+                    className={styles.cardImage}
+                    style={{
+                      backgroundImage: `url('${
+                        location.Images?.find(img => img.IsMain)?.URL || location.Images?.[0]?.URL 
+                      }')`
+                    }}
                   >
-                    ดูรายละเอียด
-                  </button>
+                    <div className={styles.cardOverlay}>
+                      <h3 className={styles.cardTitle}>{location.LocationsName}</h3>
+                      {location.Address && (
+                        <h4 className={styles.cardSubtitle}>{location.Address}</h4>
+                      )}
+                      <button
+                        className={styles.showDetailButton}
+                        onClick={() => handleDestinationClick(location.ID)}
+                      >
+                        ดูรายละเอียด
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-
-            <div className={styles.destinationCard}>
-              <div className={styles.cardImage} style={{ backgroundImage: `url('https://media.readthecloud.co/wp-content/uploads/2021/12/29133520/angkaew-11-750x500.jpg')` }}>
-                <div className={styles.cardOverlay}>
-                  <h3 className={styles.cardTitle}>อ่างแก้ว</h3>
-                  <button 
-                    className={styles.showDetailButton}
-                    onClick={() => handleDestinationClick('ang-kaew')}
-                  >
-                    ดูรายละเอียด
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className={styles.destinationCard}>
-              <div className={styles.cardImage} style={{ backgroundImage: `url('https://jjubbbbb.wordpress.com/wp-content/uploads/2016/11/grand-canyon-of-chiang-mai2.jpg')` }}>
-                <div className={styles.cardOverlay}>
-                  <h3 className={styles.cardTitle}>แกรนด์แคนยอน เชียงใหม่</h3>
-                  <button 
-                    className={styles.showDetailButton}
-                    onClick={() => handleDestinationClick('grand-canyon-chiangmai')}
-                  >
-                    ดูรายละเอียด
-                  </button>
-                </div>
-              </div>
-            </div>
+              ))
+            ) : (
+              // Fallback ถ้าไม่มีข้อมูลจาก database
+              <p>ไม่มีข้อมูลสถานที่ในฤดูกาลนี้</p>
+            )}
           </div>
         </section>
       </div>
