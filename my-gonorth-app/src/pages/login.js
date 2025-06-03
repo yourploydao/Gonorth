@@ -81,7 +81,6 @@ const Login = () => {
                   id="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  //placeholder="pass"
                   required
                   className={styles.input}
                 />
@@ -91,11 +90,14 @@ const Login = () => {
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   <img 
-                    src="https://cdn-icons-png.flaticon.com/128/4855/4855030.png" 
+                    src={
+                      showPassword
+                      ? "https://cdn-icons-png.flaticon.com/128/2767/2767194.png" // show password icon
+                      : "https://cdn-icons-png.flaticon.com/128/4855/4855030.png" // hide password icon
+                    }
                     alt="Toggle password visibility"
                     width="20"
                     height="20"
-                    //ใส่ icon ตาเปิดเพิ่ม
                   />
                 </button>
               </div>

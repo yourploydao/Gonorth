@@ -2,8 +2,6 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
 import styles from "../styles/results-after-search.module.css";
-import Header from "../components/navigation";
-import Footer from "../components/footer";
 
 const DestinationList = () => {
   const router = useRouter();
@@ -51,9 +49,6 @@ const DestinationList = () => {
 
   return (
     <div className={styles.container}>
-      {/* Use the Header component */}
-      <Header />
-
       <div className={styles.mainContent}>
         {/* Search Box */}
         <div className={styles.destinationSearchContainer}>
@@ -334,9 +329,6 @@ const DestinationList = () => {
           </button>
         </div>
       </div>
-
-      {/* Footer - Replaced with Footer component */}
-      <Footer />
     </div>
   );
 };

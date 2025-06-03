@@ -8,6 +8,16 @@
   width: 100%;
   margin-top: auto;
   font-family: 'Montserrat', sans-serif;
+  
+  /* ป้องกันการเปลี่ยนแปลงขนาดและเพิ่ม transition */
+  transition: all 0.2s ease-in-out;
+  min-height: 300px; /* กำหนดความสูงขั้นต่ำ */
+  box-sizing: border-box;
+}
+
+/* สไตล์สำหรับช่วงที่กำลัง transition */
+.footerTransitioning {
+  opacity: 0.98;
 }
 
 .footerContent {
@@ -16,58 +26,230 @@
   gap: 40px;
   max-width: 1200px;
   margin: 0 auto;
+  
+  /* ป้องกันการหดขยาย */
+  min-height: 220px;
 }
 
 .footerLogo {
   flex: 1;
   min-width: 150px;
+  /* ป้องกันการหดขยาย */
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
 }
 
 .footerLogoImage {
   max-width: 500px;
+  width: auto;
+  height: auto;
   margin-top: -70px;
   margin-left: -150px;
+  
+  /* ป้องกันการเปลี่ยนแปลงขนาด */
+  object-fit: contain;
+  transition: transform 0.2s ease;
+}
+
+.footerLogoImage:hover {
+  transform: scale(1.02);
 }
 
 .footerSection {
   flex: 1;
   min-width: 200px;
+  /* ป้องกันการหดขยาย */
+  flex-shrink: 0;
 }
 
 .footerTitle {
   font-size: 18px;
   font-weight: 600;
   margin-bottom: 15px;
+  color: #000;
+  
+  /* ป้องกันการตัดคำ */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .footerLinks {
   list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .footerLinks li {
   margin-bottom: 10px;
+  /* ป้องกันการหดขยาย */
+  flex-shrink: 0;
 }
 
 .footerLinks a {
   color: #000;
   text-decoration: none;
   font-size: 14px;
-  transition: opacity 0.2s;
+  transition: all 0.2s ease;
+  display: inline-block;
+  
+  /* เพิ่มการตอบสนองเมื่อ hover */
+  padding: 2px 0;
+  border-bottom: 1px solid transparent;
 }
 
 .footerLinks a:hover {
   opacity: 0.8;
+  border-bottom-color: #000;
+  transform: translateX(5px);
 }
 
 .contactInfo, .contactDetail {
   font-size: 14px;
   line-height: 1.6;
+  margin: 0;
+  color: #000;
+}
+
+.contactInfo {
+  margin-bottom: 15px;
 }
 
 /* Responsive styles */
+@media (max-width: 1024px) {
+  .footer {
+    padding: 35px 30px;
+    min-height: 280px;
+  }
+  
+  .footerContent {
+    gap: 35px;
+    min-height: 200px;
+  }
+  
+  .footerLogoImage {
+    max-width: 450px;
+    margin-top: -60px;
+    margin-left: -120px;
+  }
+  
+  .footerTitle {
+    font-size: 17px;
+  }
+}
+
 @media (max-width: 768px) {
+  .footer {
+    padding: 30px 20px;
+    min-height: 400px; /* เพิ่มความสูงสำหรับ mobile */
+  }
+  
   .footerContent {
     flex-direction: column;
     gap: 30px;
+    min-height: 320px;
+  }
+  
+  .footerLogo {
+    order: -1; /* ให้ logo อยู่บนสุด */
+    text-align: center;
+    min-width: 100%;
+  }
+  
+  .footerLogoImage {
+    max-width: 350px;
+    margin-top: -50px;
+    margin-left: -100px;
+  }
+  
+  .footerSection {
+    min-width: 100%;
+  }
+  
+  .footerTitle {
+    font-size: 16px;
+    white-space: normal; /* อนุญาตให้ขึ้นบรรทัดใหม่ใน mobile */
+    overflow: visible;
+    text-overflow: initial;
+  }
+  
+  .footerLinks a {
+    font-size: 13px;
+  }
+  
+  .contactInfo, .contactDetail {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer {
+    padding: 25px 15px;
+    min-height: 350px;
+  }
+  
+  .footerContent {
+    gap: 25px;
+    min-height: 280px;
+  }
+  
+  .footerLogoImage {
+    max-width: 280px;
+    margin-top: -40px;
+    margin-left: -80px;
+  }
+  
+  .footerTitle {
+    font-size: 15px;
+    margin-bottom: 12px;
+  }
+  
+  .footerLinks li {
+    margin-bottom: 8px;
+  }
+  
+  .footerLinks a {
+    font-size: 12px;
+    padding: 3px 0;
+  }
+  
+  .contactInfo, .contactDetail {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  
+  .contactInfo {
+    margin-bottom: 12px;
+  }
+}
+
+@media (max-width: 320px) {
+  .footer {
+    padding: 20px 10px;
+    min-height: 320px;
+  }
+  
+  .footerContent {
+    gap: 20px;
+    min-height: 260px;
+  }
+  
+  .footerLogoImage {
+    max-width: 220px;
+    margin-top: -30px;
+    margin-left: -60px;
+  }
+  
+  .footerTitle {
+    font-size: 14px;
+  }
+  
+  .footerLinks a {
+    font-size: 11px;
+  }
+  
+  .contactInfo, .contactDetail {
+    font-size: 11px;
   }
 }

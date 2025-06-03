@@ -1,7 +1,5 @@
 import { useState, useRef } from "react";
 import styles from "../styles/profile-page.module.css";
-import Header from "../components/navigation";
-import Footer from "../components/footer";
 
 const UserProfile = () => {
   const [username, setUsername] = useState("John Doe");
@@ -61,9 +59,6 @@ const UserProfile = () => {
 
   return (
     <div className={styles.container}>
-    {/* Use the Header component */}
-    <Header />
-
       <div className={styles.mainContent}>
         {/* Profile Banner */}
         <section className={styles.profileBanner}>
@@ -229,9 +224,6 @@ const UserProfile = () => {
           </div>
         </div>
       )}
-
-      {/* Footer */}
-      <Footer />
     </div>
   );
 };
