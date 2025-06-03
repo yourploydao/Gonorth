@@ -139,14 +139,14 @@ const HomeBeforeAuthen = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    // Implement search functionality here
-    console.log("Searching for:", {
-      query: searchQuery,
-      category: selectedCategory || "Not selected",
-      distance: selectedDistance || "Not selected",
-      budget: selectedBudget || "Not selected"
+    // ส่งค่าทุกช่องเป็น query string (ถ้าเว้นว่างจะเป็น "")
+    const params = new URLSearchParams({
+      searchQuery,
+      selectedCategory,
+      selectedDistance,
+      selectedBudget
     });
-    // Router navigation would go here
+    router.push(`/results-after-search?${params.toString()}`);
   };
 
   const handleDestinationClick = () => {
@@ -203,7 +203,7 @@ const HomeBeforeAuthen = () => {
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
                 >
-                  <option value="" disabled>ตัวเลือก</option>
+                  <option value="">ทั้งหมด</option>
                   <option value="Nature">ธรรมชาติ</option>
                   <option value="Culture">วัฒนธรรม</option>
                   <option value="Food">อาหาร</option>
@@ -217,7 +217,7 @@ const HomeBeforeAuthen = () => {
                   value={selectedDistance}
                   onChange={(e) => setSelectedDistance(e.target.value)}
                 >
-                  <option value="" disabled>ตัวเลือก</option>
+                  <option value="">ทั้งหมด</option>
                   <option value="0 km">0 กิโลเมตร</option>
                   <option value="0-5 km">0-10 กิโลเมตร</option>
                   <option value="5-10 km">11-20 กิโลเมตร</option>
@@ -231,7 +231,7 @@ const HomeBeforeAuthen = () => {
                   value={selectedBudget}
                   onChange={(e) => setSelectedBudget(e.target.value)}
                 >
-                  <option value="" disabled>ตัวเลือก</option>
+                  <option value="">ทั้งหมด</option>
                   <option value="0 - 2,000 THB">0 - 2,000 บาท</option>
                   <option value="2,000 - 5,000 THB">2,001 - 5,000 บาท</option>
                   <option value="5,000 - 10,000 THB">5,001 - 10,000 บาท</option>
@@ -322,7 +322,22 @@ const HomeBeforeAuthen = () => {
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>สถานที่ใหม่ ๆ ที่น่าไป</h2>
             <p className={styles.sectionSubtitle}>ออกตามหาจุดหมายปลายทางใหม่ ๆ</p>
-            <a href="/destinations" className={styles.seeMoreLink}>สำรวจสถานที่เพิ่มเติม</a>
+            <button
+              type="button"
+              className={styles.seeMoreLink}
+              onClick={() => {
+                const params = new URLSearchParams({
+                  searchQuery,
+                  selectedCategory,
+                  selectedDistance,
+                  selectedBudget,
+                  sortBy: "Latest"
+                });
+                router.push(`/results-after-search?${params.toString()}`);
+              }}
+            >
+              สำรวจสถานที่เพิ่มเติม
+            </button>
           </div>
 
           <div className={styles.destinationCards}>
@@ -361,7 +376,17 @@ const HomeBeforeAuthen = () => {
               วางแผนการเดินทาง{getSeasonDisplayName()}สุดสมบูรณ์แบบของคุณ
             </h2>
             <p className={styles.sectionSubtitle}>ค้นหาจุดหมายปลายทางที่แนะนำมากที่สุด</p>
-            <a href="/summer-trips" className={styles.seeMoreLink}>สำรวจสถานที่เพิ่มเติม</a>
+            <button
+              type="button"
+              className={styles.seeMoreLink}
+              onClick={() => {
+                const season = getCurrentSeason();
+                const params = new URLSearchParams({ season });
+                router.push(`/results-after-search?${params.toString()}`);
+              }}
+            >
+              สำรวจสถานที่เพิ่มเติม
+            </button>
           </div>
           
           <div className={styles.destinationCards}>

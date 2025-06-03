@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import styles from "../styles/results-after-search.module.css";
-import headerBeforeLoginStyles from "../styles/home-before-login.module.css";
+import Header from "../components/navigation";
 import Footer from "../components/footer";
 
 const DestinationList = () => {
@@ -18,16 +18,23 @@ const DestinationList = () => {
   const [error, setError] = useState(null);
   const [totalResults, setTotalResults] = useState(0);
 
-  // ดึงข้อมูลสถานที่ตามฤดู
-  const fetchLocationsBySeason = async (season) => {
+  // ดึงข้อมูลสถานที่
+  const fetchLocations = async (params = {}) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`http://localhost:8080/locations/season/${season}`);
-      if (!response.ok) throw new Error("ไม่สามารถดึงข้อมูลสถานที่ตามฤดูได้");
+      const queryParams = new URLSearchParams();
+      if (params.name && params.name !== "") queryParams.append('name', params.name);
+      if (params.tag && params.tag !== "" && params.tag !== "ทั้งหมด") queryParams.append('tag', params.tag);
+      if (params.distance_range && params.distance_range !== "" && params.distance_range !== "ทั้งหมด") queryParams.append('distance_range', params.distance_range);
+      if (params.budget_range && params.budget_range !== "" && params.budget_range !== "ทั้งหมด") queryParams.append('budget_range', params.budget_range);
+
+      const response = await fetch(`http://localhost:8080/locations/filter?${queryParams}`);
+      if (!response.ok) throw new Error("ไม่สามารถดึงข้อมูลสถานที่ได้");
       const data = await response.json();
       setLocations(data || []);
       setTotalResults((data && data.length) || 0);
+
       fetchAllReviewStats(data || []);
     } catch (err) {
       setError("เกิดข้อผิดพลาดในการเชื่อมต่อ");
@@ -51,11 +58,31 @@ const DestinationList = () => {
             statsObj[loc.ID] = stat; 
           }
         } catch (e) {
+          console.error(`Error fetching review stats for location ID ${loc.ID}:`, e);
           statsObj[loc.ID] = { average_rating: 0, total_reviews: 0 }; 
         }
       })
     );
     setReviewStats(statsObj);
+  };
+
+  const fetchLocationsBySeason = async (season) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`http://localhost:8080/locations/season/${season}`);
+      if (!response.ok) throw new Error("ไม่สามารถดึงข้อมูลสถานที่ตามฤดูได้");
+      const data = await response.json();
+      setLocations(data || []);
+      setTotalResults((data && data.length) || 0);
+      fetchAllReviewStats(data || []);
+    } catch (err) {
+      setError("เกิดข้อผิดพลาดในการเชื่อมต่อ");
+      setLocations([]);
+      setTotalResults(0);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -129,6 +156,7 @@ const DestinationList = () => {
     return `งบประมาณ ${budgetRange} บาท`;
   };
 
+  // เพิ่ม logic สำหรับ "Latest"
   const sortLocations = (locations, sortBy, reviewStats) => {
     const sorted = [...locations];
     if (sortBy === "Price") {
@@ -172,8 +200,27 @@ const DestinationList = () => {
     await fetchLocations(searchParams);
   };
 
-  const handleViewPlace = () => {
-    router.push("/login");
+  const handleProfileClick = () => {
+    router.push('/profile');
+  };
+
+  const handleFavouritesClick = () => {
+    router.push('/favourites');
+  };
+
+  const handleViewPlace = (id) => {
+    // เก็บ state ลง sessionStorage
+    sessionStorage.setItem("searchState", JSON.stringify({
+      searchQuery,
+      selectedCategory,
+      selectedDistance,
+      selectedBudget,
+      sortBy,
+      locations,
+      totalResults,
+      reviewStats
+    }));
+    router.push(`/story-page?id=${id}`);
   };
 
   const handleShowMoreResults = () => {
@@ -214,15 +261,7 @@ const DestinationList = () => {
   return (
     <div className={styles.container}>
       {/* Header */}
-      <header className={headerBeforeLoginStyles.header}>
-        <div className={headerBeforeLoginStyles.logo}>
-          <img src="/assets/gonorth-logo.png" alt="GONORTH" className={headerBeforeLoginStyles.logoImage} />
-        </div>
-        <div className={headerBeforeLoginStyles.headerButtons}>
-          <a href="/login" className={headerBeforeLoginStyles.loginButton}>เข้าสู่ระบบ</a>
-          <a href="/signup" className={headerBeforeLoginStyles.signupButton}>ลงทะเบียน</a>
-        </div>
-      </header>
+      <Header />
 
       <div className={styles.mainContent}>
         {/* Search Box */}

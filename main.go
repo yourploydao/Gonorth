@@ -39,6 +39,8 @@ func main() {
 	r.GET("/locations/latest", InformationController.GetLatestLocations)
 	r.GET("/locations/all", InformationController.GetAllLocations)
 	r.GET("/locations/season/:season", InformationController.GetLocationsBySeason)
+	r.GET("/locations/filter", InformationController.FilterLocations)
+	r.GET("/location/:id/review-stats", InformationController.GetLocationReviewStats)
 
 	auth := r.Group("/")
 	auth.Use(Middleware.Middleware())
@@ -50,19 +52,17 @@ func main() {
 		auth.POST("/change-password", AuthController.ChangePassword)
 		auth.POST("/change-phone", AuthController.ChangePhone)
 		auth.POST("/locations", InformationController.CreateLocation)
-		auth.POST("/images", InformationController.CreateImage)
 		auth.GET("/location/:id", InformationController.GetLocation)
 		auth.GET("/locations-login/latest", InformationController.GetLatestLocations)
 		auth.GET("/locations-login/all", InformationController.GetAllLocations)
-		auth.GET("/locations-login/season/:season", InformationController.GetLocationsBySeason)
 		auth.POST("/favorite", InformationController.AddFavorite)
 		auth.GET("favorite/:locationID", InformationController.CheckFavorite)
 		auth.DELETE("/favorite", InformationController.DeleteFavorite)
 		auth.GET("userfavorites", InformationController.GetFavorites)
 		auth.DELETE("/deletefavorite", InformationController.DeleteFavorite)
 		auth.GET("/location/:id/reviews", InformationController.GetLocationReviews)
-		auth.GET("/location/:id/review-stats", InformationController.GetLocationReviewStats)
-		auth.POST(("/reviews"), InformationController.CreateReviewForLocation)
+		auth.POST("/reviews", InformationController.CreateReviewForLocation)
+		
 	}
 
 	r.Run("localhost:8080")
