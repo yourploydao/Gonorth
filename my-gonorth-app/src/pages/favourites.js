@@ -322,21 +322,27 @@ const Favourites = () => {
                   </h3>
 
                   <div className={styles.infoItem}>
-                    <span className={styles.infoIcon}>📍</span>
+                  <span className={styles.infoIcon}>
+                  <img src="https://cdn-icons-png.flaticon.com/128/526/526754.png" alt="Car Icon" />
+                  </span>
                     <span className={styles.infoText}>
                       {location.Address || "ไม่มีข้อมูลที่อยู่"}
                     </span>
                   </div>
 
                   <div className={styles.infoItem}>
-                    <span className={styles.infoIcon}>🎫</span>
+                  <span className={styles.infoIcon}>
+                  <img src="https://cdn-icons-png.flaticon.com/128/1614/1614997.png" alt="Ticket Icon" />
+                  </span>
                     <span className={styles.infoText}>
                       {location.EntranceDetails || "ไม่มีข้อมูลทางเข้า"}
                     </span>
                   </div>
 
                   <div className={styles.infoItem}>
-                    <span className={styles.infoIcon}>🕒</span>
+                  <span className={styles.infoIcon}>
+                  <img src="https://cdn-icons-png.flaticon.com/128/2972/2972531.png" alt="Time Icon" />
+                  </span>
                     <span className={styles.infoText}>
                       {location.OpenTime || "ไม่มีข้อมูลเวลาเปิด"}
                     </span>
