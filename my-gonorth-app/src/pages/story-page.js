@@ -2,8 +2,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import styles from "../styles/story-page.module.css";
-import Header from "../components/navigation";
-import Footer from "../components/footer";
 
 const StoryPage = () => {
   const router = useRouter();
@@ -387,9 +385,6 @@ const StoryPage = () => {
 
   return (
     <div className={styles.container}>
-      {/* Use the Header component */}
-      <Header />
-
       <div className={styles.mainContent}>
         {/* Destination Title with Favorite Button */}
         <div className={styles.destinationTitleSection}>
@@ -543,6 +538,7 @@ const StoryPage = () => {
                       <img src="https://cdn-icons-png.flaticon.com/128/11244/11244136.png" alt="Flag Icon" />
                     </div>
                   </div>
+
                   <div className={styles.reviewContent}>
                     {review?.Comment || "ไม่มีความคิดเห็น"}
                   </div>
@@ -651,9 +647,6 @@ const StoryPage = () => {
           </div>
         </div>
       )}
-
-      {/* Footer */}
-      <Footer />
     </div>
   );
 };
