@@ -80,12 +80,14 @@ const Favourites = () => {
         const locationId = item.location?.ID || item.location_id;
         if (!locationId) return null;
 
-        const res = await fetch(`http://localhost:8080/location/${locationId}/review-stats`, {
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
-          },
-        });
+        const res = await fetch(`http://localhost:8080/location/${locationId}/review-stats`, 
+        //   {
+        //   headers: {
+        //     "Content-Type": "application/json",
+        //     "Authorization": `Bearer ${token}`,
+        //   },
+        // }
+      );
 
         if (res.ok) {
           const data = await res.json();
@@ -393,7 +395,7 @@ const Favourites = () => {
                         {getRatingText(reviewStats.average_rating || 0)}
                       </div>
                       <div className={styles.reviewCount}>
-                        {reviewStats.total_reviews || 0} reviews
+                        {reviewStats.total_reviews || 0} รีวิว
                       </div>
                     </>
                   )}

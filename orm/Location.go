@@ -5,8 +5,6 @@ import "gorm.io/gorm"
 type Location struct {
 	gorm.Model
 	LocationsName   string
-	// LocationsRating float64 `gorm:"type:decimal(2,1)"`
-	// ReviewCount     int     `gorm:"default:0"`
 	Address         string
 	OpenTime        string
 	Topic			string
@@ -20,6 +18,7 @@ type Location struct {
 	Tags            []Tag    `gorm:"many2many:location_tags;"`
 	BudgetRange 	string 	 `gorm:"type:varchar(20)" json:"budget_range"`
 	Season 			string 	 `gorm:"type:varchar(10);default:'summer'" json:"season"`
+	DistanceFromCity float64 `gorm:"type:decimal(5,2)"`
 	ExternalScores  []ExternalScore
 	Reviews         []Review
 	FavoritedBy     []User     `gorm:"many2many:user_favorite"`

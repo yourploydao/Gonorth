@@ -2,6 +2,7 @@ package information
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -27,6 +28,7 @@ type LocationInput struct {
 	// Reviews			string		   `json:"Reviews"`
 	BudgetRange     string           `json:"BudgetRange"`
 	Season    		string           `json:"Season"`
+	DistanceFromCity float64          `json:"DistanceFromCity"`
 	Images          []orm.Image    `json:"Images"`
 	Activities      []orm.Activity `json:"Activities"`
 	Tags            []struct {
@@ -625,4 +627,66 @@ func GetLocationReviewStats(c *gin.Context) {
 // 			ReviewCount:     int(avgResult.Count),
 // 		})
 // }
+
+func FilterLocations(c *gin.Context) {
+    tag := c.Query("tag")
+    distanceRange := c.Query("distance_range")
+    budget := c.Query("budget_range")
+    name := c.Query("name")
+
+    var locations []orm.Location
+
+    query := orm.Db.Preload("Images").Preload("Activities").Preload("Tags")
+
+    // Filter by location name
+    if name != "" {
+        query = query.Where("locations_name ILIKE ?", "%"+name+"%")
+    }
+
+    // Filter by tag 
+    if tag != "" && tag != "ทั้งหมด" && tag != "all" {
+        query = query.Joins("JOIN location_tags ON location_tags.location_id = locations.id").
+            Joins("JOIN tags ON tags.id = location_tags.tag_id").
+            Where("tags.tag_name = ?", tag)
+    }
+
+    // Filter by distance_from_city
+    switch distanceRange {
+    case "", "ทั้งหมด", "all":
+    case "0 km":
+        query = query.Where("distance_from_city = ?", 0)
+    case "0-10 km":
+        query = query.Where("distance_from_city BETWEEN ? AND ?", 0, 10)
+    case "11-20 km":
+        query = query.Where("distance_from_city BETWEEN ? AND ?", 11, 20)
+    case "21+ km":
+        query = query.Where("distance_from_city >= ?", 21)
+    }
+
+    // Filter by budget_range
+    switch budget {
+    case "", "ทั้งหมด", "all":
+    case "ฟรี", "0-0":
+        query = query.Where("budget_range = ?", "0")
+    case "0-2000":
+        query = query.Where("budget_range = ?", "0-2000")
+    case "2000-5000":
+        query = query.Where("budget_range = ?", "2000-5000")
+    case "5000-10000":
+        query = query.Where("budget_range = ?", "5000-10000")
+    case "10000+":
+        query = query.Where("budget_range = ?", "10000+")
+    }
+
+    if err := query.Find(&locations).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to filter locations"})
+        return
+    }
+
+    log.Printf("Filter params - tag: %s, distance: %s, budget: %s, name: %s", tag, distanceRange, budget, name)
+    log.Printf("Found %d locations", len(locations))
+
+    c.JSON(http.StatusOK, locations)
+}
+
 

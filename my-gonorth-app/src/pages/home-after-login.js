@@ -70,7 +70,7 @@ const HomeAfterAuthen = () => {
       const token = localStorage.getItem("token");
       const currentSeason = getCurrentSeason(); 
 
-      const res = await fetch(`http://localhost:8080/locations-login/season/${currentSeason}`, {
+      const res = await fetch(`http://localhost:8080/locations/season/${currentSeason}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -100,7 +100,7 @@ const HomeAfterAuthen = () => {
     fetchSeasonalLocations();
   }, []);
 
-  // หาฤดูกาลปัจจุบัน
+  // ฟังก์ชันหาฤดูปัจจุบัน
   const getCurrentSeason = () => {
     const month = new Date().getMonth() + 1; 
     
@@ -138,16 +138,16 @@ const HomeAfterAuthen = () => {
     return () => clearInterval(interval);
   }, [randomLocations.length]);
 
+  // ปรับฟังก์ชัน handleSearch
   const handleSearch = (e) => {
     e.preventDefault();
-    // Implement search functionality here
-    console.log("Searching for:", {
-      query: searchQuery,
-      category: selectedCategory || "Not selected", 
-      distance: selectedDistance || "Not selected",
-      budget: selectedBudget || "Not selected"
+    const params = new URLSearchParams({
+      searchQuery,
+      selectedCategory,
+      selectedDistance,
+      selectedBudget
     });
-    // Router navigation would go here
+    router.push(`/results-after-search-login?${params.toString()}`);
   };
 
   const handleSearchClick = () => {
@@ -177,7 +177,6 @@ const HomeAfterAuthen = () => {
 
   return (
     <div className={styles.container}>
-      {/* Use the Header component */}
       <Header />
 
       <div className={styles.mainContent}>
@@ -217,7 +216,7 @@ const HomeAfterAuthen = () => {
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
                 >
-                  <option value="" disabled>ตัวเลือก</option>
+                  <option value="">ทั้งหมด</option>
                   <option value="Nature">ธรรมชาติ</option>
                   <option value="Culture">วัฒนธรรม</option>
                   <option value="Food">อาหาร</option>
@@ -231,7 +230,7 @@ const HomeAfterAuthen = () => {
                   value={selectedDistance}
                   onChange={(e) => setSelectedDistance(e.target.value)}
                 >
-                  <option value="" disabled>ตัวเลือก</option>
+                  <option value="">ทั้งหมด</option>
                   <option value="0 km">0 กิโลเมตร</option>
                   <option value="0-5 km">0-10 กิโลเมตร</option>
                   <option value="5-10 km">11-20 กิโลเมตร</option>
@@ -245,7 +244,7 @@ const HomeAfterAuthen = () => {
                   value={selectedBudget}
                   onChange={(e) => setSelectedBudget(e.target.value)}
                 >
-                  <option value="" disabled>ตัวเลือก</option>
+                  <option value="">ทั้งหมด</option>
                   <option value="0 - 2,000 THB">0 - 2,000 บาท</option>
                   <option value="2,000 - 5,000 THB">2,001 - 5,000 บาท</option>
                   <option value="5,000 - 10,000 THB">5,001 - 10,000 บาท</option>
@@ -253,7 +252,7 @@ const HomeAfterAuthen = () => {
                 </select>
               </div>
 
-              <button onClick={handleSearchClick} className={styles.searchButton}>ค้นหา</button>
+              <button type="submit" className={styles.searchButton}>ค้นหา</button>
             </form>
           </div>
         </div>
@@ -336,7 +335,22 @@ const HomeAfterAuthen = () => {
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>สถานที่ใหม่ ๆ ที่น่าไป</h2>
             <p className={styles.sectionSubtitle}>ออกตามหาจุดหมายปลายทางใหม่ ๆ</p>
-            <a href="/destinations" className={styles.seeMoreLink}>สำรวจสถานที่เพิ่มเติม</a>
+            <button
+              type="button"
+              className={styles.seeMoreLink}
+              onClick={() => {
+                const params = new URLSearchParams({
+                  searchQuery,
+                  selectedCategory,
+                  selectedDistance,
+                  selectedBudget,
+                  sortBy: "Latest"
+                });
+                router.push(`/results-after-search-login?${params.toString()}`);
+              }}
+            >
+              สำรวจสถานที่เพิ่มเติม
+            </button>
           </div>
 
           <div className={styles.destinationCards}>
@@ -375,7 +389,17 @@ const HomeAfterAuthen = () => {
               วางแผนการเดินทาง{getSeasonDisplayName()}สุดสมบูรณ์แบบของคุณ
             </h2>
             <p className={styles.sectionSubtitle}>ค้นหาจุดหมายปลายทางที่แนะนำมากที่สุด</p>
-            <a href="/summer-trips" className={styles.seeMoreLink}>สำรวจสถานที่เพิ่มเติม</a>
+            <button
+              type="button"
+              className={styles.seeMoreLink}
+              onClick={() => {
+                const season = getCurrentSeason();
+                const params = new URLSearchParams({ season });
+                router.push(`/results-after-search-login?${params.toString()}`);
+              }}
+            >
+              สำรวจสถานที่เพิ่มเติม
+            </button>
           </div>
           
           <div className={styles.destinationCards}>
