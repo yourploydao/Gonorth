@@ -5,12 +5,18 @@ import { useRouter } from "next/router";
 const Header = () => {
   const router = useRouter();
   const [user, setUser] = useState(null);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [isRouting, setIsRouting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
+      setIsLoading(true);
       const token = localStorage.getItem("token");
       if (!token) {
         console.error("No token found");
+        setIsLoading(false);
         return;
       }
 
@@ -19,59 +25,74 @@ const Header = () => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`, 
+            "Authorization": `Bearer ${token}`,
           },
         });
 
         if (res.ok) {
-            const data = await res.json();
-            console.log("User profile:", data);
-            setUser(data.user); // backend ควรส่ง: { user: { firstname, lastname, profileImage } }
-          } else {
-            console.error("Failed to fetch user profile");
-          }
-        } catch (err) {
-          console.error("Error fetching profile:", err);
+          const data = await res.json();
+          console.log("User profile:", data);
+          setUser(data.user);
+        } else {
+          console.error("Failed to fetch user profile");
+          setUser(null);
         }
-      };
+      } catch (err) {
+        console.error("Error fetching profile:", err);
+        setUser(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
     fetchProfile();
-  }, []);
-
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [isRouting, setIsRouting] = useState(false);
-  const dropdownRef = useRef(null);
+  }, [router.pathname]); // เพิ่ม dependency เพื่อ refresh เมื่อเปลี่ยนหน้า
 
   const handleProfileClick = () => {
     setShowDropdown(!showDropdown);
   };
 
   const handleLogoClick = () => {
+    if (isRouting) return;
     setIsRouting(true);
     setShowDropdown(false);
     router.push('/home-after-login').finally(() => {
-      setTimeout(() => setIsRouting(false), 100);
+      setTimeout(() => setIsRouting(false), 300);
     });
   };
 
   const handleMyAccountClick = () => {
+    if (isRouting) return;
     setIsRouting(true);
     setShowDropdown(false);
     router.push('/profile-page').finally(() => {
-      setTimeout(() => setIsRouting(false), 100);
+      setTimeout(() => setIsRouting(false), 300);
     });
   };
 
   const handleLogout = () => {
+    if (isRouting) return;
     setIsRouting(true);
     setShowDropdown(false);
     // ใส่โค้ดสำหรับ logout ที่นี่
     router.push('/home-before-login').finally(() => {
-      setTimeout(() => setIsRouting(false), 100);
+      setTimeout(() => setIsRouting(false), 300);
     });
   };
 
-  // ปิด dropdown เมื่อคลิกที่อื่น
+  const handleFavouritesClick = (e) => {
+    if (isRouting) {
+      e.preventDefault();
+      return;
+    }
+    setIsRouting(true);
+    setShowDropdown(false);
+    router.push('/favourites').finally(() => {
+      setTimeout(() => setIsRouting(false), 300);
+    });
+  };
+
+  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -85,25 +106,29 @@ const Header = () => {
     };
   }, []);
 
-  // ปิด dropdown เมื่อเปลี่ยนหน้า
+  // Handle route changes
   useEffect(() => {
     const handleRouteChangeStart = () => {
       setShowDropdown(false);
       setIsRouting(true);
     };
-    
+
     const handleRouteChangeComplete = () => {
-      setTimeout(() => setIsRouting(false), 100);
+      setTimeout(() => setIsRouting(false), 300);
+    };
+
+    const handleRouteChangeError = () => {
+      setTimeout(() => setIsRouting(false), 300);
     };
 
     router.events.on('routeChangeStart', handleRouteChangeStart);
     router.events.on('routeChangeComplete', handleRouteChangeComplete);
-    router.events.on('routeChangeError', handleRouteChangeComplete);
+    router.events.on('routeChangeError', handleRouteChangeError);
 
     return () => {
       router.events.off('routeChangeStart', handleRouteChangeStart);
       router.events.off('routeChangeComplete', handleRouteChangeComplete);
-      router.events.off('routeChangeError', handleRouteChangeComplete);
+      router.events.off('routeChangeError', handleRouteChangeError);
     };
   }, [router]);
 
@@ -112,31 +137,60 @@ const Header = () => {
       <div className={styles.logo} onClick={handleLogoClick}>
         <img src="/assets/gonorth-logo.png" alt="GONORTH" className={styles.logoImage} />
       </div>
+      
       <div className={styles.headerButtons}>
-        <a href="/favourites" className={styles.favouritesButton}>
-          <img 
-            src="https://cdn-icons-png.flaticon.com/128/2550/2550290.png" 
-            alt="Heart" 
-            className={styles.heartIcon} 
-          /> รายการโปรด
-        </a>
-        {/* Divider between favourites and profile */}
+        {/* Favourites Button - แสดงเสมอแม้ยัง loading */}
+        <button 
+          className={styles.favouritesButton}
+          onClick={handleFavouritesClick}
+          disabled={isRouting}
+        >
+          <img
+            src="https://cdn-icons-png.flaticon.com/128/2550/2550290.png"
+            alt="Heart"
+            className={styles.heartIcon}
+          />
+          รายการโปรด
+        </button>
+        
         <div className={styles.headerDivider}></div>
+        
+        {/* User Profile Section */}
         <div className={styles.userProfileContainer} ref={dropdownRef}>
-          {user && (
-          <div className={styles.userProfile} onClick={handleProfileClick}>
-            <img
-              src={user.profileImage}
-              alt={`${user.firstname} ${user.lastname}`}
-              className={styles.profileImage}
-            />
-            <span className={styles.profileName}>
-              {user.firstname} {user.lastname} 
-            </span>
-          </div>
-        )}
-          
-          {showDropdown && (
+          {isLoading ? (
+            // Loading skeleton
+            <div className={styles.userProfileSkeleton}>
+              <div className={styles.skeletonAvatar}></div>
+              <div className={styles.skeletonName}></div>
+            </div>
+          ) : user ? (
+            // User profile
+            <div className={styles.userProfile} onClick={handleProfileClick}>
+              <img
+                src={user.profileImage || '/assets/default-avatar.png'}
+                alt={`${user.firstname} ${user.lastname}`}
+                className={styles.profileImage}
+                onError={(e) => {
+                  e.target.src = '/assets/default-avatar.png';
+                }}
+              />
+              <span className={styles.profileName}>
+                {user.firstname} {user.lastname}
+              </span>
+            </div>
+          ) : (
+            // Fallback when no user
+            <div className={styles.userProfile}>
+              <img
+                src="/assets/default-avatar.png"
+                alt="User"
+                className={styles.profileImage}
+              />
+              <span className={styles.profileName}>Guest</span>
+            </div>
+          )}
+
+          {showDropdown && user && (
             <div className={styles.profileDropdown}>
               <div className={styles.profileHeader}>
                 <img
@@ -148,9 +202,9 @@ const Header = () => {
                   <h3 className={styles.profileFullName}>{user.firstname} {user.lastname}</h3>
                 </div>
               </div>
-              
+
               <div className={styles.dropdownDivider}></div>
-              
+
               <div className={styles.dropdownItem} onClick={handleMyAccountClick}>
                 <div className={styles.dropdownIcon}>
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -161,13 +215,13 @@ const Header = () => {
                 <span>บัญชีของฉัน</span>
                 <div className={styles.arrowIcon}>
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="m9 18 6-6-6-6"/>
+                    <path d="m9 18 6-6-6-6" />
                   </svg>
                 </div>
               </div>
-              
+
               <div className={styles.dropdownDivider}></div>
-              
+
               <div className={styles.dropdownItem} onClick={handleLogout}>
                 <div className={styles.dropdownIcon}>
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

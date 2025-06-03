@@ -30,6 +30,7 @@
   padding: 0 20px;
   position: relative;
   margin-top: 90px;
+}
 
 /* Page Header */
 .pageHeader {
@@ -166,24 +167,57 @@
   margin-bottom: 40px;
 }
 
-.usersTable {
+.destinationsTable {
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
+  table-layout: fixed;
 }
 
-.usersTable thead {
+.destinationsTable thead {
   background-color: #f8f9fa;
 }
 
-.usersTable th,
-.usersTable td {
-  padding: 15px 12px;
+.destinationsTable th,
+.destinationsTable td {
+  padding: 15px 15px;
   text-align: left;
   border-bottom: 1px solid #e9ecef;
 }
 
-.usersTable th {
+/* Column widths for better alignment */
+.destinationsTable th:nth-child(1),
+.destinationsTable td:nth-child(1) {
+  width: 10%;
+  text-align: center;
+}
+
+.destinationsTable th:nth-child(2),
+.destinationsTable td:nth-child(2) {
+  width: 25%;
+  padding-left: 100px;
+}
+
+.destinationsTable th:nth-child(3),
+.destinationsTable td:nth-child(3) {
+  width: 35%;
+  padding-left: 50px;
+}
+
+.destinationsTable th:nth-child(4),
+.destinationsTable td:nth-child(4) {
+  width: 20%;
+  padding-left: 100px;
+}
+
+.destinationsTable th:nth-child(5),
+.destinationsTable td:nth-child(5) {
+  width: 30%;
+  text-align: center;
+  padding-right: 20px;
+}
+
+.destinationsTable th {
   font-weight: 600;
   color: #495057;
   font-size: 13px;
@@ -191,22 +225,27 @@
   letter-spacing: 0.5px;
 }
 
-.usersTable tbody tr:hover {
+.destinationsTable tbody tr:hover {
   background-color: #f8f9fa;
 }
 
-.usersTable tbody tr:last-child td {
+.destinationsTable tbody tr:last-child td {
   border-bottom: none;
 }
 
-.userName {
+.destinationId {
+  font-weight: 600;
+  color: #6c757d;
+  font-family: 'Courier New', monospace;
+}
+
+.destinationName {
   font-weight: 600;
   color: #333;
 }
 
 /* Badge Styles */
-.roleBadge,
-.statusBadge {
+.categoryBadge {
   display: inline-block;
   padding: 4px 12px;
   border-radius: 20px;
@@ -216,29 +255,23 @@
   letter-spacing: 0.5px;
 }
 
-/* Role Colors */
-.roleAdmin {
-  background-color: #dc3545;
-  color: white;
-}
-
-.roleUser {
-  background-color: #6c757d;
-  color: white;
-}
-
-/* Status Colors */
-.statusActive {
+/* Category Colors */
+.categoryNature {
   background-color: #28a745;
   color: white;
 }
 
-.statusInactive {
-  background-color: #ffc107;
-  color: #212529;
+.categoryCulture {
+  background-color: #6f42c1;
+  color: white;
 }
 
-.statusBanned {
+.categoryFood {
+  background-color: #fd7e14;
+  color: white;
+}
+
+.categoryAdventure {
   background-color: #dc3545;
   color: white;
 }
@@ -247,6 +280,7 @@
 .actionButtons {
   display: flex;
   gap: 8px;
+  justify-content: flex-end;
 }
 
 .editBtn,
@@ -336,40 +370,6 @@
   margin-bottom: 25px;
 }
 
-.modalLabel {
-  display: block;
-  font-size: 14px;
-  font-weight: 600;
-  color: #495057;
-  margin-bottom: 8px;
-  margin-top: 15px;
-}
-
-.modalLabel:first-child {
-  margin-top: 0;
-}
-
-.modalInput {
-  width: 100%;
-  padding: 12px 15px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 14px;
-  font-family: 'Montserrat', sans-serif;
-  background-color: white;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.modalInput:focus {
-  outline: none;
-  border-color: #09f;
-  box-shadow: 0 0 0 2px rgba(0, 153, 255, 0.1);
-}
-
-.modalInput[type="select"] {
-  cursor: pointer;
-}
-
 .modalActions {
   display: flex;
   gap: 12px;
@@ -378,12 +378,13 @@
   border-top: 1px solid #e9ecef;
 }
 
+/* Modal Action Buttons */
 .modalCancel {
   background-color: #6c757d;
   color: white;
   border: none;
-  border-radius: 8px;
-  padding: 12px 24px;
+  border-radius: 6px;
+  padding: 10px 20px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -398,8 +399,8 @@
   background-color: #28a745;
   color: white;
   border: none;
-  border-radius: 8px;
-  padding: 12px 24px;
+  border-radius: 6px;
+  padding: 10px 20px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -418,92 +419,81 @@
   background-color: #c82333;
 }
 
+/* Warning Text */
 .warningText {
   color: #dc3545;
-  font-size: 14px;
+  font-size: 13px;
   font-style: italic;
   margin-top: 10px;
-}
-
-.modalContent p {
-  margin-bottom: 10px;
-  color: #495057;
-  line-height: 1.5;
-}
-
-.modalContent p:last-child {
-  margin-bottom: 0;
-}
-
-/* Checkbox Styles */
-.usersTable input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
-  accent-color: #2196f3;
-}
-
-.usersTable th input[type="checkbox"] {
-  margin-right: 0;
 }
 
 /* Responsive Design */
 @media (max-width: 1200px) {
   .mainContent {
-    max-width: 100%;
     padding: 0 15px;
   }
 }
 
 @media (max-width: 768px) {
+  .headerTop {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+
   .pageTitle {
     font-size: 24px;
   }
-  
-  .headerTop {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 15px;
-  }
-  
+
   .searchFilters {
     flex-direction: column;
   }
-  
+
   .searchInput,
   .filterSelect {
     min-width: 100%;
   }
-  
+
   .bulkActions {
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
   }
-  
+
   .tableContainer {
     overflow-x: auto;
   }
-  
-  .usersTable {
-    min-width: 800px;
+
+  .destinationsTable {
+    min-width: 600px;
+    table-layout: auto;
   }
-  
+
+  .destinationsTable th:nth-child(1),
+  .destinationsTable td:nth-child(1),
+  .destinationsTable th:nth-child(2),
+  .destinationsTable td:nth-child(2),
+  .destinationsTable th:nth-child(3),
+  .destinationsTable td:nth-child(3),
+  .destinationsTable th:nth-child(4),
+  .destinationsTable td:nth-child(4),
+  .destinationsTable th:nth-child(5),
+  .destinationsTable td:nth-child(5) {
+    width: auto;
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
   .modal {
     margin: 20px;
-    max-width: calc(100% - 40px);
-    padding: 20px;
+    max-width: calc(100vw - 40px);
   }
-  
-  .modalTitle {
-    font-size: 20px;
-  }
-  
+
   .modalActions {
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
   }
-  
+
   .modalCancel,
   .modalSave {
     width: 100%;
@@ -515,36 +505,29 @@
     margin-top: 60px;
     padding: 0 10px;
   }
-  
+
   .pageTitle {
     font-size: 20px;
   }
-  
+
   .controlsSection {
     padding: 15px;
   }
-  
-  .usersTable th,
-  .usersTable td {
+
+  .destinationsTable th,
+  .destinationsTable td {
     padding: 10px 8px;
     font-size: 12px;
   }
-  
-  .roleBadge,
-  .statusBadge {
-    padding: 3px 8px;
-    font-size: 10px;
-  }
-  
-  .editBtn,
-  .deleteBtn {
-    padding: 4px 8px;
-    font-size: 11px;
-  }
-  
+
   .actionButtons {
     flex-direction: column;
-    gap: 4px;
+    gap: 5px;
   }
-}
+
+  .editBtn,
+  .deleteBtn {
+    font-size: 11px;
+    padding: 5px 10px;
+  }
 }

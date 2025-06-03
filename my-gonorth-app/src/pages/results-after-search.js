@@ -313,6 +313,7 @@ const DestinationList = () => {
                 <option value="Price">ราคา</option>
                 <option value="Distance">ระยะทาง</option>
                 <option value="Rating">ระดับคะแนน</option>
+
               </select>
             </div>
           </div>
@@ -422,9 +423,6 @@ const DestinationList = () => {
           )}
         </div>
       </div>
-
-      {/* Footer - Replaced with Footer component */}
-      <Footer />
     </div>
   );
 };

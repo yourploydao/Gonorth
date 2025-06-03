@@ -1,7 +1,5 @@
 import { useState, useRef, useEffect } from "react";
 import styles from "../styles/profile-page.module.css";
-import Header from "../components/navigation";
-import Footer from "../components/footer";
 
 const UserProfile = () => {
   const [isEditingUsername, setIsEditingUsername] = useState(false);
@@ -256,9 +254,6 @@ const UserProfile = () => {
 
   return (
     <div className={styles.container}>
-    {/* Use the Header component */}
-    <Header />
-
       <div className={styles.mainContent}>
         {/* Profile Banner */}
         <section className={styles.profileBanner}>
@@ -299,7 +294,6 @@ const UserProfile = () => {
             <div className={styles.valueContainer}>
               <span className={styles.value}>{user?.firstname} {user?.lastname}</span>
               <button className={styles.changeButton} onClick={() => setIsEditingUsername(true)}>แก้ไข</button>
-
             </div>
           </div>
 
@@ -308,7 +302,6 @@ const UserProfile = () => {
             <div className={styles.valueContainer}>
               <span className={styles.value}>{user?.email}</span>
               <button className={styles.changeButton} onClick={() => setIsEditingEmail(true)}>แก้ไข</button>
-
             </div>
           </div>
 
@@ -325,7 +318,6 @@ const UserProfile = () => {
             <div className={styles.valueContainer}>
               <span className={styles.value}>{user?.phone}</span>
               <button className={styles.changeButton} onClick={() => setIsEditingPhone(true)}>แก้ไข</button>
-
             </div>
           </div>
         </section>
@@ -431,9 +423,6 @@ const UserProfile = () => {
           </div>
         </div>
       )}
-
-      {/* Footer */}
-      <Footer />
     </div>
   );
 };

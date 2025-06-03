@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import styles from "../styles/home-before-login.module.css";
-import Footer from "../components/footer";
 
 const HomeBeforeAuthen = () => {
   const router = useRouter();
@@ -235,7 +234,7 @@ const HomeBeforeAuthen = () => {
                   <option value="0 - 2,000 THB">0 - 2,000 บาท</option>
                   <option value="2,000 - 5,000 THB">2,001 - 5,000 บาท</option>
                   <option value="5,000 - 10,000 THB">5,001 - 10,000 บาท</option>
-                  <option value="10,000+ THB">10,001+ บาท</option>
+                  <option value="10,000+ THB">10,000+ บาท</option>
                 </select>
               </div>
 
@@ -423,9 +422,6 @@ const HomeBeforeAuthen = () => {
           </div>
         </section>
       </div>
-
-      {/* Footer - Replaced with Footer component */}
-      <Footer />
     </div>
   );
 };

@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import styles from "../styles/admin-user-management.module.css";
-import Header from "../components/navigation";
-import Footer from "../components/footer";
 
 const AdminUserManagement = () => {
   const router = useRouter();
@@ -230,8 +228,6 @@ const AdminUserManagement = () => {
 
   return (
     <div className={styles.container}>
-      <Header />
-
       <div className={styles.mainContent}>
         {/* Header Section */}
         <div className={styles.pageHeader}>
@@ -506,8 +502,6 @@ const AdminUserManagement = () => {
           </div>
         )}
       </div>
-      
-      <Footer />
     </div>
   );
 };

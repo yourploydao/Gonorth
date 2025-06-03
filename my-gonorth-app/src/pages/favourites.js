@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import styles from "../styles/favourites.module.css";
-import Header from "../components/navigation";
-import Footer from "../components/footer";
 
 const Favourites = () => {
   const [favorites, setFavorites] = useState([]);
@@ -30,7 +28,6 @@ const Favourites = () => {
     const fetchFavorites = async () => {
       try {
         console.log("Token:", token);
-
         const res = await fetch("http://localhost:8080/userfavorites", {
           method: "GET",
           headers: {
@@ -283,8 +280,6 @@ const Favourites = () => {
 
   return (
     <div className={styles.container}>
-      <Header />
-
       <div className={styles.mainContent}>
         <div className={styles.titleContainer}>
           <h1 className={styles.pageTitle}>รายการโปรด</h1>
@@ -329,21 +324,27 @@ const Favourites = () => {
                   </h3>
 
                   <div className={styles.infoItem}>
-                    <span className={styles.infoIcon}>📍</span>
+                  <span className={styles.infoIcon}>
+                  <img src="https://cdn-icons-png.flaticon.com/128/526/526754.png" alt="Car Icon" />
+                  </span>
                     <span className={styles.infoText}>
                       {location.Address || "ไม่มีข้อมูลที่อยู่"}
                     </span>
                   </div>
 
                   <div className={styles.infoItem}>
-                    <span className={styles.infoIcon}>🎫</span>
+                  <span className={styles.infoIcon}>
+                  <img src="https://cdn-icons-png.flaticon.com/128/1614/1614997.png" alt="Ticket Icon" />
+                  </span>
                     <span className={styles.infoText}>
                       {location.EntranceDetails || "ไม่มีข้อมูลทางเข้า"}
                     </span>
                   </div>
 
                   <div className={styles.infoItem}>
-                    <span className={styles.infoIcon}>🕒</span>
+                  <span className={styles.infoIcon}>
+                  <img src="https://cdn-icons-png.flaticon.com/128/2972/2972531.png" alt="Time Icon" />
+                  </span>
                     <span className={styles.infoText}>
                       {location.OpenTime || "ไม่มีข้อมูลเวลาเปิด"}
                     </span>
@@ -443,9 +444,6 @@ const Favourites = () => {
           <div className={styles.infoPopup}>
             <button className={styles.closePopup} onClick={handleCloseInfoPopup}>×</button>
             <div className={styles.popupContent}>
-
-              <h3>Route Planning Information</h3>
-              <p>The first location you select will be<br/>set as the starting point of your route.</p>
               <h3>รายละเอียดการวางแผนเส้นทาง</h3>
               <p>สถานที่แรกที่คุณเลือก<br></br>จะถูกตั้งเป็นจุดเริ่มต้นของเส้นทางของคุณ</p>
               <button 
@@ -464,8 +462,6 @@ const Favourites = () => {
           {notificationMessage}
         </div>
       )}
-
-      <Footer />
     </div>
   );
 };

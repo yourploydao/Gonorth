@@ -87,20 +87,24 @@ const VerifyCode = () => {
                     type={showPassword ? "text" : "password"}
                     value={code}
                     onChange={(e) => setCode(e.target.value)}
-                    // placeholder="7789BM6X"
                     className={styles.fieldInput}
                   />
-                  <button 
-                    type="button" 
-                    className={styles.togglePassword}
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    <img 
-                      src="https://cdn-icons-png.flaticon.com/128/4855/4855030.png" 
-                      alt="Toggle visibility"
-                      className={styles.eyeIcon}
-                    />
-                  </button>
+                <button 
+                  type="button" 
+                  className={styles.eyeIcon}
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  <img 
+                    src={
+                      showPassword
+                      ? "https://cdn-icons-png.flaticon.com/128/2767/2767194.png" // show password icon
+                      : "https://cdn-icons-png.flaticon.com/128/4855/4855030.png" // hide password icon
+                    }
+                    alt="Toggle password visibility"
+                    width="20"
+                    height="20"
+                  />
+                </button>
                 </div>
             </div>
             
@@ -112,7 +116,7 @@ const VerifyCode = () => {
                   className={styles.resendLink}
                   onClick={handleResendCode}
                 >
-                  Resend
+                  ส่งรหัสใหม่
                 </button>
               </p>
 

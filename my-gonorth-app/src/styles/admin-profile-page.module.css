@@ -29,7 +29,7 @@
   width: 100%;
   padding: 0 20px;
   position: relative;
-  margin-top: 75px; 
+  margin-top: 90px;
 }
 
 /* Header Styles */
@@ -249,7 +249,7 @@
 
 .adminControls {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
 }
 
@@ -258,30 +258,70 @@
   border-radius: 10px;
   padding: 25px;
   border: 1px solid #e9ecef;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 .adminControlCard:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+/* Special cards - เพิ่มสถานที่น่าสนใจใหม่ (card 4) */
+.adminControlCard:nth-child(4) {
+  background: linear-gradient(135deg, #fff5f5 0%, #ffe0e6 100%);
+  border: 1px solid #ffc0cb;
+  grid-column: span 2; /* ขยายความกว้างเป็น 2 columns */
+}
+
+/* Special cards - เพิ่มสถานที่ท่องเที่ยวในฤดูฝน (card 5) */
+.adminControlCard:nth-child(5) {
+  background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
+  border: 1px solid #87ceeb;
+  grid-column: span 1; /* ขยายความกว้างเป็น 2 columns */
+}
+
+.adminControlCard:nth-child(4):before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #ff6b9d, #ffa726);
+}
+
+.adminControlCard:nth-child(5):before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #4fc3f7, #29b6f6);
 }
 
 .adminControlContent {
   text-align: center;
+  position: relative;
+  z-index: 1;
 }
 
 .adminControlTitle {
   font-size: 18px;
   font-weight: 600;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   color: #333;
+  line-height: 1.3;
 }
 
 .adminControlDescription {
   font-size: 14px;
   color: #666;
   margin-bottom: 20px;
-  line-height: 1.5;
+  line-height: 1.6;
+  min-height: 60px;
 }
 
 .adminControlButton {
@@ -289,16 +329,44 @@
   color: white;
   border: none;
   border-radius: 8px;
-  padding: 10px 20px;
+  padding: 12px 20px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.3s ease;
   width: 100%;
+  position: relative;
+  overflow: hidden;
 }
 
 .adminControlButton:hover {
   background-color: #218838;
+  transform: translateY(-1px);
+}
+
+.adminControlButton:active {
+  transform: translateY(0);
+}
+
+/* Special Button Styles */
+.interestingPlaceBtn {
+  background: linear-gradient(135deg, #ff6b9d 0%, #ffa726 100%);
+  box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
+}
+
+.interestingPlaceBtn:hover {
+  background: linear-gradient(135deg, #ff5588 0%, #ff9500 100%);
+  box-shadow: 0 6px 20px rgba(255, 107, 157, 0.4);
+}
+
+.rainySeasonBtn {
+  background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%);
+  box-shadow: 0 4px 15px rgba(79, 195, 247, 0.3);
+}
+
+.rainySeasonBtn:hover {
+  background: linear-gradient(135deg, #29b6f6 0%, #1976d2 100%);
+  box-shadow: 0 6px 20px rgba(79, 195, 247, 0.4);
 }
 
 /* Modal Styles */
@@ -547,8 +615,107 @@
   line-height: 1.6;
 }
 
+/* Camera Icon for Upload Button */
+.cameraIcon {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M12 15.2c1.9 0 3.5-1.6 3.5-3.5s-1.6-3.5-3.5-3.5-3.5 1.6-3.5 3.5 1.6 3.5 3.5 3.5zm8.9-2.5c-.1-.4-.4-.7-.8-.8l-1.1-.2c-.1-.3-.2-.6-.4-.9l.6-1c.3-.3.3-.8 0-1.1L17.7 7.2c-.3-.3-.8-.3-1.1 0l-1 .6c-.3-.2-.6-.3-.9-.4l-.2-1.1c-.1-.4-.4-.8-.8-.8h-2.4c-.4 0-.7.4-.8.8l-.2 1.1c-.3.1-.6.2-.9.4l-1-.6c-.3-.3-.8-.3-1.1 0L5.8 8.7c-.3.3-.3.8 0 1.1l.6 1c-.2.3-.3.6-.4.9l-1.1.2c-.4.1-.8.4-.8.8v2.4c0 .4.4.7.8.8l1.1.2c.1.3.2.6.4.9l-.6 1c-.3.3-.3.8 0 1.1l1.5 1.5c.3.3.8.3 1.1 0l1-.6c.3.2.6.3.9.4l.2 1.1c.1.4.4.8.8.8h2.4c.4 0 .7-.4.8-.8l.2-1.1c.3-.1.6-.2.9-.4l1 .6c.3.3.8.3 1.1 0l1.5-1.5c.3-.3.3-.8 0-1.1l-.6-1c.2-.3.3-.6.4-.9l1.1-.2c.4-.1.8-.4.8-.8v-2.4z'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  margin-right: 5px;
+}
+
+/* Loading Animation */
+.loading {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #09f;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Success/Error Messages */
+.message {
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.messageSuccess {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.messageError {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.messageWarning {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
+/* Tooltip Styles */
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip .tooltipText {
+  visibility: hidden;
+  width: 120px;
+  background-color: #333;
+  color: white;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px;
+  font-size: 12px;
+  position: absolute;
+  z-index: 1001;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -60px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltipText {
+  visibility: visible;
+  opacity: 1;
+}
+
 /* Responsive Styles */
+@media (max-width: 1024px) {
+  .adminControls {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .adminControlCard:nth-child(4),
+  .adminControlCard:nth-child(5) {
+    grid-column: span 2;
+  }
+}
+
 @media (max-width: 768px) {
+  .mainContent {
+    margin-top: 60px;
+    padding: 0 15px;
+  }
+
   .accountSection {
     padding: 20px;
   }
@@ -561,13 +728,18 @@
     grid-template-columns: 1fr;
   }
   
+  .adminControlCard:nth-child(4),
+  .adminControlCard:nth-child(5) {
+    grid-column: span 1;
+  }
+  
   .profileImageContainer {
-    position: absolute;
     bottom: -80px;
   }
   
   .userInfoSection {
     margin-top: 30px;
+    margin-bottom: 30px;
   }
   
   .footerContent {
@@ -578,6 +750,7 @@
   .modal {
     width: 90%;
     padding: 20px;
+    margin: 20px;
   }
   
   .userStatsGrid {
@@ -586,6 +759,26 @@
   
   .userManagementActions {
     gap: 8px;
+  }
+
+  .adminControlCard {
+    padding: 20px;
+  }
+
+  .adminControlDescription {
+    min-height: auto;
+  }
+
+  .headerButtons {
+    gap: 15px;
+  }
+
+  .logo {
+    margin-left: -20px;
+  }
+
+  .profileBanner {
+    margin-bottom: 90px;
   }
 }
 
@@ -603,5 +796,48 @@
   .modalSave {
     width: 100%;
     padding: 12px;
+  }
+
+  .userName {
+    font-size: 24px;
+  }
+
+  .sectionTitle {
+    font-size: 20px;
+  }
+
+  .adminControlTitle {
+    font-size: 16px;
+  }
+
+  .profileImageLarge {
+    width: 100px;
+    height: 100px;
+  }
+
+  .colorBanner {
+    height: 180px;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .header,
+  .footer,
+  .uploadPhotoBtn,
+  .changeButton,
+  .adminControlButton,
+  .modalOverlay {
+    display: none !important;
+  }
+
+  .container {
+    background-color: white !important;
+  }
+
+  .accountSection,
+  .adminSection {
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
   }
 }
