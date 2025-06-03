@@ -23,6 +23,7 @@ const AdminCreateDestination = () => {
     description: "",
     category: "",
     address: "",
+    bestSeason: "", // เพิ่มฟีลด์ฤดูที่เหมาะสม
     latitude: "",
     longitude: "",
     admissionFee: "",
@@ -231,6 +232,21 @@ const AdminCreateDestination = () => {
                 onChange={handleInputChange}
                 placeholder="กรอกที่อยู่ของสถานที่ท่องเที่ยว"
               />
+            </div>
+
+            <div className={styles.formField}>
+              <label>ฤดูที่เหมาะสมกับการท่องเที่ยว</label>
+              <select
+                name="bestSeason"
+                value={formData.bestSeason}
+                onChange={handleInputChange}
+                className={styles.seasonSelect}
+              >
+                <option value="">เลือกฤดูที่เหมาะสม</option>
+                <option value="winter">ฤดูหนาว (พฤศจิกายน - กุมภาพันธ์)</option>
+                <option value="summer">ฤดูร้อน (มีนาคม - พฤษภาคม)</option>
+                <option value="rainy">ฤดูฝน (มิถุนายน - ตุลาคม)</option>
+              </select>
             </div>
           </div>
 
