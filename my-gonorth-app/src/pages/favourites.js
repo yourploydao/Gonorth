@@ -222,16 +222,7 @@ const Favourites = () => {
     }, 3000);
   };
 
-  const handleCreateRouteMap = () => {
-    const selectedDestinations = Object.keys(selectedPlaces).filter(place => selectedPlaces[place]);
-
-    if (currentPlace && selectedDestinations.length > 0) {
-      showNotificationPopup(`กำลังสร้างแผนที่เส้นทางโดยเริ่มจาก... ${getPlaceName(currentPlace)}`);
-    } else {
-      showNotificationPopup("คุณต้องเลือกอย่างน้อยหนึ่งจุดหมายเพื่อสร้างเส้นทาง");
-    }
-  };
-
+  // ฟังก์ชัน handleInfoButtonClick ที่หายไป
   const handleInfoButtonClick = () => {
     setShowInfoPopup(true);
   };
@@ -240,41 +231,104 @@ const Favourites = () => {
     setShowInfoPopup(false);
   };
 
-  const getPlaceName = (id) => {
-    const item = favorites.find(fav => fav.ID === id);
-    if (item && item.location) {
-      return item.location.LocationsName || item.location.title || `Location ${id}`;
+  const handleCreateRouteMap = () => {
+    const selectedDestinations = Object.keys(selectedPlaces).filter(place => selectedPlaces[place]);
+  
+    if (selectedDestinations.length < 3) {
+      showNotificationPopup("กรุณาเลือกอย่างน้อย 3 จุดหมาย");
+      return;
     }
-    return `Location ${id}`;
+  
+    const selectedLocations = favorites.filter(fav => selectedDestinations.includes(fav.ID.toString()));
+  
+    console.log('Selected locations:', selectedLocations); // debug
+  
+    const waypoints = selectedLocations.map(fav => {
+      const location = fav.location || {};
+      
+      // ตรวจสอบพิกัดในหลายรูปแบบที่เป็นไปได้
+      let lat = location.Latitude || location.latitude || location.lat;
+      let lng = location.Longitude || location.longitude || location.lng;
+      
+      // แปลงเป็น number ถ้าเป็น string
+      if (typeof lat === 'string') lat = parseFloat(lat);
+      if (typeof lng === 'string') lng = parseFloat(lng);
+      
+      console.log(`Location ${fav.ID}:`, { 
+        name: location.LocationsName,
+        lat: lat,
+        lng: lng,
+        originalLocation: location 
+      }); // debug
+  
+      return {
+        id: fav.ID,
+        name: location.LocationsName || `สถานที่ ${fav.ID}`,
+        lat: lat,
+        lng: lng,
+      };
+    }).filter(waypoint => {
+      // กรองเฉพาะจุดที่มีพิกัดที่ถูกต้อง
+      const isValid = waypoint.lat && waypoint.lng && 
+                     !isNaN(waypoint.lat) && !isNaN(waypoint.lng) &&
+                     waypoint.lat !== 0 && waypoint.lng !== 0;
+      
+      if (!isValid) {
+        console.warn('Invalid waypoint:', waypoint);
+        showNotificationPopup(`พิกัดของ ${waypoint.name} ไม่ถูกต้อง`);
+      }
+      
+      return isValid;
+    });
+  
+    console.log('Final waypoints:', waypoints); // debug
+  
+    if (waypoints.length < 3) {
+      showNotificationPopup("พิกัดของสถานที่ที่เลือกไม่ครบถ้วน กรุณาตรวจสอบข้อมูล");
+      return;
+    }
+  
+    const encoded = encodeURIComponent(JSON.stringify(waypoints));
+    router.push(`/route-map?waypoints=${encoded}`);
   };
 
-  const getImageUrl = (images) => {
-    if (!images || images.length === 0) return "https://via.placeholder.com/300x200?text=No+Image";
-    
-    const mainImage = images.find(img => img.IsMain === true);
-    if (mainImage && mainImage.URL) return mainImage.URL;
-    
-    if (images[0] && images[0].URL) return images[0].URL;
-    
-    return "https://via.placeholder.com/300x200?text=No+Image";
-  };
-
-  // ฟังก์ชันใหม่สำหรับดึงข้อมูลรีวิวของแต่ละ location
-  const getLocationReviewStats = (locationId) => {
-    return locationReviewStats[locationId] || {
-      total_reviews: 0,
-      average_rating: 0,
-      rating_distribution: {}
+      // ดึง review stats จาก state
+    const getLocationReviewStats = (locationId) => {
+      return locationReviewStats[locationId] || {};
     };
-  };
 
-  const getRatingText = (rating) => {
-    if (rating >= 4.5) return "ยอดเยี่ยม";
-    if (rating >= 4.0) return "ดีเยี่ยม";
-    if (rating >= 3.0) return "ดี";
-    if (rating >= 2.0) return "พอใช้";
-    return "แย่";
-  };
+    const getImageUrl = (images) => {
+      if (!images || images.length === 0) return "https://via.placeholder.com/300x200?text=No+Image";
+      
+      // สมมุติว่า images เป็น array ของ object ที่มี field URL หรือ Path
+      if (typeof images === 'string') return images;
+      
+      if (Array.isArray(images)) {
+        const firstImage = images[0];
+        if (typeof firstImage === 'string') return firstImage;
+        if (firstImage?.URL || firstImage?.url || firstImage?.path) {
+          return firstImage.URL || firstImage.url || firstImage.path;
+        }
+      }
+    
+      return "https://via.placeholder.com/300x200?text=No+Image";
+    };
+    
+    const getRatingText = (rating) => {
+      if (rating >= 4.5) return "ยอดเยี่ยม";
+      if (rating >= 4.0) return "ดีมาก";
+      if (rating >= 3.0) return "พอใช้";
+      if (rating > 0) return "ควรปรับปรุง";
+      return "ไม่มีรีวิว";
+    };
+
+    const waypoints = [
+      { id: 1, name: "จุด A", lat: 18.8, lng: 98.95 },
+      { id: 2, name: "จุด B", lat: 18.78, lng: 98.97 },
+      { id: 3, name: "จุด C", lat: 18.76, lng: 98.99 }
+    ];
+    router.push(`/route-map?waypoints=${encodeURIComponent(JSON.stringify(waypoints))}`);
+    
 
   return (
     <div className={styles.container}>

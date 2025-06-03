@@ -534,9 +534,6 @@ const StoryPage = () => {
                         </div>
                       </div>
                     </div>
-                    <div className={styles.reviewFlag}>
-                      <img src="https://cdn-icons-png.flaticon.com/128/11244/11244136.png" alt="Flag Icon" />
-                    </div>
                   </div>
 
                   <div className={styles.reviewContent}>
