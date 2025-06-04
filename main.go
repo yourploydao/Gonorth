@@ -8,8 +8,8 @@ import (
 	"github.com/joho/godotenv"
 
 	AuthController "Gonorth/controller/auth"
-	Middleware "Gonorth/controller/middleware"
 	InformationController "Gonorth/controller/information"
+	Middleware "Gonorth/controller/middleware"
 	"Gonorth/orm"
 )
 
@@ -24,12 +24,12 @@ func main() {
 
 	r := gin.Default()
 	r.Use(cors.New(cors.Config{
-        AllowOrigins:     []string{"http://localhost:3000"},
-        AllowMethods:     []string{"POST", "GET", "DELETE"},
-        AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
-        ExposeHeaders:    []string{"Content-Length"},
-        AllowCredentials: true,
-    }))
+		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowMethods:     []string{"POST", "GET", "DELETE"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
 	r.POST("/signup", AuthController.Register)
 	r.POST("/login", AuthController.Login)
 	r.POST("/forgotpassword", AuthController.ForgotPassword)
@@ -45,13 +45,12 @@ func main() {
 	auth := r.Group("/")
 	auth.Use(Middleware.Middleware())
 	{
-		auth.GET("/profile" , AuthController.Profile)
-		auth.POST("/change-profileimage",AuthController.ChangeProfileImage )
+		auth.GET("/profile", AuthController.Profile)
+		auth.POST("/change-profileimage", AuthController.ChangeProfileImage)
 		auth.POST("/change-username", AuthController.ChangeUsername)
 		auth.POST("/change-email", AuthController.ChangeEmail)
 		auth.POST("/change-password", AuthController.ChangePassword)
 		auth.POST("/change-phone", AuthController.ChangePhone)
-		auth.POST("/locations", InformationController.CreateLocation)
 		auth.GET("/location/:id", InformationController.GetLocation)
 		auth.GET("/locations-login/latest", InformationController.GetLatestLocations)
 		auth.GET("/locations-login/all", InformationController.GetAllLocations)
@@ -62,7 +61,12 @@ func main() {
 		auth.DELETE("/deletefavorite", InformationController.DeleteFavorite)
 		auth.GET("/location/:id/reviews", InformationController.GetLocationReviews)
 		auth.POST("/reviews", InformationController.CreateReviewForLocation)
-		
+
+		admin := auth.Group("/")
+		admin.Use(Middleware.AdminOnly())
+		{
+			admin.POST("/locations", InformationController.CreateLocation)
+		}
 	}
 
 	r.Run("localhost:8080")

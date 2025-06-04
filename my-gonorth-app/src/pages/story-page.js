@@ -74,10 +74,10 @@ const StoryPage = () => {
         console.log("Location data:", data);
         setLocationData(data);
 
-        if (data.Images && Array.isArray(data.Images) && data.Images.length > 0) {
-          const images = data.Images;
+        // ใช้ field images, isMain, url (ตัวเล็ก)
+        if (data.images && Array.isArray(data.images) && data.images.length > 0) {
+          const images = data.images;
           const mainImage = images.find((img) => img.IsMain) || images[0];
-          
           setCurrentMainImage(mainImage?.URL || null);
           setGalleryImages(images.map((img) => img.URL));
         } else {
@@ -243,7 +243,6 @@ const StoryPage = () => {
         alert("เขียนรีวิวสำเร็จ!");
         handleCloseModal();
         
-        // รีเฟรชข้อมูลรีวิว
         const reviewsRes = await fetch(`http://localhost:8080/location/${id}/reviews?page=1&limit=5`, {
           headers: {
             "Content-Type": "application/json",
@@ -257,7 +256,6 @@ const StoryPage = () => {
           setCurrentPage(1);
         }
 
-        // รีเฟรชสถิติรีวิว
         const statsRes = await fetch(`http://localhost:8080/location/${id}/review-stats`, {
           headers: {
             "Content-Type": "application/json",
@@ -355,7 +353,6 @@ const StoryPage = () => {
     return 'ผู้ใช้งาน';
   };
 
-  // Function สำหรับแสดงความคิดเห็น - ปรับปรุงให้รับมือกับโครงสร้างข้อมูลที่หลากหลาย
   const getReviewComment = (review) => {
     if (review?.comment && review.comment.trim() !== '') {
       return review.comment;
@@ -388,7 +385,7 @@ const StoryPage = () => {
       <div className={styles.mainContent}>
         {/* Destination Title with Favorite Button */}
         <div className={styles.destinationTitleSection}>
-          <h1 className={styles.destinationTitle}>{locationData?.LocationsName}</h1>
+          <h1 className={styles.destinationTitle}>{locationData?.name}</h1>
           <button 
             className={`${styles.favoriteButton} ${isInFavorites ? styles.active : ''}`}
             onClick={handleToggleFavorite}
@@ -416,7 +413,7 @@ const StoryPage = () => {
           {currentMainImage && (
             <img 
               src={currentMainImage}
-              alt={locationData?.LocationsName || "main image"} 
+              alt={locationData?.name || "main image"} 
               className={styles.mainImage} 
             />
           )}
@@ -442,28 +439,28 @@ const StoryPage = () => {
               <span className={styles.infoIcon}>
                 <img src="https://cdn-icons-png.flaticon.com/128/684/684908.png" alt="Location Icon" />
               </span>
-              <span className={styles.infoText}>{locationData?.Address}</span>
+              <span className={styles.infoText}>{locationData?.address}</span>
             </div>
             <div className={styles.timeInfo}>
               <span className={styles.infoIcon}>
                 <img src="https://cdn-icons-png.flaticon.com/128/2972/2972531.png" alt="Location Icon" />
               </span>
-              <span className={styles.infoText}>เปิดให้เข้าชม : {locationData?.OpenTime}</span>
+              <span className={styles.infoText}>เปิดให้เข้าชม : {locationData?.open_time} - {locationData?.close_time}</span>
             </div>
           </div>
         </div>
 
         {/* Destination Details */}
         <div className={styles.detailsContainer}>
-          <h2 className={styles.detailsTitle}>ประวัติของ{locationData?.LocationsName}</h2>
+          <h2 className={styles.detailsTitle}>ประวัติของ {locationData?.name}</h2>
           <div className={styles.detailsContent}>
-            {locationData?.History && (
-              <p>{locationData.History}</p>
+            {locationData?.history && (
+              <p>{locationData.history}</p>
             )}
 
             <h3 className={styles.activitiesTitle}>กิจกรรมแนะนำ</h3>
             <ul className={styles.activitiesList}>
-              {locationData?.Activities && locationData.Activities.map((activity, index) => (
+              {locationData?.activities && locationData.activities.map((activity, index) => (
                 <li key={index}>
                   <span className={styles.activityDot}></span>
                   {activity.ActivityName}
@@ -473,7 +470,7 @@ const StoryPage = () => {
             
             <div className={styles.parkingInfo}>
               <span className={styles.parkingIcon}>P</span>
-              <span className={styles.parkingText}>{locationData?.ParkingDetails}</span>
+              <span className={styles.parkingText}>{locationData?.parking_details}</span>
             </div>
           </div>
         </div>
@@ -625,7 +622,7 @@ const StoryPage = () => {
                   id="reviewText"
                   className={styles.reviewTextarea}
                   placeholder="แชร์ประสบการณ์ของคุณกับสถานที่แห่งนี้..."
-                  value={reviewText}
+                  value={reviewText || ""}
                   onChange={(e) => setReviewText(e.target.value)}
                 ></textarea>
               </div>

@@ -279,16 +279,21 @@ const HomeAfterAuthen = () => {
                 <div className={styles.historyCardContent}>
                   <div className={styles.historyCardText}>
                     <h2 className={styles.historyCardTitle}>
-                      {randomLocations[currentHistoryCard]?.Topic}
+                      {randomLocations[currentHistoryCard]?.topic || ""}
                     </h2>
                     <h3 className={styles.historyCardSubtitle}>
-                      {randomLocations[currentHistoryCard]?.LocationsName ||
-                        "ไม่มีข้อมูล"}
+                      {randomLocations[currentHistoryCard]?.name || "ไม่มีข้อมูล"}
                     </h3>
                     <p className={styles.historyCardDescription}>
-                      {expanded
-                        ? randomLocations[currentHistoryCard]?.History
-                        : randomLocations[currentHistoryCard]?.History.slice(0, 200) + "..."}
+                      {(() => {
+                        const historyText = randomLocations[currentHistoryCard]?.history || "";
+                        if (!historyText) return "ไม่มีข้อมูล";
+                        return expanded
+                          ? historyText
+                          : typeof historyText === "string"
+                            ? historyText.slice(0, 200) + (historyText.length > 200 ? "..." : "")
+                            : "ไม่มีข้อมูล";
+                      })()}
                       <button
                         className={styles.showHistory}
                         onClick={() => handleDestinationClick(randomLocations[currentHistoryCard]?.ID)}
@@ -301,13 +306,13 @@ const HomeAfterAuthen = () => {
                   <div className={styles.historyCardImageContainer}>
                     <img
                       src={
-                        randomLocations[currentHistoryCard]?.Images?.find(
-                          (img) => img.IsMain,
+                        randomLocations[currentHistoryCard]?.images?.find(
+                          (img) => img.isMain,
                         )?.URL ||
-                        randomLocations[currentHistoryCard]?.Images?.[0]?.URL ||
+                        randomLocations[currentHistoryCard]?.images?.[0]?.URL ||
                         "/images/placeholder.jpg"
                       }
-                      alt={randomLocations[currentHistoryCard]?.LocationsName}
+                      alt={randomLocations[currentHistoryCard]?.name}
                       className={styles.historyCardImage}
                     />
                   </div>
@@ -360,14 +365,16 @@ const HomeAfterAuthen = () => {
                   className={styles.cardImage}
                   style={{
                     backgroundImage: `url('${
-                      location.Images?.find(img => img.IsMain)?.URL || location.Images?.[0]?.URL 
+                      location.images?.find(img => img.isMain)?.URL ||
+                      location.images?.[0]?.URL ||
+                      "/images/placeholder.jpg"
                     }')`
                   }}
                 >
                   <div className={styles.cardOverlay}>
-                    <h3 className={styles.cardTitle}>{location.LocationsName}</h3>
-                    {location.Address && (
-                      <h4 className={styles.cardSubtitle}>{location.Address}</h4>
+                    <h3 className={styles.cardTitle}>{location.name}</h3>
+                    {location.address && (
+                      <h4 className={styles.cardSubtitle}>{location.address}</h4>
                     )}
                     <button
                       className={styles.showDetailButton}
@@ -410,14 +417,16 @@ const HomeAfterAuthen = () => {
                     className={styles.cardImage}
                     style={{
                       backgroundImage: `url('${
-                        location.Images?.find(img => img.IsMain)?.URL || location.Images?.[0]?.URL 
+                        location.images?.find(img => img.isMain)?.URL ||
+                        location.images?.[0]?.URL ||
+                        "/images/placeholder.jpg"
                       }')`
                     }}
                   >
                     <div className={styles.cardOverlay}>
-                      <h3 className={styles.cardTitle}>{location.LocationsName}</h3>
-                      {location.Address && (
-                        <h4 className={styles.cardSubtitle}>{location.Address}</h4>
+                      <h3 className={styles.cardTitle}>{location.name}</h3>
+                      {location.address && (
+                        <h4 className={styles.cardSubtitle}>{location.address}</h4>
                       )}
                       <button
                         className={styles.showDetailButton}

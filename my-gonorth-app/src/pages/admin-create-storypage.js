@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import styles from "../styles/admin-create-storypage.module.css";
 import 'leaflet/dist/leaflet.css';
 
+
 // Dynamic import สำหรับ MapSelector
 const MapSelector = dynamic(() => import("../components/map-selector.js"), {
   ssr: false, // ปิดการโหลดในฝั่ง Server
@@ -20,25 +21,31 @@ const AdminCreateDestination = () => {
   const [formData, setFormData] = useState({
     name: "",
     topic: "",
-    description: "",
-    category: "",
+    history: "",
+    tags: "",
+    activities: "",
     address: "",
-    bestSeason: "", // เพิ่มฟีลด์ฤดูที่เหมาะสม
+    bestSeason: "",
     latitude: "",
     longitude: "",
+    budget_range: "", // เพิ่ม budget
     admissionFee: "",
     distance: "",
     drivingTime: "",
     openTime: "",
     closeTime: "",
-    parking: "มี", // เพิ่มฟีลด์ที่จอดรถ default เป็น "มี"
+    parking: "มี",
+    parkingDetails: "",
     images: [],
     amenities: {
       baggageStorage: false,
       freeWifi: false,
       toilet: false,
       restaurant: false,
-      barOnSite: false
+      barOnSite: false,
+      souvenirShop: false,
+      informationCenter: false,
+      shuttleService: false
     },
     accessibility: {
       wheelchairCarPark: false,
@@ -130,21 +137,74 @@ const AdminCreateDestination = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Validate required fields
+
     if (!formData.name || !formData.latitude || !formData.longitude) {
       alert('Please fill in required fields and select location on map');
       return;
     }
 
-    console.log('Creating destination:', formData);
-    
-    // Here you would typically send the data to your backend
-    // For now, we'll just show success message and redirect
-    alert('Destination created successfully!');
-    router.push('/admin/destinations');
+    let imageUrls = [];
+    if (formData.images.length > 0) {
+      for (let file of formData.images) {
+        const url = await uploadImageToCloud(file);
+        imageUrls.push({ URL: url, IsMain: false });
+      }
+      if (imageUrls.length > 0) imageUrls[0].IsMain = true;
+    }
+
+    // แปลงข้อมูลให้ตรงกับ Backend
+    const payload = {
+      name: formData.name,
+      address: formData.address,
+      openTime: formData.openTime,
+      closeTime: formData.closeTime,
+      topic: formData.topic,
+      history: formData.history, 
+      hasParking: formData.parking === "มี", // แปลงเป็น boolean
+      parkingDetails: formData.parkingDetails,
+      hasEntrance: true, 
+      entranceDetails: "", 
+      budgetRange: formData.budget_range,
+      season: formData.bestSeason, 
+      distanceFromCity: formData.distance, 
+      drivingTime: formData.drivingTime, 
+      admissionFee: parseInt(formData.admissionFee) || 0,
+      latitude: parseFloat(formData.latitude),
+      longitude: parseFloat(formData.longitude),
+      images: imageUrls,
+      activities: convertActivities(formData.activities), 
+      tags: convertTags(formData.tags),
+      amenities: convertAmenities(formData.amenities),
+      accessibilities: convertAccessibility(formData.accessibility),
+    };
+
+    console.log('Payload to send:', payload);
+
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch("http://localhost:8080/locations", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        alert("บันทึกข้อมูลสำเร็จ!");
+        router.push("/admin/destinations");
+      } else {
+        const errorData = await res.json();
+        console.error("Error response:", errorData);
+        alert(`เกิดข้อผิดพลาดในการบันทึกข้อมูล: ${errorData.error || 'Unknown error'}`);
+      }
+    } catch (err) {
+      console.error("Network error:", err);
+      alert("เกิดข้อผิดพลาดในการเชื่อมต่อ");
+    }
   };
 
   const handleCancel = () => {
@@ -157,6 +217,46 @@ const AdminCreateDestination = () => {
 
   const closeMapModal = () => {
     setShowMapModal(false);
+  };
+
+  const convertAmenities = (amenitiesObj) =>
+    Object.entries(amenitiesObj)
+      .filter(([_, checked]) => checked)
+      .map(([name]) => ({ Name: name }));
+
+  const convertAccessibility = (accessObj) =>
+    Object.entries(accessObj)
+      .filter(([_, checked]) => checked)
+      .map(([name]) => ({ Name: name }));
+
+  // ถ้าเลือกเดียว
+  const convertTags = (tagStr) =>
+    tagStr ? [{ TagName: tagStr }] : [];
+
+  const convertActivities = (activitiesStr) =>
+    activitiesStr
+      .split(",")
+      .map(act => act.trim())
+      .filter(act => act)
+      .map(act => ({ Name: act })); 
+
+  // ฟังก์ชันอัปโหลดภาพขึ้น Cloudinary (ใส่ไว้ในไฟล์นี้ได้เลย)
+  const uploadImageToCloud = async (file) => {
+    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME; // ชื่อ cloud ของคุณ
+    const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET; // ชื่อ upload preset (unsigned)
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", uploadPreset);
+
+    const res = await fetch(
+      `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+    const data = await res.json();
+    return data.secure_url;
   };
 
   return (
@@ -188,8 +288,8 @@ const AdminCreateDestination = () => {
               <div className={styles.formField}>
                 <label>ประเภทสถานที่</label>
                 <select
-                  name="category"
-                  value={formData.category}
+                  name="tags"
+                  value={formData.tags}
                   onChange={handleInputChange}
                 >
                   <option value="">ตัวเลือก</option>
@@ -215,10 +315,21 @@ const AdminCreateDestination = () => {
             <div className={styles.formField}>
               <label>คำอธิบายสถานที่ท่องเที่ยว</label>
               <textarea
-                name="description"
-                value={formData.description}
+                name="history"
+                value={formData.history}
                 onChange={handleInputChange}
                 placeholder="กรอกเรื่องเล่าหรือประวัติของสถานที่ท่องเที่ยวและรายละเอียดเพิ่มเติม"
+                rows={4}
+              />
+            </div>
+
+            <div className={styles.formField}>
+              <label>กิจกรรมที่น่าสนใจ</label>
+              <textarea
+                name="activities"
+                value={formData.activities}
+                onChange={handleInputChange}
+                placeholder="กรอกกิจกรรมที่น่าสนใจที่สามารถทำได้ที่สถานที่ท่องเที่ยวนี้ (ใส่ , (comma) คั่นกิจกรรม กรณีที่มีกิจกรรมหลายอย่าง เช่น ปีนเขา, ถ่ายรูป, ชมวิว)"
                 rows={4}
               />
             </div>
@@ -333,6 +444,22 @@ const AdminCreateDestination = () => {
             
             <div className={styles.formRow}>
               <div className={styles.formField}>
+                <label>งบประมาณ</label>
+                <select
+                  name="budget_range"
+                  value={formData.budget_range}
+                  onChange={handleInputChange}
+                  required
+                >
+                  <option value="">เลือกงบประมาณ</option>
+                  <option value="0">ฟรี</option>
+                  <option value="0-2000">0-2,000 บาท</option>
+                  <option value="2000-5000">2,000-5,000 บาท</option>
+                  <option value="5000-10000">5,000-10,000 บาท</option>
+                  <option value="10000+">มากกว่า 10,000 บาท</option>
+                </select>
+              </div>
+              <div className={styles.formField}>
                 <label>ค่าเข้าชม (บาท)</label>
                 <input
                   type="number"
@@ -394,6 +521,17 @@ const AdminCreateDestination = () => {
                 </label>
               </div>
             </div>
+
+            <div className={styles.formField}>
+              <label>รายละเอียดที่จอดรถ</label>
+              <input
+                type="text"
+                name="parkingDetails"
+                value={formData.parkingDetails}
+                onChange={handleInputChange}
+                placeholder="กรอกรายละเอียดที่จอดรถ (ถ้ามี) เช่น สถานที่จอด ค่าจอดรถ"
+              />
+            </div>
           </div>
 
           {/* Images Section */}
@@ -416,7 +554,7 @@ const AdminCreateDestination = () => {
                 {formData.images.map((image, index) => (
                   <div key={index} className={styles.imageItem}>
                     <img 
-                      src={URL.createObjectURL(image)} 
+                      src={typeof image === "string" ? image : URL.createObjectURL(image)} 
                       alt={`Preview ${index + 1}`}
                       className={styles.previewImage}
                     />

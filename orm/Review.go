@@ -6,8 +6,8 @@ import (
 
 type Review struct {
 	gorm.Model
-	created_at	string `gorm:"autoCreateTime"`	
-	updated_at	string `gorm:"autoUpdateTime"`
+	CreatedAt	string `gorm:"autoCreateTime"`	
+	UpdatedAt	string `gorm:"autoUpdateTime"`
 	UserID     uint
 	LocationID uint
 	Rating     int    `gorm:"check:rating >= 1 AND rating <= 5"`

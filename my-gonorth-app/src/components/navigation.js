@@ -66,7 +66,7 @@ const Header = () => {
     if (isRouting) return;
     setIsRouting(true);
     setShowDropdown(false);
-    router.push('/profile-page').finally(() => {
+    router.push('/profile').finally(() => {
       setTimeout(() => setIsRouting(false), 300);
     });
   };
