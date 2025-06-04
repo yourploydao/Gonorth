@@ -32,6 +32,7 @@ const Login = () => {
   
       if (res.ok && data.message == "Login successful") {
         alert(data.message); 
+        localStorage.setItem("user", JSON.stringify(data.user));
         localStorage.setItem("token", data.token);
         window.location.href = "/home-after-login";
       } else {

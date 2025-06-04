@@ -29,6 +29,8 @@ func InitDB() {
 		&ExternalScore{},
 		&Review{},
 		&UserFavorite{},
+		&Amenities{},
+		&Accessibilities{},
 	)
 	if err != nil {
 		panic("AutoMigrate failed: " + err.Error())

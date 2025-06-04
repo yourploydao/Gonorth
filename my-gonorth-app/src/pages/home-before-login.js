@@ -32,7 +32,7 @@ const HomeBeforeAuthen = () => {
       }
       
       const data = await res.json();
-      console.log("Fetched data:", data);
+      console.log("Fetched location data:", data);
       setLatestLocations(data);
     } catch (error) {
       console.error("Error fetching latest locations:", error);
@@ -53,6 +53,7 @@ const HomeBeforeAuthen = () => {
 
       if (!allRes.ok) throw new Error("Failed to fetch all locations");
       const allData = await allRes.json();
+      console.log("Fetched all location data:", allData);
 
       const shuffled = allData.sort(() => 0.5 - Math.random());
       const selected = shuffled.slice(0, 5);
@@ -82,11 +83,16 @@ const HomeBeforeAuthen = () => {
       }
       
       const data = await res.json();
+      console.log("Fetched seasonal location data:", data);
+
+      if (!Array.isArray(data)) {
+        setSeasonalLocations([]);
+        return;
+      }
 
       const shuffled = data.sort(() => 0.5 - Math.random());
       const selected = shuffled.slice(0, 3);
 
-      console.log("Fetched seasonal data:", selected);
       setSeasonalLocations(selected);
     } catch (error) {
       console.error("Error fetching seasonal locations:", error);
@@ -265,16 +271,21 @@ const HomeBeforeAuthen = () => {
                 <div className={styles.historyCardContent}>
                   <div className={styles.historyCardText}>
                     <h2 className={styles.historyCardTitle}>
-                      {randomLocations[currentHistoryCard]?.Topic}
+                      {randomLocations[currentHistoryCard]?.topic || randomLocations[currentHistoryCard]?.Topic || ""}
                     </h2>
                     <h3 className={styles.historyCardSubtitle}>
-                      {randomLocations[currentHistoryCard]?.LocationsName ||
-                        "ไม่มีข้อมูล"}
+                      {randomLocations[currentHistoryCard]?.name || randomLocations[currentHistoryCard]?.LocationsName || "ไม่มีข้อมูล"}
                     </h3>
                     <p className={styles.historyCardDescription}>
-                      {expanded
-                        ? randomLocations[currentHistoryCard]?.History
-                        : randomLocations[currentHistoryCard]?.History.slice(0, 200) + "..."}
+                      {(() => {
+                        const historyText = randomLocations[currentHistoryCard]?.history || randomLocations[currentHistoryCard]?.History || "";
+                        if (!historyText) return "ไม่มีข้อมูล";
+                        return expanded
+                          ? historyText
+                          : typeof historyText === "string"
+                            ? historyText.slice(0, 200) + (historyText.length > 200 ? "..." : "")
+                            : "ไม่มีข้อมูล";
+                      })()}
                       <button
                         className={styles.showHistory}
                         onClick={() => handleDestinationClick()}
@@ -287,13 +298,13 @@ const HomeBeforeAuthen = () => {
                   <div className={styles.historyCardImageContainer}>
                     <img
                       src={
-                        randomLocations[currentHistoryCard]?.Images?.find(
-                          (img) => img.IsMain,
+                        randomLocations[currentHistoryCard]?.images?.find(
+                          (img) => img.isMain,
                         )?.URL ||
-                        randomLocations[currentHistoryCard]?.Images?.[0]?.URL ||
+                        randomLocations[currentHistoryCard]?.images?.[0]?.URL ||
                         "/images/placeholder.jpg"
                       }
-                      alt={randomLocations[currentHistoryCard]?.LocationsName}
+                      alt={randomLocations[currentHistoryCard]?.name}
                       className={styles.historyCardImage}
                     />
                   </div>
@@ -346,14 +357,16 @@ const HomeBeforeAuthen = () => {
                   className={styles.cardImage}
                   style={{
                     backgroundImage: `url('${
-                      location.Images?.find(img => img.IsMain)?.URL || location.Images?.[0]?.URL 
+                      location.images?.find(img => img.isMain)?.url ||
+                      location.images?.[0]?.URL ||
+                      "/images/placeholder.jpg"
                     }')`
                   }}
                 >
                   <div className={styles.cardOverlay}>
-                    <h3 className={styles.cardTitle}>{location.LocationsName}</h3>
-                    {location.Address && (
-                      <h4 className={styles.cardSubtitle}>{location.Address}</h4>
+                    <h3 className={styles.cardTitle}>{location.name}</h3>
+                    {location.address && (
+                      <h4 className={styles.cardSubtitle}>{location.address}</h4>
                     )}
                     <button
                       className={styles.showDetailButton}
@@ -396,14 +409,16 @@ const HomeBeforeAuthen = () => {
                     className={styles.cardImage}
                     style={{
                       backgroundImage: `url('${
-                        location.Images?.find(img => img.IsMain)?.URL || location.Images?.[0]?.URL 
+                        location.images?.find(img => img.isMain)?.URL ||
+                        location.images?.[0]?.URL ||
+                        "/images/placeholder.jpg"
                       }')`
                     }}
                   >
                     <div className={styles.cardOverlay}>
-                      <h3 className={styles.cardTitle}>{location.LocationsName}</h3>
-                      {location.Address && (
-                        <h4 className={styles.cardSubtitle}>{location.Address}</h4>
+                      <h3 className={styles.cardTitle}>{location.name}</h3>
+                      {location.address && (
+                        <h4 className={styles.cardSubtitle}>{location.address}</h4>
                       )}
                       <button
                         className={styles.showDetailButton}

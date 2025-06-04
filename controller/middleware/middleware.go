@@ -10,6 +10,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+// Middleware ตรวจสอบ JWT และ set user ใน context
 func Middleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// ตรวจสอบ Authorization header
@@ -58,5 +59,24 @@ func Middleware() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
+	}
+}
+
+// AdminOnly ตรวจสอบว่าเป็น admin
+func AdminOnly() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userRaw, exists := c.Get("user")
+		if !exists {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+			c.Abort()
+			return
+		}
+		user, ok := userRaw.(orm.User)
+		if !ok || user.Role != "admin" {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Admin only"})
+			c.Abort()
+			return
+		}
+		c.Next()
 	}
 }

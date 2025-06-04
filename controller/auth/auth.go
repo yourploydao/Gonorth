@@ -121,6 +121,7 @@ func Login(c *gin.Context) {
 				"firstname": userExist.Firstname,
 				"lastname": userExist.Lastname,
 				"email": userExist.Email,
+				"role": userExist.Role,
 			},
 		})
 	} else {
@@ -296,6 +297,7 @@ func Profile(c *gin.Context) {
 			"email":        user.Email,
 			"password":     user.Password,
 			"phone":        user.Phone,
+			"role":         user.Role,
 		},
 	})
 }

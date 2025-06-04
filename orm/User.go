@@ -6,6 +6,7 @@ import (
 
 type User struct {
 	gorm.Model
+	Role     string `gorm:"type:varchar(20);default:'user'" json:"role"` 
 	Firstname string
 	Lastname string
 	Email string `gorm:"unique"`
