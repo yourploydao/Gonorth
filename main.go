@@ -66,6 +66,8 @@ func main() {
 		admin.Use(Middleware.AdminOnly())
 		{
 			admin.POST("/locations", InformationController.CreateLocation)
+			admin.DELETE("/locations/:id", InformationController.DeleteLocation)          
+			admin.POST("/locations/bulk-delete", InformationController.BulkDeleteLocation)
 		}
 	}
 

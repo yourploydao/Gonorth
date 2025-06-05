@@ -14,61 +14,20 @@ const AdminDestinationControl = () => {
   const [sortField, setSortField] = useState('id');
   const [sortOrder, setSortOrder] = useState('asc');
 
-  // Mock data - replace with actual API calls
-  const mockDestinations = [
-    {
-      id: "01",
-      placeName: "วัดพระแก้ว",
-      category: "Culture",
-      image: "/assets/destination-placeholder.png"
-    },
-    {
-      id: "02",
-      placeName: "เขาใหญ่",
-      category: "Nature",
-      image: "/assets/destination-placeholder.png"
-    },
-    {
-      id: "03",
-      placeName: "ตลาดจตุจักร",
-      category: "Food",
-      image: "/assets/destination-placeholder.png"
-    },
-    {
-      id: "04",
-      placeName: "สะพานข้ามแคว",
-      category: "Adventure",
-      image: "/assets/destination-placeholder.png"
-    },
-    {
-      id: "05",
-      placeName: "อุทยานแห่งชาติดอยอินทนนท์",
-      category: "Nature",
-      image: "/assets/destination-placeholder.png"
-    },
-    {
-      id: "06",
-      placeName: "พระราชวังใหญ่",
-      category: "Culture",
-      image: "/assets/destination-placeholder.png"
-    },
-    {
-      id: "07",
-      placeName: "ลิงแสมสน",
-      category: "Food",
-      image: "/assets/destination-placeholder.png"
-    },
-    {
-      id: "08",
-      placeName: "เขื่อนศรีนครินทร์",
-      category: "Adventure",
-      image: "/assets/destination-placeholder.png"
-    }
-  ];
-
   useEffect(() => {
-    // Simulate API call
-    setDestinations(mockDestinations);
+    const fetchDestinations = async () => {
+      const res = await fetch("http://localhost:8080/locations/all");
+      const data = await res.json();
+      // แปลงข้อมูลให้ตรงกับที่ frontend ใช้
+      const formatted = data.map(item => ({
+        id: item.id || item.ID, 
+        placeName: item.name || item.LocationsName || "", 
+        category: item.tags && item.tags.length > 0 ? item.tags[0].TagName : "ไม่ระบุ", // ใช้ TagName
+      }));
+      setDestinations(formatted);
+      console.log("Formatted destinations:", formatted);
+    };
+    fetchDestinations();
   }, []);
 
   const handleSelectDestination = (destinationId) => {
@@ -89,11 +48,18 @@ const AdminDestinationControl = () => {
 
   const getFilteredDestinations = () => {
     let filtered = destinations.filter(destination => {
-      const matchesSearch = destination.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           destination.placeName.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = filterCategory === "all" || destination.category === filterCategory;
-      return matchesSearch && matchesCategory;
+      // ตรวจสอบว่ามี placeName ก่อน
+      const name = destination.placeName || "";
+      return name.toLowerCase().includes(searchTerm.toLowerCase());
     });
+
+    // ตัวอย่างสำหรับ filter category
+    if (filterCategory !== "all") {
+      filtered = filtered.filter(destination => {
+        const category = destination.category || "";
+        return category === filterCategory;
+      });
+    }
 
     // Sort destinations
     filtered.sort((a, b) => {
@@ -120,8 +86,7 @@ const AdminDestinationControl = () => {
   };
 
   const handleEditDestination = (destination) => {
-    // Navigate to edit page with destination ID
-    router.push(`/admin-destination-edit?id=${destination.id}`);
+    router.push(`/admin-create-storypage?id=${destination.id}`);
   };
 
   const handleDeleteDestination = (destination) => {
@@ -129,11 +94,27 @@ const AdminDestinationControl = () => {
     setIsConfirmingDelete(true);
   };
 
-  const confirmDeleteDestination = () => {
-    setDestinations(prev => prev.filter(destination => destination.id !== destinationToDelete.id));
-    setSelectedDestinations(prev => prev.filter(id => id !== destinationToDelete.id));
-    setIsConfirmingDelete(false);
-    setDestinationToDelete(null);
+  // ลบทีละรายการ
+  const confirmDeleteDestination = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`http://localhost:8080/locations/${destinationToDelete.id}`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+      if (res.ok) {
+        setDestinations(prev => prev.filter(destination => destination.id !== destinationToDelete.id));
+        setSelectedDestinations(prev => prev.filter(id => id !== destinationToDelete.id));
+        setIsConfirmingDelete(false);
+        setDestinationToDelete(null);
+      } else {
+        alert("ลบสถานที่ท่องเที่ยวไม่สำเร็จ");
+      }
+    } catch (err) {
+      alert("เกิดข้อผิดพลาดในการลบสถานที่ท่องเที่ยว");
+    }
   };
 
   const handleBulkDelete = () => {
@@ -141,10 +122,28 @@ const AdminDestinationControl = () => {
     setIsConfirmingBulkDelete(true);
   };
 
-  const confirmBulkDelete = () => {
-    setDestinations(prev => prev.filter(destination => !selectedDestinations.includes(destination.id)));
-    setSelectedDestinations([]);
-    setIsConfirmingBulkDelete(false);
+  // ลบหลายรายการ
+  const confirmBulkDelete = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`http://localhost:8080/locations/bulk-delete`, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({ ids: selectedDestinations }),
+      });
+      if (res.ok) {
+        setDestinations(prev => prev.filter(destination => !selectedDestinations.includes(destination.id)));
+        setSelectedDestinations([]);
+        setIsConfirmingBulkDelete(false);
+      } else {
+        alert("ลบสถานที่ท่องเที่ยวไม่สำเร็จ");
+      }
+    } catch (err) {
+      alert("เกิดข้อผิดพลาดในการลบสถานที่ท่องเที่ยว");
+    }
   };
 
   const getCategoryColor = (category) => {
@@ -178,7 +177,7 @@ const AdminDestinationControl = () => {
             <h1 className={styles.pageTitle}>จัดการสถานที่ท่องเที่ยว</h1>
             <button 
               className={styles.backButton}
-              onClick={() => router.push('/admin-profile')}
+              onClick={() => router.push('/profile')}
             >
               กลับ
             </button>

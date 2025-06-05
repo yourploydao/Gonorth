@@ -12,6 +12,8 @@ const MapSelector = dynamic(() => import("../components/map-selector.js"), {
 
 const AdminCreateDestination = () => {
   const router = useRouter();
+  const { id } = router.query;
+  const [destination, setDestination] = useState(null);
   const [showMapModal, setShowMapModal] = useState(false);
   const [mapLocation, setMapLocation] = useState(null);
   const [distanceKm, setDistanceKm] = useState('');
@@ -30,7 +32,7 @@ const AdminCreateDestination = () => {
     longitude: "",
     budget_range: "", // เพิ่ม budget
     admissionFee: "",
-    distance: "",
+    distance_from_city: "",
     drivingTime: "",
     openTime: "",
     closeTime: "",
@@ -99,7 +101,7 @@ const AdminCreateDestination = () => {
       ...prev,
       latitude: lat.toFixed(6),
       longitude: lng.toFixed(6),
-      distance: `${distance} กิโลเมตรจากศาลากลางจังหวัดเชียงใหม่`,
+      distance_from_city: parseFloat(distance), // เก็บเป็นตัวเลข
       drivingTime: `${drivingTime} นาทีด้วยรถยนต์`
     }));
   };
@@ -168,7 +170,7 @@ const AdminCreateDestination = () => {
       entranceDetails: "", 
       budgetRange: formData.budget_range,
       season: formData.bestSeason, 
-      distanceFromCity: formData.distance, 
+      distanceFromCity: Number(formData.distance_from_city) || 0,
       drivingTime: formData.drivingTime, 
       admissionFee: parseInt(formData.admissionFee) || 0,
       latitude: parseFloat(formData.latitude),
@@ -195,7 +197,8 @@ const AdminCreateDestination = () => {
 
       if (res.ok) {
         alert("บันทึกข้อมูลสำเร็จ!");
-        router.push("/admin/destinations");
+        console.log("Response data:", await res.json());
+        router.push("/home-after-login");
       } else {
         const errorData = await res.json();
         console.error("Error response:", errorData);
@@ -240,7 +243,7 @@ const AdminCreateDestination = () => {
       .filter(act => act)
       .map(act => ({ Name: act })); 
 
-  // ฟังก์ชันอัปโหลดภาพขึ้น Cloudinary (ใส่ไว้ในไฟล์นี้ได้เลย)
+  // ฟังก์ชันอัปโหลดภาพขึ้น Cloudinary
   const uploadImageToCloud = async (file) => {
     const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME; // ชื่อ cloud ของคุณ
     const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET; // ชื่อ upload preset (unsigned)
@@ -258,6 +261,66 @@ const AdminCreateDestination = () => {
     const data = await res.json();
     return data.secure_url;
   };
+
+  useEffect(() => {
+    if (id) {
+      const token = localStorage.getItem("token");
+      fetch(`http://localhost:8080/location/${id}`, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      })
+        .then(res => {
+          if (!res.ok) throw new Error("Unauthorized or not found");
+          return res.json();
+        })
+        .then(data => {
+          console.log("Res data:", data); 
+          setDestination(data);
+          setFormData({
+            name: data.name || "",
+            topic: data.topic || "",
+            history: data.history || "",
+            tags: Array.isArray(data.tags) ? data.tags.map(tag => tag.TagName).join(", ") : "",
+            activities: Array.isArray(data.activities)
+            ? data.activities.map(act => act.ActivityName).filter(Boolean).join(", ")
+            : "",
+            address: data.address || "",
+            bestSeason: data.season || "",
+            latitude: data.latitude?.toString() || "",
+            longitude: data.longitude?.toString() || "",
+            budget_range: data.budget_range || "",
+            admissionFee: data.admission_fee?.toString() || "",
+            distance_from_city: data.distance?.toString() || "",
+            drivingTime: data.driving_time || "",
+            openTime: data.open_time || "",
+            closeTime: data.close_time || "",
+            parking: data.has_parking ? "มี" : "ไม่มี",
+            parkingDetails: data.parking_details || "",
+            images: Array.isArray(data.images) ? data.images.map(img => img.URL) : [],
+            amenities: {
+              baggageStorage: Array.isArray(data.amenities) ? data.amenities.some(a => a.Name === "ห้องฝากสัมภาระ") : false,
+              freeWifi: Array.isArray(data.amenities) ? data.amenities.some(a => a.Name === "อินเทอร์เน็ตฟรี") : false,
+              toilet: Array.isArray(data.amenities) ? data.amenities.some(a => a.Name === "ห้องน้ำ") : false,
+              restaurant: Array.isArray(data.amenities) ? data.amenities.some(a => a.Name === "ร้านอาหาร") : false,
+              barOnSite: Array.isArray(data.amenities) ? data.amenities.some(a => a.Name === "บาร์ในสถานที่ท่องเที่ยว") : false,
+              souvenirShop: Array.isArray(data.amenities) ? data.amenities.some(a => a.Name === "ร้านขายของที่ระลึก") : false,
+              informationCenter: Array.isArray(data.amenities) ? data.amenities.some(a => a.Name === "จุดบริการข้อมูลนักท่องเที่ยว") : false,
+              shuttleService: Array.isArray(data.amenities) ? data.amenities.some(a => a.Name === "จุดบริการรถรับส่ง") : false,
+            },
+            accessibility: {
+              wheelchairCarPark: Array.isArray(data.accessibilities) ? data.accessibilities.some(a => a.Name === "ที่จอดรถสำหรับผู้ใช้รถเข็น") : false,
+              wheelchairEntrance: Array.isArray(data.accessibilities) ? data.accessibilities.some(a => a.Name === "ทางเข้าเหมาะสำหรับผู้ใช้รถเข็น") : false,
+              wheelchairToilet: Array.isArray(data.accessibilities) ? data.accessibilities.some(a => a.Name === "มีห้องน้ำสำหรับผู้ใช้รถเข็นใกล้ทางเข้า") : false,
+              goodForKids: Array.isArray(data.accessibilities) ? data.accessibilities.some(a => a.Name === "เหมาะสำหรับเด็ก") : false,
+            }
+          });
+        })
+        .catch(err => console.error("โหลดข้อมูลไม่สำเร็จ", err));
+    }
+  }, [id]);
+
+  if (id && !destination) return <div>Loading...</div>;
 
   return (
     <div className={styles.container}>
@@ -416,10 +479,13 @@ const AdminCreateDestination = () => {
                 <label>ระยะทางห่างจากศาลากลางเชียงใหม่</label>
                 <input
                   type="text"
-                  name="distance"
-                  value={formData.distance}
-                  onChange={handleInputChange}
-                  placeholder="คำนวณอัตโนมัติเมื่อเลือกตำแหน่งแล้ว"
+                  name="distance_from_city"
+                  value={
+                    formData.distance_from_city !== ""
+                      ? `${formData.distance_from_city} กิโลเมตรจากศาลากลางจังหวัดเชียงใหม่`
+                      : ""
+                  }
+                  placeholder="คำนวณอัตโนมัติเมื่อเลือกตำแหน่ง"
                   readOnly
                 />
               </div>
@@ -467,7 +533,7 @@ const AdminCreateDestination = () => {
                   value={formData.admissionFee}
                   onChange={handleInputChange}
                   placeholder="กรอกค่าเข้าชม (เช่น 50, 100) หรือ 0 ถ้าฟรี"
-                  min="0"
+                  // min="0"
                 />
               </div>
             </div>
@@ -651,7 +717,7 @@ const AdminCreateDestination = () => {
           </div>
 
           {/* Accessibility Section */}
-          <div className={styles.formSection}>
+          {/* <div className={styles.formSection}>
             <h2 className={styles.sectionTitle}>ความสะดวกในการเข้าถึง</h2>
             
             <div className={styles.checkboxGrid}>
@@ -691,7 +757,7 @@ const AdminCreateDestination = () => {
                 <span>เหมาะสำหรับเด็ก</span>
               </label>
             </div>
-          </div>
+          </div> */}
 
           {/* Form Actions */}
           <div className={styles.formActions}>
