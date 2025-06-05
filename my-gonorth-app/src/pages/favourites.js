@@ -233,6 +233,12 @@ const Favourites = () => {
     setShowInfoPopup(false);
   };
 
+  // Helper function สำหรับดึงชื่อสถานที่
+  const getPlaceName = (itemId) => {
+    const item = favorites.find(fav => fav.ID === itemId);
+    return item?.location?.LocationsName || `สถานที่ ${itemId}`;
+  };
+
   const handleCreateRouteMap = () => {
     const selectedDestinations = Object.keys(selectedPlaces).filter(place => selectedPlaces[place]);
   
@@ -262,7 +268,7 @@ const Favourites = () => {
         lng: lng,
         originalLocation: location 
       }); // debug
-  
+
       return {
         id: fav.ID,
         name: location.LocationsName || `สถานที่ ${fav.ID}`,
@@ -282,55 +288,53 @@ const Favourites = () => {
       
       return isValid;
     });
-  
+
     console.log('Final waypoints:', waypoints); // debug
-  
+
     if (waypoints.length < 3) {
       showNotificationPopup("พิกัดของสถานที่ที่เลือกไม่ครบถ้วน กรุณาตรวจสอบข้อมูล");
       return;
     }
-  
-    const encoded = encodeURIComponent(JSON.stringify(waypoints));
-    router.push(`/route-map?waypoints=${encoded}`);
+
+    // แจ้งเตือนสำเร็จก่อน redirect
+    showNotificationPopup("กำลังสร้างแผนที่การเดินทาง...");
+    
+    // Delay เล็กน้อยเพื่อให้ผู้ใช้เห็น notification ก่อน
+    setTimeout(() => {
+      const encoded = encodeURIComponent(JSON.stringify(waypoints));
+      router.push(`/route-map?waypoints=${encoded}`);
+    }, 1000);
   };
 
-      // ดึง review stats จาก state
-    const getLocationReviewStats = (locationId) => {
-      return locationReviewStats[locationId] || {};
-    };
+  // ดึง review stats จาก state
+  const getLocationReviewStats = (locationId) => {
+    return locationReviewStats[locationId] || {};
+  };
 
-    const getImageUrl = (images) => {
-      if (!images || images.length === 0) return "https://via.placeholder.com/300x200?text=No+Image";
-      
-      // สมมุติว่า images เป็น array ของ object ที่มี field URL หรือ Path
-      if (typeof images === 'string') return images;
-      
-      if (Array.isArray(images)) {
-        const firstImage = images[0];
-        if (typeof firstImage === 'string') return firstImage;
-        if (firstImage?.URL || firstImage?.url || firstImage?.path) {
-          return firstImage.URL || firstImage.url || firstImage.path;
-        }
+  const getImageUrl = (images) => {
+    if (!images || images.length === 0) return "https://via.placeholder.com/300x200?text=No+Image";
+    
+    // สมมุติว่า images เป็น array ของ object ที่มี field URL หรือ Path
+    if (typeof images === 'string') return images;
+    
+    if (Array.isArray(images)) {
+      const firstImage = images[0];
+      if (typeof firstImage === 'string') return firstImage;
+      if (firstImage?.URL || firstImage?.url || firstImage?.path) {
+        return firstImage.URL || firstImage.url || firstImage.path;
       }
-    
-      return "https://via.placeholder.com/300x200?text=No+Image";
-    };
-    
-    const getRatingText = (rating) => {
-      if (rating >= 4.5) return "ยอดเยี่ยม";
-      if (rating >= 4.0) return "ดีมาก";
-      if (rating >= 3.0) return "พอใช้";
-      if (rating > 0) return "ควรปรับปรุง";
-      return "ไม่มีรีวิว";
-    };
+    }
 
-    const waypoints = [
-      { id: 1, name: "จุด A", lat: 18.8, lng: 98.95 },
-      { id: 2, name: "จุด B", lat: 18.78, lng: 98.97 },
-      { id: 3, name: "จุด C", lat: 18.76, lng: 98.99 }
-    ];
-    router.push(`/route-map?waypoints=${encodeURIComponent(JSON.stringify(waypoints))}`);
-    
+    return "https://via.placeholder.com/300x200?text=No+Image";
+  };
+  
+  const getRatingText = (rating) => {
+    if (rating >= 4.5) return "ยอดเยี่ยม";
+    if (rating >= 4.0) return "ดีมาก";
+    if (rating >= 3.0) return "พอใช้";
+    if (rating > 0) return "ควรปรับปรุง";
+    return "ไม่มีรีวิว";
+  };
 
   return (
     <div className={styles.container}>
@@ -343,7 +347,6 @@ const Favourites = () => {
         </div>
 
         <div className={styles.favouritesList}>
-
           {favorites.map((item, index) => {
             const location = item.location || {};
             const itemId = item.ID || index;
@@ -378,27 +381,27 @@ const Favourites = () => {
                   </h3>
 
                   <div className={styles.infoItem}>
-                  <span className={styles.infoIcon}>
-                  <img src="https://cdn-icons-png.flaticon.com/128/526/526754.png" alt="Car Icon" />
-                  </span>
+                    <span className={styles.infoIcon}>
+                      <img src="https://cdn-icons-png.flaticon.com/128/526/526754.png" alt="Car Icon" />
+                    </span>
                     <span className={styles.infoText}>
                       {location.Address || "ไม่มีข้อมูลที่อยู่"}
                     </span>
                   </div>
 
                   <div className={styles.infoItem}>
-                  <span className={styles.infoIcon}>
-                  <img src="https://cdn-icons-png.flaticon.com/128/1614/1614997.png" alt="Ticket Icon" />
-                  </span>
+                    <span className={styles.infoIcon}>
+                      <img src="https://cdn-icons-png.flaticon.com/128/1614/1614997.png" alt="Ticket Icon" />
+                    </span>
                     <span className={styles.infoText}>
                       {location.EntranceDetails || "ไม่มีข้อมูลทางเข้า"}
                     </span>
                   </div>
 
                   <div className={styles.infoItem}>
-                  <span className={styles.infoIcon}>
-                  <img src="https://cdn-icons-png.flaticon.com/128/2972/2972531.png" alt="Time Icon" />
-                  </span>
+                    <span className={styles.infoIcon}>
+                      <img src="https://cdn-icons-png.flaticon.com/128/2972/2972531.png" alt="Time Icon" />
+                    </span>
                     <span className={styles.infoText}>
                       {location.OpenTime || "ไม่มีข้อมูลเวลาเปิด"}
                     </span>
@@ -467,7 +470,7 @@ const Favourites = () => {
         )}
 
         <button className={styles.createRouteButton} onClick={handleCreateRouteMap}>
-        สร้างแผนที่การเดินทาง
+          สร้างแผนที่การเดินทาง
         </button>
       </div>
 

@@ -1,643 +1,505 @@
-/* styles/route-map.module.css */
-
+/* Base Container */
 .container {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f8f9fa;
-    overflow: hidden;
-    position: relative;
-  }
-  
-  .header {
-    display: flex;
-    align-items: center;
-    padding: 1rem 1.5rem;
-    background: linear-gradient(135deg, #007bff, #0056b3);
-    color: white;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    position: relative;
-    z-index: 1000;
-    flex-shrink: 0;
-  }
-  
-  .backButtonHeader {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background: #28a745;
-    color: white;
-    border: none;
-    padding: 12px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: bold;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
-    z-index: 1000;
-    transition: all 0.3s ease;
-  }
-  
-  .backButtonHeader:hover {
-    background: #218838;
-    transform: translateX(-2px);
-  }
-  
-  .backButtonHeader:active {
-    transform: translateX(-1px);
-  }
-  
-  .mapContainer {
-    height: 100%;
     width: 100%;
-    padding: 20px;
-    box-sizing: border-box;
-    position: relative;
-  }
-  
-  .mapWrapper {
-    height: 100%;
-    width: 100%;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    border: 2px solid #e9ecef;
-    position: relative;
-  }
-  
-  .map {
-    height: 100%;
-    width: 100%;
-  }
-  
-  .routeInfoCard {
-    position: absolute;
-    bottom: 20px;
-    left: 20px;
-    background: white;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
-    z-index: 1000;
-    min-width: 250px;
-    border: 1px solid #ddd;
-  }
-  
-  .routeInfoCard h4 {
-    margin: 0 0 10px 0;
-    color: #000;
-    font-weight: bold;
-  }
-  
-  .routeInfoCard .routeDetails {
-    font-size: 0.9em;
-    line-height: 1.5;
-    color: #000;
-  }
-  
-  .routeInfoCard .routeDetails div {
-    margin-bottom: 4px;
-  }
-  
-  .routeInfoCard .routeDetails strong {
-    color: #000;
-  }
-  
-  .zoomControls {
-    position: absolute;
-    bottom: 180px;
-    left: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    z-index: 1000;
-  }
-  
-  .zoomButton {
-    background: white;
-    border: 2px solid #ddd;
-    padding: 8px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 18px;
-    font-weight: bold;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    min-height: 100vh;
+    font-family: 'Montserrat', sans-serif;
     color: #333;
-    transition: all 0.3s ease;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    background-color: #ffffff;
+    margin-top: 75px; 
   }
   
-  .zoomButton:hover {
-    background: #f8f9fa;
-    border-color: #007bff;
-    color: #007bff;
+  /* Reset for all children */
+  .container * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
   }
   
-  .loadingOverlay {
-    position: absolute;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: white;
-    padding: 15px 25px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
-    z-index: 1000;
-    text-align: center;
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #1b413c 0%, #2d6a5f 100%);
+    color: white;
+    padding: 20px 0;
+    box-shadow: 0 2px 10px rgba(255, 255, 255, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
   }
   
-  .loadingOverlay div:first-child {
+  .headerContent {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .headerLeft h1 {
+    font-size: 24px;
+    font-weight: 700;
     margin-bottom: 5px;
-  }
-  
-  .loadingOverlay div:last-child {
-    font-size: 0.9em;
-    color: #666;
-  }
-  
-  .errorContainer {
-    height: 100vh;
     display: flex;
     align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    background-color: #f8f9fa;
+    gap: 10px;
   }
   
-  .errorCard {
-    background: white;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    text-align: center;
-    max-width: 500px;
-  }
-  
-  .errorCard h2 {
-    color: #dc3545;
-    margin-bottom: 1rem;
-  }
-  
-  .errorCard p {
-    margin-bottom: 1.5rem;
+  .headerLeft p {
+    font-size: 14px;
+    opacity: 0.9;
   }
   
   .backButton {
-    background: #007bff;
+    background-color: rgba(255, 255, 255, 0.2);
     color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-size: 14px;
+    font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
   }
   
   .backButton:hover {
-    background: #0056b3;
-  }
-  
-  /* Leaflet Popup Customization */
-  :global(.leaflet-popup-content-wrapper) {
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-  }
-  
-  :global(.leaflet-popup-tip) {
-    background: white;
-  }
-  
-  .popup {
-    max-width: 250px;
-  }
-  
-  .popupContent {
-    padding: 0.5rem 0;
-  }
-  
-  .popupContent h4 {
-    margin: 0 0 0.5rem 0;
-    color: #333;
-    font-size: 1rem;
-    font-weight: 600;
-    line-height: 1.3;
-  }
-  
-  .popupLabel {
-    background: #007bff;
-    color: white;
-    padding: 0.25rem 0.5rem;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    font-weight: 500;
-    display: inline-block;
-    margin-bottom: 0.75rem;
-  }
-  
-  .popupDetails {
-    font-size: 0.85rem;
-    line-height: 1.4;
-  }
-  
-  .popupDetails p {
-    margin: 0.25rem 0;
-    color: #666;
-  }
-  
-  .popupDetails strong {
-    color: #333;
-  }
-  
-  .spinner {
-    width: 48px;
-    height: 48px;
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid #007bff;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin: 0 auto 1.5rem;
-  }
-  
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-  
-  .routeStats {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-  
-  .stat {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.5rem 0;
-  }
-  
-  .statIcon {
-    font-size: 1.3rem;
-    width: 28px;
-    text-align: center;
-    flex-shrink: 0;
-  }
-  
-  .statLabel {
-    flex: 1;
-    font-size: 0.9rem;
-    color: #666;
-    font-weight: 500;
-  }
-  
-  .statValue {
-    font-weight: 700;
-    color: #333;
-    font-size: 1rem;
-    background: #f8f9fa;
-    padding: 0.25rem 0.5rem;
-    border-radius: 6px;
-    min-width: fit-content;
-  }
-  
-  .optimizationInfo {
-    margin-top: 1.25rem;
-    padding-top: 1.25rem;
-    border-top: 1px solid #eee;
-  }
-  
-  .optimizationText {
-    margin: 0;
-    color: #28a745;
-    font-size: 0.9rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem;
-    background: rgba(40, 167, 69, 0.1);
-    border-radius: 8px;
-    border: 1px solid rgba(40, 167, 69, 0.2);
-  }
-  
-  .routeList {
-    background: white;
-    margin: 1rem;
-    border-radius: 8px;
-    padding: 1.5rem;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    max-height: 350px;
-    overflow-y: auto;
-    flex-shrink: 0;
-    border: 1px solid rgba(0,0,0,0.05);
-  }
-  
-  .routeList h3 {
-    margin: 0 0 1.25rem 0;
-    color: #333;
-    font-size: 1.1rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 2px solid #f8f9fa;
-  }
-  
-  .waypointsList {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-  
-  .waypointItem {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1.25rem;
-    background: #f8f9fa;
-    border-radius: 12px;
-    border: 1px solid #e9ecef;
-    transition: all 0.3s ease;
-    position: relative;
-  }
-  
-  .waypointItem:hover {
+    background-color: rgba(255, 255, 255, 0.3);
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    background: #fff;
-    border-color: #007bff;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
   }
   
-  .waypointItem::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-    background: #007bff;
-    border-radius: 0 12px 12px 0;
-    opacity: 0;
-    transition: opacity 0.3s ease;
+  /* Main Content */
+  .mainContent {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    gap: 20px;
   }
   
-  .waypointItem:hover::before {
-    opacity: 1;
+  /* Sidebar */
+  .sidebar {
+    width: 350px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
   }
   
-  .waypointNumber {
-    background: linear-gradient(135deg, #007bff, #0056b3);
+  /* Route Info Card */
+  .routeInfo {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    border-left: 4px solid #1b413c;
+  }
+  
+  .routeInfo h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #1b413c;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .infoGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .infoCard {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+  }
+  
+  .infoIcon {
+    font-size: 20px;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #1b413c;
     color: white;
-    width: 36px;
-    height: 36px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  
+  .infoLabel {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .infoValue {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1b413c;
+  }
+  
+  /* Waypoints List */
+  .waypointsList {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    flex: 1;
+  }
+  
+  .waypointsList h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #1b413c;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .waypointsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  
+  .waypointCard {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    transition: all 0.2s ease;
+  }
+  
+  .waypointCard:hover {
+    background-color: #e3f2fd;
+    border-color: #09f;
+    transform: translateX(5px);
+  }
+  
+  .startPoint {
+    background-color: #e8f5e8;
+    border-color: #4CAF50;
+  }
+  
+  .startPoint:hover {
+    background-color: #d0f0d0;
+  }
+  
+  .waypointIcon {
+    width: 35px;
+    height: 35px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 700;
-    font-size: 0.9rem;
+    font-weight: bold;
+    font-size: 14px;
+    color: white;
     flex-shrink: 0;
-    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
-    border: 2px solid white;
   }
   
-  .waypointItem:first-child .waypointNumber {
-    background: linear-gradient(135deg, #28a745, #1e7e34);
-    font-size: 1.2rem;
-    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+  .startIcon {
+    background-color: #4CAF50;
+  }
+  
+  .destinationIcon {
+    background-color: #FF5722;
   }
   
   .waypointInfo {
     flex: 1;
-    min-width: 0;
   }
   
-  .waypointInfo h4 {
-    margin: 0 0 0.4rem 0;
+  .waypointName {
+    font-size: 14px;
+    font-weight: 600;
     color: #333;
-    font-size: 1rem;
-    font-weight: 600;
-    line-height: 1.3;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    margin-bottom: 4px;
   }
   
-  .waypointInfo p {
-    margin: 0;
+  .waypointType {
+    font-size: 12px;
     color: #666;
-    font-size: 0.85rem;
-    line-height: 1.4;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
   
-  .openTime {
-    color: #007bff !important;
-    font-weight: 600;
-    margin-top: 0.4rem !important;
+  .waypointOrder {
+    font-size: 12px;
+    color: #999;
+    font-weight: 500;
+    background-color: #e9ecef;
+    padding: 4px 8px;
+    border-radius: 12px;
+  }
+  
+  /* Map Section */
+  .mapSection {
+    flex: 1;
+    position: relative;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+  
+  .mapContainer {
+    width: 100%;
+    height: 600px;
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  
+  /* Map Controls - Moved to right side and simplified */
+  .mapControls {
+    position: absolute;
+    top: 85px;
+    left: 15px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .zoomButton {
+    width: 40px;
+    height: 40px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 0.25rem;
-    white-space: normal;
+    justify-content: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   }
   
-  .routeArrow {
-    color: #007bff;
-    font-size: 1.8rem;
-    font-weight: bold;
-    flex-shrink: 0;
-    opacity: 0.7;
-    transition: all 0.3s ease;
+  .zoomButton:hover {
+    background-color: #f0f0f0;
+    border-color: #09f;
+    color: #09f;
+    transform: scale(1.05);
   }
   
-  .waypointItem:hover + .waypointItem .routeArrow,
-  .waypointItem:hover .routeArrow {
-    opacity: 1;
-    transform: translateX(2px);
+  /* Loading States */
+  .loadingContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #ffffff;
   }
   
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .container {
-      height: 100vh;
-    }
-    
-    .backButtonHeader {
-      top: 10px;
-      right: 10px;
-      padding: 10px 16px;
-      font-size: 14px;
-    }
-    
-    .mapContainer {
-      padding: 10px;
-    }
-    
-    .mapWrapper {
-      border-radius: 8px;
-    }
-    
-    .routeInfoCard {
-      bottom: 10px;
-      left: 10px;
-      min-width: 200px;
-      padding: 12px;
-    }
-    
-    .routeInfoCard h4 {
-      font-size: 0.9rem;
-    }
-    
-    .routeInfoCard .routeDetails {
-      font-size: 0.8em;
-    }
-    
-    .zoomControls {
-      bottom: 140px;
-      left: 10px;
-    }
-    
-    .zoomButton {
-      width: 36px;
-      height: 36px;
-      padding: 6px;
-      font-size: 16px;
-    }
-    
-    .loadingOverlay {
-      top: 10px;
-      padding: 12px 20px;
-    }
-    
-    .routeList {
-      margin: 0.5rem;
-      padding: 1rem;
-      max-height: 250px;
-    }
-    
-    .waypointItem {
-      padding: 1rem;
-      gap: 0.75rem;
-    }
-    
-    .waypointNumber {
-      width: 32px;
-      height: 32px;
-      font-size: 0.8rem;
-    }
-    
-    .waypointItem:first-child .waypointNumber {
-      font-size: 1rem;
-    }
-    
-    .waypointInfo h4 {
-      font-size: 0.95rem;
-    }
-    
-    .waypointInfo p {
-      font-size: 0.8rem;
-    }
-    
-    .routeArrow {
-      font-size: 1.5rem;
-    }
-    
-    .errorCard {
-      padding: 1.5rem;
-      margin: 1rem;
-    }
-    
-    .errorCard h2 {
-      font-size: 1.2rem;
-    }
-    
-    .backButton {
-      padding: 0.8rem 1.5rem;
-      font-size: 0.9rem;
-    }
+  .loadingCard {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    text-align: center;
+    max-width: 400px;
+    margin: 20px;
   }
   
-  @media (max-width: 480px) {
-    .backButtonHeader {
-      top: 10px;
-      right: 10px;
-      left: 10px;
-      padding: 8px 12px;
-      font-size: 13px;
-      text-align: center;
-    }
-    
-    .mapContainer {
-      padding: 5px;
-    }
-    
-    .routeInfoCard {
-      bottom: 5px;
-      left: 5px;
-      right: 5px;
-      min-width: auto;
-      padding: 10px;
-    }
-    
-    .zoomControls {
-      bottom: 100px;
-      left: 5px;
-    }
-    
-    .routeList {
-      max-height: 200px;
-    }
-    
-    .waypointItem {
-      flex-direction: column;
-      align-items: flex-start;
-      text-align: left;
-    }
-    
-    .waypointNumber {
-      align-self: flex-start;
-    }
-    
-    .routeArrow {
-      align-self: center;
-      transform: rotate(90deg);
-      margin: 0.5rem 0;
-    }
-    
-    .waypointInfo h4,
-    .waypointInfo p {
-      white-space: normal;
-      overflow: visible;
-      text-overflow: initial;
-    }
+  .loadingIcon {
+    font-size: 48px;
+    margin-bottom: 20px;
+    animation: pulse 2s infinite;
   }
   
-  /* Custom Scrollbar */
-  .routeList::-webkit-scrollbar {
+  .loadingCard h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #1b413c;
+  }
+  
+  .loadingCard p {
+    font-size: 16px;
+    color: #666;
+  }
+  
+  .loadingOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    backdrop-filter: blur(5px);
+  }
+  
+  .loadingContent {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    padding: 40px;
+    text-align: center;
+    max-width: 400px;
+    margin: 20px;
+  }
+  
+  .loadingSpinner {
+    font-size: 48px;
+    margin-bottom: 20px;
+    animation: spin 2s linear infinite;
+  }
+  
+  .loadingText {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1b413c;
+    margin-bottom: 10px;
+  }
+  
+  .loadingSubtext {
+    font-size: 14px;
+    color: #666;
+    margin-top: 10px;
+  }
+  
+  /* Error States */
+  .errorContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #ffffff;
+  }
+  
+  .errorCard {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    text-align: center;
+    max-width: 500px;
+    margin: 20px;
+    border-left: 4px solid #dc3545;
+  }
+  
+  .errorIcon {
+    font-size: 48px;
+    margin-bottom: 20px;
+    color: #dc3545;
+  }
+  
+  .errorCard h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #dc3545;
+  }
+  
+  .errorCard p {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 25px;
+    line-height: 1.5;
+  }
+  
+  /* Popup Styles */
+  .popupContent {
+    text-align: center;
+    padding: 5px;
+  }
+  
+  .popupContent strong {
+    color: #1b413c;
+    font-size: 14px;
+    display: block;
+    margin-bottom: 5px;
+  }
+  
+  .popupType {
+    color: #666;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 5px 0;
+  }
+  
+  .popupOrder {
+    color: #09f;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  
+  /* Scrollbar Styles */
+  .waypointsContainer::-webkit-scrollbar {
     width: 6px;
   }
   
-  .routeList::-webkit-scrollbar-track {
+  .waypointsContainer::-webkit-scrollbar-track {
     background: #f1f1f1;
     border-radius: 3px;
   }
   
-  .routeList::-webkit-scrollbar-thumb {
-    background: #007bff;
+  .waypointsContainer::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
     border-radius: 3px;
   }
   
-  .routeList::-webkit-scrollbar-thumb:hover {
-    background: #0056b3;
+  .waypointsContainer::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
   }
   
-  /* Animation Classes */
-  @keyframes fadeIn {
+  /* Animations */
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.7;
+      transform: scale(0.95);
+    }
+  }
+  
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  @keyframes slideIn {
     from {
       opacity: 0;
-      transform: translateY(10px);
+      transform: translateY(20px);
     }
     to {
       opacity: 1;
@@ -645,54 +507,203 @@
     }
   }
   
-  .routeInfoCard,
-  .routeList,
-  .waypointItem {
-    animation: fadeIn 0.5s ease-out;
+  .waypointCard {
+    animation: slideIn 0.3s ease-out;
   }
   
-  /* Focus States for Accessibility */
-  .backButtonHeader:focus,
+  /* Responsive Design */
+  @media (max-width: 1024px) {
+    .mainContent {
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .sidebar {
+      width: 100%;
+      flex-direction: row;
+      gap: 15px;
+    }
+    
+    .routeInfo,
+    .waypointsList {
+      flex: 1;
+    }
+    
+    .waypointsContainer {
+      max-height: 250px;
+    }
+    
+    .mapContainer {
+      height: 500px;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .mainContent {
+      padding: 15px;
+    }
+    
+    .headerContent {
+      padding: 0 15px;
+    }
+    
+    .headerLeft h1 {
+      font-size: 20px;
+    }
+    
+    .sidebar {
+      flex-direction: column;
+    }
+    
+    .sidebar {
+      width: 100%;
+    }
+    
+    .infoGrid {
+      flex-direction: column;
+    }
+    
+    .mapContainer {
+      height: 400px;
+    }
+    
+    .mapControls {
+      top: 10px;
+      right: 10px;
+    }
+    
+    .zoomButton {
+      width: 35px;
+      height: 35px;
+      font-size: 14px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .headerContent {
+      flex-direction: column;
+      gap: 15px;
+      text-align: center;
+    }
+    
+    .headerLeft h1 {
+      font-size: 18px;
+    }
+    
+    .backButton {
+      width: 100%;
+      max-width: 200px;
+    }
+    
+    .routeInfo,
+    .waypointsList {
+      padding: 15px;
+    }
+    
+    .infoCard {
+      flex-direction: column;
+      text-align: center;
+      gap: 8px;
+    }
+    
+    .waypointCard {
+      flex-direction: column;
+      text-align: center;
+      gap: 8px;
+    }
+    
+    .waypointIcon {
+      align-self: center;
+    }
+    
+    .mapContainer {
+      height: 350px;
+    }
+    
+    .loadingCard,
+    .errorCard {
+      padding: 30px 20px;
+      margin: 15px;
+    }
+    
+    .loadingIcon,
+    .errorIcon {
+      font-size: 36px;
+    }
+    
+    .loadingCard h2,
+    .errorCard h2 {
+      font-size: 20px;
+    }
+  }
+  
+  /* Focus states for accessibility */
   .backButton:focus,
   .zoomButton:focus {
-    outline: 2px solid #fff;
+    outline: 2px solid #09f;
     outline-offset: 2px;
   }
   
-  .waypointItem:focus-within {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    background: #fff;
-    border-color: #007bff;
+  .waypointCard:focus {
+    outline: 2px solid #09f;
+    outline-offset: 2px;
   }
   
-  /* Print Styles */
+  /* Print styles */
   @media print {
+    .header,
+    .mapControls,
+    .loadingOverlay {
+      display: none;
+    }
+    
     .container {
-      height: auto;
+      background-color: white;
     }
     
-    .backButtonHeader {
-      display: none;
+    .mainContent {
+      flex-direction: column;
+      max-width: none;
+      padding: 0;
     }
     
-    .zoomControls {
-      display: none;
-    }
-    
-    .mapWrapper {
-      height: 400px;
+    .sidebar {
+      width: 100%;
       page-break-inside: avoid;
     }
     
-    .routeInfoCard {
-      position: static;
-      margin: 1rem 0;
+    .mapSection {
       page-break-inside: avoid;
     }
+  }
+  
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    .infoCard,
+    .waypointCard {
+      border-width: 2px;
+    }
     
-    .routeList {
-      max-height: none;
-      page-break-inside: avoid;
+    .waypointIcon {
+      border: 2px solid currentColor;
+    }
+    
+    .zoomButton {
+      border-width: 2px;
+    }
+  }
+  
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    .waypointCard,
+    .loadingIcon,
+    .loadingSpinner {
+      animation: none;
+    }
+    
+    .waypointCard:hover,
+    .zoomButton:hover,
+    .backButton:hover {
+      transform: none;
     }
   }

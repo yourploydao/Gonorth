@@ -1,6 +1,7 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
+import styles from '../styles/route-map.module.css';
 
 // Import Map component แบบ dynamic เพื่อป้องกัน SSR issues
 const MapContainer = dynamic(() => import('react-leaflet').then((mod) => mod.MapContainer), { ssr: false });
@@ -22,6 +23,24 @@ const RouteMap = () => {
   const [icons, setIcons] = useState({ startIcon: null, destinationIcon: null });
   const [mapRef, setMapRef] = useState(null);
 
+  // Helper function to safely encode SVG to base64
+  const encodeSVGToBase64 = (svgString) => {
+    try {
+      // Convert to UTF-8 byte array first, then to base64
+      const utf8Bytes = new TextEncoder().encode(svgString);
+      let binaryString = '';
+      for (let i = 0; i < utf8Bytes.length; i++) {
+        binaryString += String.fromCharCode(utf8Bytes[i]);
+      }
+      return btoa(binaryString);
+    } catch (error) {
+      console.error('Error encoding SVG:', error);
+      // Fallback: use a simple colored circle instead
+      const simpleSvg = `<svg width="30" height="45" viewBox="0 0 30 45" xmlns="http://www.w3.org/2000/svg"><circle fill="#4CAF50" cx="15" cy="15" r="12"/></svg>`;
+      return btoa(simpleSvg);
+    }
+  };
+
   // ตรวจสอบว่าเป็น client-side
   useEffect(() => {
     setIsClient(true);
@@ -40,30 +59,31 @@ const RouteMap = () => {
           shadowUrl: '/leaflet/marker-shadow.png',
         });
 
-        // สร้าง custom icons
+        // สร้าง custom icons โดยใช้ SVG ที่ไม่มีตัวอักษรไทย
+        const startSvg = `<svg width="30" height="45" viewBox="0 0 30 45" xmlns="http://www.w3.org/2000/svg">
+          <path fill="#4CAF50" stroke="#fff" stroke-width="2" d="M15 0C6.7 0 0 6.7 0 15c0 15 15 30 15 30s15-15 15-30C30 6.7 23.3 0 15 0z"/>
+          <circle fill="#fff" cx="15" cy="15" r="8"/>
+          <text x="15" y="20" text-anchor="middle" fill="#4CAF50" font-size="12" font-weight="bold">S</text>
+        </svg>`;
+
+        const destinationSvg = `<svg width="30" height="45" viewBox="0 0 30 45" xmlns="http://www.w3.org/2000/svg">
+          <path fill="#FF5722" stroke="#fff" stroke-width="2" d="M15 0C6.7 0 0 6.7 0 15c0 15 15 30 15 30s15-15 15-30C30 6.7 23.3 0 15 0z"/>
+          <circle fill="#fff" cx="15" cy="15" r="8"/>
+          <circle fill="#FF5722" cx="15" cy="15" r="4"/>
+        </svg>`;
+
         const startIcon = new leaflet.Icon({
-          iconUrl: 'data:image/svg+xml;base64,' + btoa(`
-            <svg width="25" height="41" viewBox="0 0 25 41" xmlns="http://www.w3.org/2000/svg">
-              <path fill="#28a745" stroke="#fff" stroke-width="2" d="M12.5 0C5.6 0 0 5.6 0 12.5c0 12.5 12.5 28.5 12.5 28.5s12.5-16 12.5-28.5C25 5.6 19.4 0 12.5 0z"/>
-              <circle fill="#fff" cx="12.5" cy="12.5" r="6"/>
-              <text x="12.5" y="17" text-anchor="middle" fill="#28a745" font-size="10" font-weight="bold">S</text>
-            </svg>
-          `),
-          iconSize: [25, 41],
-          iconAnchor: [12, 41],
-          popupAnchor: [1, -34],
+          iconUrl: 'data:image/svg+xml;base64,' + encodeSVGToBase64(startSvg),
+          iconSize: [30, 45],
+          iconAnchor: [15, 45],
+          popupAnchor: [0, -45],
         });
 
         const destinationIcon = new leaflet.Icon({
-          iconUrl: 'data:image/svg+xml;base64,' + btoa(`
-            <svg width="25" height="41" viewBox="0 0 25 41" xmlns="http://www.w3.org/2000/svg">
-              <path fill="#dc3545" stroke="#fff" stroke-width="2" d="M12.5 0C5.6 0 0 5.6 0 12.5c0 12.5 12.5 28.5 12.5 28.5s12.5-16 12.5-28.5C25 5.6 19.4 0 12.5 0z"/>
-              <circle fill="#fff" cx="12.5" cy="12.5" r="6"/>
-            </svg>
-          `),
-          iconSize: [25, 41],
-          iconAnchor: [12, 41],
-          popupAnchor: [1, -34],
+          iconUrl: 'data:image/svg+xml;base64,' + encodeSVGToBase64(destinationSvg),
+          iconSize: [30, 45],
+          iconAnchor: [15, 45],
+          popupAnchor: [0, -45],
         });
 
         setL(leaflet);
@@ -344,18 +364,11 @@ const RouteMap = () => {
   // แสดง loading ขณะรอ client-side rendering
   if (!isClient || !L) {
     return (
-      <div style={{ 
-        height: '100vh', 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center',
-        backgroundColor: '#f8f9fa'
-      }}>
-        <div style={{ textAlign: 'center' }}>
-          <div>🗺️ กำลังโหลดแผนที่...</div>
-          <div style={{ fontSize: '0.9em', color: '#666', marginTop: '10px' }}>
-            กรุณารอสักครู่
-          </div>
+      <div className={styles.loadingContainer}>
+        <div className={styles.loadingCard}>
+          <div className={styles.loadingIcon}>🗺️</div>
+          <h2>กำลังโหลดแผนที่</h2>
+          <p>กรุณารอสักครู่...</p>
         </div>
       </div>
     );
@@ -363,35 +376,12 @@ const RouteMap = () => {
 
   if (error) {
     return (
-      <div style={{ 
-        height: '100vh', 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center',
-        flexDirection: 'column',
-        backgroundColor: '#f8f9fa'
-      }}>
-        <div style={{ 
-          backgroundColor: 'white', 
-          padding: '2rem', 
-          borderRadius: '8px', 
-          boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-          textAlign: 'center',
-          maxWidth: '500px'
-        }}>
-          <h2 style={{ color: '#dc3545', marginBottom: '1rem' }}>เกิดข้อผิดพลาด</h2>
-          <p style={{ marginBottom: '1.5rem' }}>{error}</p>
-          <button 
-            onClick={handleBackToFavorites}
-            style={{
-              backgroundColor: '#007bff',
-              color: 'white',
-              border: 'none',
-              padding: '0.5rem 1rem',
-              borderRadius: '4px',
-              cursor: 'pointer'
-            }}
-          >
+      <div className={styles.errorContainer}>
+        <div className={styles.errorCard}>
+          <div className={styles.errorIcon}>⚠️</div>
+          <h2>เกิดข้อผิดพลาด</h2>
+          <p>{error}</p>
+          <button onClick={handleBackToFavorites} className={styles.backButton}>
             กลับไปหน้ารายการโปรด
           </button>
         </div>
@@ -400,179 +390,147 @@ const RouteMap = () => {
   }
 
   return (
-    <div style={{ height: '100vh', position: 'relative' }}>
-      {/* แสดงข้อมูลการโหลด */}
+    <div className={styles.container}>
+      {/* Header */}
+      <div className={styles.header}>
+        <div className={styles.headerContent}>
+          <div className={styles.headerLeft}>
+            <h1>🗺️ เส้นทางการเดินทาง</h1>
+            <p>{waypoints.length} จุดหมาย</p>
+          </div>
+          <button onClick={handleBackToFavorites} className={styles.backButton}>
+            กลับ
+          </button>
+        </div>
+      </div>
+
+      {/* Loading Overlay */}
       {loading && (
-        <div style={{
-          position: 'absolute',
-          top: '20px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          backgroundColor: 'white',
-          padding: '15px 25px',
-          borderRadius: '8px',
-          boxShadow: '0 2px 10px rgba(0,0,0,0.15)',
-          zIndex: 1000,
-          textAlign: 'center'
-        }}>
-          <div>🗺️ กำลังคำนวณเส้นทางที่ดีที่สุด...</div>
-          <div style={{ fontSize: '0.9em', color: '#666', marginTop: '5px' }}>
-            จุดหมาย: {waypoints.length} จุด
+        <div className={styles.loadingOverlay}>
+          <div className={styles.loadingContent}>
+            <div className={styles.loadingSpinner}>🧭</div>
+            <div className={styles.loadingText}>
+              <div>กำลังคำนวณเส้นทางที่ดีที่สุด</div>
+              <div className={styles.loadingSubtext}>
+                กำลังประมวลผล {waypoints.length} จุดหมาย...
+              </div>
+            </div>
           </div>
         </div>
       )}
 
-      {/* ปุ่มกลับ - ขวาบน */}
-      <button
-        onClick={handleBackToFavorites}
-        style={{
-          position: 'absolute',
-          top: '20px',
-          right: '20px',
-          backgroundColor: '#28a745',
-          color: 'white',
-          border: 'none',
-          padding: '12px 20px',
-          borderRadius: '8px',
-          cursor: 'pointer',
-          fontSize: '16px',
-          fontWeight: 'bold',
-          boxShadow: '0 2px 10px rgba(0,0,0,0.15)',
-          zIndex: 1000
-        }}
-      >
-        ← กลับไปรายการโปรด
-      </button>
-
-      {/* ปุ่ม Zoom - ข้างบนข้อมูลเส้นทาง */}
-      <div style={{
-        position: 'absolute',
-        bottom: '180px',
-        left: '20px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '5px',
-        zIndex: 1000
-      }}>
-        <button
-          onClick={handleZoomIn}
-          style={{
-            backgroundColor: 'white',
-            border: '2px solid #ddd',
-            padding: '8px 12px',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '18px',
-            fontWeight: 'bold',
-            boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-            color: '#333'
-          }}
-        >
-          +
-        </button>
-        <button
-          onClick={handleZoomOut}
-          style={{
-            backgroundColor: 'white',
-            border: '2px solid #ddd',
-            padding: '8px 12px',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '18px',
-            fontWeight: 'bold',
-            boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-            color: '#333'
-          }}
-        >
-          -
-        </button>
-      </div>
-
-      {/* แสดงข้อมูลเส้นทาง - ล่างซ้าย */}
-      {!loading && routeInfo.distance > 0 && (
-        <div style={{
-          position: 'absolute',
-          bottom: '20px',
-          left: '20px',
-          backgroundColor: 'white',
-          padding: '15px',
-          borderRadius: '8px',
-          boxShadow: '0 2px 10px rgba(0,0,0,0.15)',
-          zIndex: 1000,
-          minWidth: '250px',
-          border: '1px solid #ddd'
-        }}>
-          <h4 style={{ margin: '0 0 10px 0', color: '#000', fontWeight: 'bold' }}>ข้อมูลเส้นทาง</h4>
-          <div style={{ fontSize: '0.9em', lineHeight: '1.5', color: '#000' }}>
-            <div><strong>ระยะทาง:</strong> {formatDistance(routeInfo.distance)}</div>
-            <div><strong>เวลาโดยประมาณ:</strong> {formatDuration(routeInfo.duration)}</div>
-            <div><strong>จำนวนจุดหมาย:</strong> {optimizedRoute.length} จุด</div>
-          </div>
-        </div>
-      )}
-
-      {/* Container สำหรับแผนที่ */}
-      <div style={{
-        height: '100%',
-        width: '100%',
-        padding: '20px',
-        boxSizing: 'border-box'
-      }}>
-        <div style={{
-          height: '100%',
-          width: '100%',
-          borderRadius: '12px',
-          overflow: 'hidden',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-          border: '2px solid #e9ecef'
-        }}>
-          {/* แผนที่ */}
-          {waypoints.length > 0 && (
-            <MapContainer
-              center={getMapCenter()}
-              zoom={waypoints.length === 1 ? 15 : 10}
-              style={{ height: '100%', width: '100%' }}
-              key={`map-${waypoints.length}`}
-              whenCreated={setMapRef}
-            >
-              <TileLayer
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              />
-
-              {/* แสดง Markers */}
-              {optimizedRoute.map((point, idx) => (
-                <Marker 
-                  key={`marker-${point.id}-${idx}`}
-                  position={[point.lat, point.lng]}
-                  icon={idx === 0 ? icons.startIcon : icons.destinationIcon}
-                >
-                  <Popup>
-                    <div style={{ textAlign: 'center' }}>
-                      <strong>{point.name || `จุดที่ ${idx + 1}`}</strong>
-                      <br />
-                      {idx === 0 ? 'จุดเริ่มต้น' : `จุดหมายที่ ${idx}`}
-                      <br />
-                      <small>ลำดับที่ {idx + 1}</small>
-                    </div>
-                  </Popup>
-                </Marker>
-              ))}
-
-              {/* แสดงเส้นทาง */}
-              {routeCoordinates.length > 0 && (
-                <Polyline
-                  positions={routeCoordinates}
-                  color="#007bff"
-                  weight={4}
-                  opacity={0.8}
-                />
-              )}
-            </MapContainer>
+      <div className={styles.mainContent}>
+        {/* Sidebar */}
+        <div className={styles.sidebar}>
+          {/* Route Info */}
+          {!loading && routeInfo.distance > 0 && (
+            <div className={styles.routeInfo}>
+              <h3>📊 ข้อมูลเส้นทาง</h3>
+              <div className={styles.infoGrid}>
+                <div className={styles.infoCard}>
+                  <span className={styles.infoIcon}>📏</span>
+                  <div>
+                    <div className={styles.infoLabel}>ระยะทางรวม</div>
+                    <div className={styles.infoValue}>{formatDistance(routeInfo.distance)}</div>
+                  </div>
+                </div>
+                <div className={styles.infoCard}>
+                  <span className={styles.infoIcon}>⏱️</span>
+                  <div>
+                    <div className={styles.infoLabel}>เวลาโดยประมาณ</div>
+                    <div className={styles.infoValue}>{formatDuration(routeInfo.duration)}</div>
+                  </div>
+                </div>
+                <div className={styles.infoCard}>
+                  <span className={styles.infoIcon}>📍</span>
+                  <div>
+                    <div className={styles.infoLabel}>จำนวนจุดหมาย</div>
+                    <div className={styles.infoValue}>{optimizedRoute.length} จุด</div>
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
+
+          {/* Waypoints List */}
+          <div className={styles.waypointsList}>
+            <h3>🗺️ ลำดับการเดินทาง</h3>
+            <div className={styles.waypointsContainer}>
+              {optimizedRoute.map((point, idx) => (
+                <div
+                  key={`waypoint-${point.id}-${idx}`}
+                  className={`${styles.waypointCard} ${idx === 0 ? styles.startPoint : ''}`}
+                >
+                  <div className={`${styles.waypointIcon} ${idx === 0 ? styles.startIcon : styles.destinationIcon}`}>
+                    {idx === 0 ? 'S' : idx}
+                  </div>
+                  <div className={styles.waypointInfo}>
+                    <div className={styles.waypointName}>
+                      {point.name || `จุดที่ ${idx + 1}`}
+                    </div>
+                    <div className={styles.waypointType}>
+                      {idx === 0 ? 'จุดเริ่มต้น' : `จุดหมายที่ ${idx}`}
+                    </div>
+                  </div>
+                  <div className={styles.waypointOrder}>
+                    #{idx + 1}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+          {/* Map */}
+          <div className={styles.mapContainer}>
+            {waypoints.length > 0 && (
+              <MapContainer
+                center={getMapCenter()}
+                zoom={waypoints.length === 1 ? 15 : 10}
+                style={{ height: '100%', width: '100%' }}
+                key={`map-${waypoints.length}`}
+                whenCreated={setMapRef}
+              >
+                <TileLayer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                />
+
+                {/* แสดง Markers */}
+                {optimizedRoute.map((point, idx) => (
+                  <Marker 
+                    key={`marker-${point.id}-${idx}`}
+                    position={[point.lat, point.lng]}
+                    icon={idx === 0 ? icons.startIcon : icons.destinationIcon}
+                  >
+                    <Popup>
+                      <div className={styles.popupContent}>
+                        <strong>{point.name || `จุดที่ ${idx + 1}`}</strong>
+                        <br />
+                        <span className={styles.popupType}>
+                          {idx === 0 ? 'จุดเริ่มต้น' : `จุดหมายที่ ${idx}`}
+                        </span>
+                        <br />
+                        <small className={styles.popupOrder}>ลำดับที่ {idx + 1}</small>
+                      </div>
+                    </Popup>
+                  </Marker>
+                ))}
+
+                {/* แสดงเส้นทาง */}
+                {routeCoordinates.length > 0 && (
+                  <Polyline
+                    positions={routeCoordinates}
+                    color="#4285F4"
+                    weight={5}
+                    opacity={0.8}
+                  />
+                )}
+              </MapContainer>
+            )}
+          </div>
         </div>
       </div>
-    </div>
   );
 };
 

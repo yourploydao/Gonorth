@@ -177,8 +177,6 @@ const HomeAfterAuthen = () => {
 
   return (
     <div className={styles.container}>
-      <Header />
-
       <div className={styles.mainContent}>
         {/* Hero Section with Rounded Corners */}
         <section className={styles.heroSection}>
