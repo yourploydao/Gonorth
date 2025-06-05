@@ -31,7 +31,7 @@ const AdminCreateDestination = () => {
     latitude: "",
     longitude: "",
     budget_range: "", // เพิ่ม budget
-    admissionFee: "",
+    admissionFee: "0",
     distance_from_city: "",
     drivingTime: "",
     openTime: "",
@@ -108,6 +108,7 @@ const AdminCreateDestination = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    console.log(`Input changed: ${name} = ${value}`);
     setFormData(prev => ({
       ...prev,
       [name]: value
@@ -142,8 +143,16 @@ const AdminCreateDestination = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.name || !formData.latitude || !formData.longitude) {
-      alert('Please fill in required fields and select location on map');
+    // ตรวจสอบฟิลด์ที่จำเป็น
+    if (!formData.name || !formData.latitude || !formData.longitude || !formData.admissionFee) {
+      alert('กรุณากรอกข้อมูลที่จำเป็นทั้งหมด รวมถึงค่าเข้าชม');
+      return;
+    }
+
+  // ตรวจสอบว่า admissionFee เป็นตัวเลข
+  const admissionFeeValue = Number(formData.admissionFee);
+    if (isNaN(admissionFeeValue)) {
+      alert('กรุณากรอกค่าเข้าชมเป็นตัวเลขที่ถูกต้อง');
       return;
     }
 
@@ -163,20 +172,20 @@ const AdminCreateDestination = () => {
       openTime: formData.openTime,
       closeTime: formData.closeTime,
       topic: formData.topic,
-      history: formData.history, 
-      hasParking: formData.parking === "มี", // แปลงเป็น boolean
+      history: formData.history,
+      hasParking: formData.parking === "มี",
       parkingDetails: formData.parkingDetails,
-      hasEntrance: true, 
-      entranceDetails: "", 
+      hasEntrance: true,
+      entranceDetails: "",
       budgetRange: formData.budget_range,
-      season: formData.bestSeason, 
+      season: formData.bestSeason,
       distanceFromCity: Number(formData.distance_from_city) || 0,
-      drivingTime: formData.drivingTime, 
-      admissionFee: parseInt(formData.admissionFee) || 0,
+      drivingTime: formData.drivingTime,
+      admissionFee: admissionFeeValue, // ใช้ค่า Number โดยตรง
       latitude: parseFloat(formData.latitude),
       longitude: parseFloat(formData.longitude),
       images: imageUrls,
-      activities: convertActivities(formData.activities), 
+      activities: convertActivities(formData.activities),
       tags: convertTags(formData.tags),
       amenities: convertAmenities(formData.amenities),
       accessibilities: convertAccessibility(formData.accessibility),
@@ -290,7 +299,7 @@ const AdminCreateDestination = () => {
             latitude: data.latitude?.toString() || "",
             longitude: data.longitude?.toString() || "",
             budget_range: data.budget_range || "",
-            admissionFee: data.admission_fee?.toString() || "",
+            admissionFee: data.admission_fee?.toString() || "0",
             distance_from_city: data.distance?.toString() || "",
             drivingTime: data.driving_time || "",
             openTime: data.open_time || "",
@@ -533,7 +542,8 @@ const AdminCreateDestination = () => {
                   value={formData.admissionFee}
                   onChange={handleInputChange}
                   placeholder="กรอกค่าเข้าชม (เช่น 50, 100) หรือ 0 ถ้าฟรี"
-                  // min="0"
+                  min="0"
+                  step="1"
                 />
               </div>
             </div>
