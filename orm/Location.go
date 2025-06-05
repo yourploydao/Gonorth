@@ -21,10 +21,9 @@ type Location struct {
 	Season           string            `gorm:"type:varchar(10);default:'summer'" json:"season"`
 	DistanceFromCity float64           `gorm:"type:decimal(5,2)" json:"distance"`
 	DrivingTime      string            `json:"driving_time"`
-	AdmissionFee     int               `json:"admission_fee"`
+	AdmissionFee     int               `json:"admissionFee"`
 	Latitude         float64           `json:"latitude"`
 	Longitude        float64           `json:"longitude"`
 	Reviews          []Review          `json:"reviews"`
 	Amenities        []Amenities       `gorm:"many2many:location_amenities;" json:"amenities"`
-	Accessibilities  []Accessibilities `gorm:"many2many:location_accessibility;" json:"accessibility"`
 }
