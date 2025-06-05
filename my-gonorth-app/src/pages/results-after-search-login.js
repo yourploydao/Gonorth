@@ -142,8 +142,8 @@ const DestinationList = () => {
   }, [router.isReady]);
 
   const getLocationImage = (location) => {
-    if (location.Images && location.Images.length > 0) {
-      return location.Images[0].URL;
+    if (location.images && location.images.length > 0) {
+      return location.images[0].URL;
     }
     return "https://via.placeholder.com/300x200?text=No+Image";
   };
@@ -375,16 +375,16 @@ const DestinationList = () => {
             <div className={styles.destinationList}>
               {console.log("locations from API:", locations)}
               {locations.length > 0 ? (
-                sortLocations(locations, sortBy, reviewStats).map((location, index) => {
-                  const stat = reviewStats[location.ID] || {};
-                  console.log(`รีวิวของสถานที่ ${location.LocationsName} (ID: ${location.ID}):`, stat);
+                sortLocations(locations, sortBy, reviewStats).map((locations, index) => {
+                  const stat = reviewStats[locations.ID] || {};
+                  console.log(`รีวิวของสถานที่ ${locations.name} (ID: ${locations.ID}):`, stat);
 
                   return (
-                    <div key={location.ID || index} className={styles.favouriteItem}>
+                    <div key={locations.ID || index} className={styles.favouriteItem}>
                       <div className={styles.favouriteImage}>
                         <img
-                          src={getLocationImage(location)}
-                          alt={location.LocationsName || 'สถานที่ท่องเที่ยว'}
+                          src={getLocationImage(locations)}
+                          alt={locations.name || 'สถานที่ท่องเที่ยว'}
                           onError={(e) => {
                             e.target.src = "https://via.placeholder.com/300x200?text=No+Image";
                           }}
@@ -392,14 +392,14 @@ const DestinationList = () => {
                       </div>
                       <div className={styles.favouriteInfo}>
                         <h3 className={styles.favouriteTitle}>
-                          {location.LocationsName || 'ไม่มีชื่อสถานที่'}
+                          {locations.name || 'ไม่มีชื่อสถานที่'}
                         </h3>
                         <div className={styles.infoItem}>
                           <span className={styles.infoIcon}>
                             <img src="https://cdn-icons-png.flaticon.com/128/526/526754.png" alt="Car Icon" />
                           </span>
                           <span className={styles.infoText}>
-                            ห่างจากใจกลางเมือง {location.DistanceFromCity ?? 0} กิโลเมตร
+                            ห่างจากใจกลางเมือง {locations.distance ?? 0} กิโลเมตร
                           </span>
                         </div>
                         <div className={styles.infoItem}>
@@ -407,7 +407,7 @@ const DestinationList = () => {
                             <img src="https://cdn-icons-png.flaticon.com/128/1614/1614997.png" alt="Ticket Icon" />
                           </span>
                           <span className={styles.infoText}>
-                            {formatBudgetRange(location.budget_range)}
+                            {formatBudgetRange(locations.budget_range)}
                           </span>
                         </div>
                         <div className={styles.infoItem}>
@@ -415,7 +415,7 @@ const DestinationList = () => {
                             <img src="https://cdn-icons-png.flaticon.com/128/2972/2972531.png" alt="Time Icon" />
                           </span>
                           <span className={styles.infoText}>
-                            เปิดทำการ {location.OpenTime || 'ไม่ระบุเวลา'}
+                            เปิดทำการ {locations.open_time} - {locations.close_time} น.
                           </span>
                         </div>
                         <div className={styles.actionButtons}>
@@ -430,7 +430,7 @@ const DestinationList = () => {
 
                       <div className={styles.destinationRating}>
                         <div className={styles.ratingScore}>
-                          {stat.average_rating ? stat.average_rating.toFixed(1) : 'N/A'}
+                          {stat.average_rating ? stat.average_rating.toFixed(1) : '0.0'}
                         </div>
                         <div className={styles.ratingText}>
                           {stat.average_rating >= 4.5 ? 'ดีเยี่ยม' :

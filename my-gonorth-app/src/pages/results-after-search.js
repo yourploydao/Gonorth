@@ -412,7 +412,7 @@ const DestinationList = () => {
 
                       <div className={styles.destinationRating}>
                         <div className={styles.ratingScore}>
-                          {stat.average_rating ? stat.average_rating.toFixed(1) : 'N/A'}
+                          {stat.average_rating ? stat.average_rating.toFixed(1) : '0.0'}
                         </div>
                         <div className={styles.ratingText}>
                           {stat.average_rating >= 4.5 ? 'ดีเยี่ยม' :
