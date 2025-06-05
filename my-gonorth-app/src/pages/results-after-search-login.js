@@ -259,9 +259,6 @@ const DestinationList = () => {
 
   return (
     <div className={styles.container}>
-      {/* Header */}
-      <Header />
-
       <div className={styles.mainContent}>
         {/* Search Box */}
         <div className={styles.destinationSearchContainer}>
