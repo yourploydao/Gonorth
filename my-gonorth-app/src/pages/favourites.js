@@ -367,8 +367,8 @@ const Favourites = () => {
 
                 <div className={styles.favouriteImage}>
                   <img 
-                    src={getImageUrl(location.Images)} 
-                    alt={location.LocationsName || "Location Image"} 
+                    src={getImageUrl(location.images)} 
+                    alt={location.name || "Location Image"} 
                     onError={(e) => {
                       e.target.src = "https://via.placeholder.com/300x200?text=No+Image";
                     }}
@@ -377,7 +377,7 @@ const Favourites = () => {
 
                 <div className={styles.favouriteInfo}>
                   <h3 className={styles.favouriteTitle}>
-                    {location.LocationsName || "ไม่มีชื่อสถานที่"}
+                    {location.name || "ไม่มีชื่อสถานที่"}
                   </h3>
 
                   <div className={styles.infoItem}>
@@ -385,7 +385,7 @@ const Favourites = () => {
                       <img src="https://cdn-icons-png.flaticon.com/128/526/526754.png" alt="Car Icon" />
                     </span>
                     <span className={styles.infoText}>
-                      {location.Address || "ไม่มีข้อมูลที่อยู่"}
+                      {location.address || "ไม่มีข้อมูลที่อยู่"}
                     </span>
                   </div>
 
@@ -394,7 +394,7 @@ const Favourites = () => {
                       <img src="https://cdn-icons-png.flaticon.com/128/1614/1614997.png" alt="Ticket Icon" />
                     </span>
                     <span className={styles.infoText}>
-                      {location.EntranceDetails || "ไม่มีข้อมูลทางเข้า"}
+                      งบประมาณ {location.budget_range || "ไม่มีข้อมูลงบประมาณ"} บาท
                     </span>
                   </div>
 
@@ -403,7 +403,7 @@ const Favourites = () => {
                       <img src="https://cdn-icons-png.flaticon.com/128/2972/2972531.png" alt="Time Icon" />
                     </span>
                     <span className={styles.infoText}>
-                      {location.OpenTime || "ไม่มีข้อมูลเวลาเปิด"}
+                      เวลาให้บริการ {location.open_time || "ไม่มีข้อมูลเวลาเปิด"} - {location.close_time || "ไม่มีข้อมูลเวลาปิด"} น.
                     </span>
                   </div>
 
@@ -447,7 +447,7 @@ const Favourites = () => {
                   ) : (
                     <>
                       <div className={styles.ratingScore}>
-                        {reviewStats.average_rating ? reviewStats.average_rating.toFixed(1) : "N/A"}
+                        {reviewStats.average_rating ? reviewStats.average_rating.toFixed(1) : "0.0"}
                       </div>
                       <div className={styles.ratingText}>
                         {getRatingText(reviewStats.average_rating || 0)}
