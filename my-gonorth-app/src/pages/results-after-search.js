@@ -18,6 +18,33 @@ const DestinationList = () => {
   const [error, setError] = useState(null);
   const [totalResults, setTotalResults] = useState(0);
 
+  // ดึงข้อมูลสถานที่
+  const fetchLocations = async (params = {}) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const queryParams = new URLSearchParams();
+      if (params.name && params.name !== "") queryParams.append('name', params.name);
+      if (params.tag && params.tag !== "" && params.tag !== "ทั้งหมด") queryParams.append('tag', params.tag);
+      if (params.distance_range && params.distance_range !== "" && params.distance_range !== "ทั้งหมด") queryParams.append('distance_range', params.distance_range);
+      if (params.budget_range && params.budget_range !== "" && params.budget_range !== "ทั้งหมด") queryParams.append('budget_range', params.budget_range);
+
+      const response = await fetch(`http://localhost:8080/locations/filter?${queryParams}`);
+      if (!response.ok) throw new Error("ไม่สามารถดึงข้อมูลสถานที่ได้");
+      const data = await response.json();
+      setLocations(data || []);
+      setTotalResults((data && data.length) || 0);
+
+      fetchAllReviewStats(data || []);
+    } catch (err) {
+      setError("เกิดข้อผิดพลาดในการเชื่อมต่อ");
+      setLocations([]);
+      setTotalResults(0);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // ดึงข้อมูลสถานที่ตามฤดู
   const fetchLocationsBySeason = async (season) => {
     setLoading(true);
@@ -115,9 +142,9 @@ const DestinationList = () => {
     }
   }, [router.isReady]);
 
-  const getLocationImage = (location) => {
-    if (location.Images && location.Images.length > 0) {
-      return location.Images[0].URL;
+  const getLocationImage = (locations) => {
+    if (locations.images && locations.images.length > 0) {
+      return locations.images[0].URL;
     }
     return "https://via.placeholder.com/300x200?text=No+Image";
   };
@@ -325,29 +352,21 @@ const DestinationList = () => {
             </div>
           )}
 
-          {/* Error State */}
-          {error && (
-            <div className={styles.errorState}>
-              <p>เกิดข้อผิดพลาด: {error}</p>
-              <button onClick={() => fetchLocations()}>ลองใหม่</button>
-            </div>
-          )}
-
           {/* Destination List */}
           {!loading && !error && (
             <div className={styles.destinationList}>
               {console.log("locations from API:", locations)}
               {locations.length > 0 ? (
-                sortLocations(locations, sortBy, reviewStats).map((location, index) => {
-                  const stat = reviewStats[location.ID] || {};
-                  console.log(`รีวิวของสถานที่ ${location.LocationsName} (ID: ${location.ID}):`, stat);
+                sortLocations(locations, sortBy, reviewStats).map((locations, index) => {
+                  const stat = reviewStats[locations.ID] || {};
+                  console.log(`รีวิวของสถานที่ ${locations.name} (ID: ${locations.ID}):`, stat);
 
                   return (
-                    <div key={location.ID || index} className={styles.favouriteItem}>
+                    <div key={locations.ID || index} className={styles.favouriteItem}>
                       <div className={styles.favouriteImage}>
                         <img
-                          src={getLocationImage(location)}
-                          alt={location.LocationsName || 'สถานที่ท่องเที่ยว'}
+                          src={getLocationImage(locations)}
+                          alt={locations.name || 'สถานที่ท่องเที่ยว'}
                           onError={(e) => {
                             e.target.src = "https://via.placeholder.com/300x200?text=No+Image";
                           }}
@@ -355,14 +374,14 @@ const DestinationList = () => {
                       </div>
                       <div className={styles.favouriteInfo}>
                         <h3 className={styles.favouriteTitle}>
-                          {location.LocationsName || 'ไม่มีชื่อสถานที่'}
+                          {locations.name || 'ไม่มีชื่อสถานที่'}
                         </h3>
                         <div className={styles.infoItem}>
                           <span className={styles.infoIcon}>
                             <img src="https://cdn-icons-png.flaticon.com/128/526/526754.png" alt="Car Icon" />
                           </span>
                           <span className={styles.infoText}>
-                            ห่างจากใจกลางเมือง {location.DistanceFromCity ?? 0} กิโลเมตร
+                            ห่างจากใจกลางเมือง {locations.distance ?? 0} กิโลเมตร
                           </span>
                         </div>
                         <div className={styles.infoItem}>
@@ -370,7 +389,7 @@ const DestinationList = () => {
                             <img src="https://cdn-icons-png.flaticon.com/128/1614/1614997.png" alt="Ticket Icon" />
                           </span>
                           <span className={styles.infoText}>
-                            {formatBudgetRange(location.budget_range)}
+                            {formatBudgetRange(locations.budget_range)}
                           </span>
                         </div>
                         <div className={styles.infoItem}>
@@ -378,7 +397,7 @@ const DestinationList = () => {
                             <img src="https://cdn-icons-png.flaticon.com/128/2972/2972531.png" alt="Time Icon" />
                           </span>
                           <span className={styles.infoText}>
-                            เปิดทำการ {location.OpenTime || 'ไม่ระบุเวลา'}
+                            เปิดทำการ {locations.open_time} - {locations.close_time} น.
                           </span>
                         </div>
                         <div className={styles.actionButtons}>

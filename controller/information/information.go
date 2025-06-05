@@ -31,7 +31,7 @@ type LocationInput struct {
 	EntranceDetails  string                `json:"entranceDetails"`
 	BudgetRange      string                `json:"budgetRange"`
 	Season           string                `json:"season"`
-	DistanceFromCity string                `json:"distanceFromCity"`
+	DistanceFromCity float64               `json:"distanceFromCity"`
 	DrivingTime      string                `json:"drivingTime"`
 	AdmissionFee     int                   `json:"admission_fee"`
 	Latitude         float64               `json:"latitude"`
@@ -70,18 +70,18 @@ func CreateLocation(c *gin.Context) {
 	var accessibilities []orm.Accessibilities
 	for _, a := range input.Accessibilities {
 		var acc orm.Accessibilities
-		if err := orm.Db.Where("name = ?", a.Name).First(&acc).Error; err == nil {
+		if err := orm.Db.Where("accessibilities = ?", a.Accessibilities).First(&acc).Error; err == nil {
 			accessibilities = append(accessibilities, acc)
 		}
 	}
 	var amenities []orm.Amenities
 	for _, am := range input.Amenities {
 		var amen orm.Amenities
-		if err := orm.Db.Where("name = ?", am.Name).First(&amen).Error; err == nil {
+		if err := orm.Db.Where("amenities = ?", am.Amenities).First(&amen).Error; err == nil {
 			amenities = append(amenities, amen)
 		}
 	}
-	
+
 	var activities []orm.Activity
 	for _, a := range input.Activities {
 		act := orm.Activity{ActivityName: a.Name}
@@ -101,14 +101,7 @@ func CreateLocation(c *gin.Context) {
 		EntranceDetails: input.EntranceDetails,
 		BudgetRange:     input.BudgetRange,
 		Season:          input.Season,
-		// Convert DistanceFromCity from string to float64
-		DistanceFromCity: func() float64 {
-			val, err := strconv.ParseFloat(input.DistanceFromCity, 64)
-			if err != nil {
-				return 0 // or handle error as needed
-			}
-			return val
-		}(),
+		DistanceFromCity: input.DistanceFromCity,
 		DrivingTime:     input.DrivingTime,
 		AdmissionFee:    input.AdmissionFee,
 		Latitude:        input.Latitude,
@@ -220,7 +213,7 @@ func GetLatestLocations(c *gin.Context) {
 func GetAllLocations(c *gin.Context) {
 	var locations []orm.Location
 
-	result := orm.Db.Preload("Images").Find(&locations)
+	result := orm.Db.Preload("Images").Preload("Tags").Find(&locations)
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
 		return
@@ -728,4 +721,39 @@ func FilterLocations(c *gin.Context) {
 	log.Printf("Found %d locations", len(locations))
 
 	c.JSON(http.StatusOK, locations)
+}
+
+// ลบทีละรายการ
+func DeleteLocation(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid location ID"})
+		return
+	}
+	if err := orm.Db.Unscoped().Delete(&orm.Location{}, id).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hard delete location"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Location hard deleted"})
+}
+
+// ลบหลายรายการ
+func BulkDeleteLocation(c *gin.Context) {
+	var req struct {
+		IDs []uint `json:"ids"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
+	if len(req.IDs) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No IDs provided"})
+		return
+	}
+	if err := orm.Db.Unscoped().Delete(&orm.Location{}, req.IDs).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hard delete locations"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Locations hard deleted"})
 }
