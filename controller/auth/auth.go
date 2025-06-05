@@ -523,3 +523,190 @@ func ChangeProfileImage(c *gin.Context) {
         "image_url": uploadResult.SecureURL,
     })
 }
+
+func GetAllUsers(c *gin.Context) {
+	// ตรวจสอบว่าผู้ใช้ที่ร้องขอเป็น admin
+	userInterface, exists := c.Get("user")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized: User not found in context"})
+		return
+	}
+
+	user, ok := userInterface.(orm.User)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user type"})
+		return
+	}
+
+	if user.Role != "admin" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Access denied: Admin role required"})
+		return
+	}
+
+	var users []orm.User
+	if err := orm.Db.Find(&users).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch users: " + err.Error()})
+		return
+	}
+
+	userList := make([]gin.H, len(users))
+	for i, u := range users {
+		userList[i] = gin.H{
+			"id":           u.ID,
+			"firstname":    u.Firstname,
+			"lastname":     u.Lastname,
+			"email":        u.Email,
+			"phone":        u.Phone,
+			"profileImage": u.ProfileImage,
+			"role":         u.Role,
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"users": userList,
+	})
+}
+
+func UpdateUser(c *gin.Context) {
+	userInterface, exists := c.Get("user")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized: User not found in context"})
+		return
+	}
+
+	user, ok := userInterface.(orm.User)
+	if !ok || user.Role != "admin" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Access denied: Admin role required"})
+		return
+	}
+
+	userID := c.Param("id")
+	var req struct {
+		Firstname string `json:"firstname" binding:"required"`
+		Lastname  string `json:"lastname" binding:"required"`
+		Email     string `json:"email" binding:"required,email"`
+		Role      string `json:"role" binding:"required,oneof=user admin"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request: " + err.Error()})
+		return
+	}
+
+	var targetUser orm.User
+	if err := orm.Db.First(&targetUser, userID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	// ตรวจสอบอีเมลซ้ำ
+	if req.Email != targetUser.Email {
+		var existingUser orm.User
+		if err := orm.Db.Where("email = ? AND id != ?", req.Email, userID).First(&existingUser).Error; err == nil {
+			c.JSON(http.StatusConflict, gin.H{"error": "Email is already in use"})
+			return
+		}
+	}
+
+	// อัปเดตข้อมูล
+	if err := orm.Db.Model(&targetUser).Updates(map[string]interface{}{
+		"firstname": req.Firstname,
+		"lastname":  req.Lastname,
+		"email":     req.Email,
+		"role":      req.Role,
+	}).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "User updated successfully"})
+}
+
+func BulkUpdateUsers(c *gin.Context) {
+	userInterface, exists := c.Get("user")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized: User not found in context"})
+		return
+	}
+
+	user, ok := userInterface.(orm.User)
+	if !ok || user.Role != "admin" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Access denied: Admin role required"})
+		return
+	}
+
+	var req struct {
+		UserIDs []uint `json:"userIds" binding:"required"`
+		Status  string `json:"status" binding:"required,oneof=active banned"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request: " + err.Error()})
+		return
+	}
+
+	if err := orm.Db.Model(&orm.User{}).Where("id IN ?", req.UserIDs).Update("status", req.Status).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update users"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Users updated successfully"})
+}
+
+func DeleteUser(c *gin.Context) {
+	userInterface, exists := c.Get("user")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized: User not found in context"})
+		return
+	}
+
+	user, ok := userInterface.(orm.User)
+	if !ok || user.Role != "admin" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Access denied: Admin role required"})
+		return
+	}
+
+	userID := c.Param("id")
+	var targetUser orm.User
+	if err := orm.Db.First(&targetUser, userID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	if err := orm.Db.Delete(&targetUser).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete user"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "User deleted successfully"})
+}
+
+func BulkDeleteUsers(c *gin.Context) {
+	userInterface, exists := c.Get("user")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized: User not found in context"})
+		return
+	}
+
+	user, ok := userInterface.(orm.User)
+	if !ok || user.Role != "admin" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Access denied: Admin role required"})
+		return
+	}
+
+	var req struct {
+		UserIDs []uint `json:"userIds" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request: " + err.Error()})
+		return
+	}
+
+	if err := orm.Db.Where("id IN ?", req.UserIDs).Delete(&orm.User{}).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete users"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Users deleted successfully"})
+}
