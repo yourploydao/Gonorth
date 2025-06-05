@@ -25,7 +25,7 @@ func main() {
 	r := gin.Default()
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:3000"},
-		AllowMethods:     []string{"POST", "GET", "DELETE"},
+		AllowMethods:     []string{"POST", "GET", "DELETE", "PUT", "PATCH", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
@@ -66,6 +66,7 @@ func main() {
 		admin.Use(Middleware.AdminOnly())
 		{
 			admin.POST("/locations", InformationController.CreateLocation)
+			admin.PUT("/locations/:id", InformationController.UpdateLocation)
 			admin.DELETE("/locations/:id", InformationController.DeleteLocation)          
 			admin.POST("/locations/bulk-delete", InformationController.BulkDeleteLocation)
 		}

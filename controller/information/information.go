@@ -1,6 +1,7 @@
 package information
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -33,14 +34,14 @@ type LocationInput struct {
 	Season           string                `json:"season"`
 	DistanceFromCity float64               `json:"distanceFromCity"`
 	DrivingTime      string                `json:"drivingTime"`
-	AdmissionFee     int                   `json:"admissionFee"`
+	AdmissionFee     int                   `json:"admission_fee"`
 	Latitude         float64               `json:"latitude"`
 	Longitude        float64               `json:"longitude"`
 	Images           []orm.Image           `json:"images"`
 	Activities       []ActivityInput       `json:"activities"`
 	Tags             []orm.Tag             `json:"tags"`
 	Amenities        []orm.Amenities       `json:"amenities"`
-	Accessibilities  []orm.Accessibilities `json:"accessibilities"`
+	// Accessibilities  []orm.Accessibilities `json:"accessibilities"`
 }
 
 func CreateLocation(c *gin.Context) {
@@ -67,13 +68,13 @@ func CreateLocation(c *gin.Context) {
 		tags = append(tags, tag)
 	}
 
-	var accessibilities []orm.Accessibilities
-	for _, a := range input.Accessibilities {
-		var acc orm.Accessibilities
-		if err := orm.Db.Where("accessibilities = ?", a.Accessibilities).First(&acc).Error; err == nil {
-			accessibilities = append(accessibilities, acc)
-		}
-	}
+	// var accessibilities []orm.Accessibilities
+	// for _, a := range input.Accessibilities {
+	// 	var acc orm.Accessibilities
+	// 	if err := orm.Db.Where("accessibilities = ?", a.Accessibilities).First(&acc).Error; err == nil {
+	// 		accessibilities = append(accessibilities, acc)
+	// 	}
+	// }
 	var amenities []orm.Amenities
 	for _, am := range input.Amenities {
 		var amen orm.Amenities
@@ -110,7 +111,6 @@ func CreateLocation(c *gin.Context) {
 		Activities:      activities,
 		Tags:            tags,
 		Amenities:       amenities,
-		Accessibilities: accessibilities,
 	}
 
 	if err := orm.Db.Create(&location).Error; err != nil {
@@ -119,6 +119,190 @@ func CreateLocation(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, location)
+}
+
+func UpdateLocation(c *gin.Context) {
+	// รับ ID จาก URL parameter
+	locationID := c.Param("id")
+	
+	// แปลง string เป็น uint
+	id, err := strconv.ParseUint(locationID, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid location ID"})
+		return
+	}
+
+	// ตรวจสอบว่าสถานที่มีอยู่จริงหรือไม่
+	var existingLocation orm.Location
+	if err := orm.Db.First(&existingLocation, uint(id)).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Location not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
+		return
+	}
+
+	// รับข้อมูลใหม่จาก request body - ใช้โครงสร้างเดียวกับ LocationInput
+	var input LocationInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// เริ่ม transaction
+	tx := orm.Db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	// ตรวจสอบและดึง tag จริงจาก db ตาม TagName ที่ส่งมา (เหมือนใน CreateLocation)
+	var tags []orm.Tag
+	for _, t := range input.Tags {
+		var tag orm.Tag
+		err := tx.Where("tag_name = ?", t.TagName).First(&tag).Error
+		if err != nil {
+			if err == gorm.ErrRecordNotFound {
+				tx.Rollback()
+				c.JSON(http.StatusBadRequest, gin.H{"error": "Tag not found: " + t.TagName})
+				return
+			} else {
+				tx.Rollback()
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+		}
+		tags = append(tags, tag)
+	}
+
+	// ตรวจสอบ amenities (เหมือนใน CreateLocation)
+	var amenities []orm.Amenities
+	for _, am := range input.Amenities {
+		var amen orm.Amenities
+		if err := tx.Where("amenities = ?", am.Amenities).First(&amen).Error; err == nil {
+			amenities = append(amenities, amen)
+		}
+	}
+
+	// สร้าง activities (เหมือนใน CreateLocation)
+	var activities []orm.Activity
+	for _, a := range input.Activities {
+		act := orm.Activity{ActivityName: a.Name}
+		activities = append(activities, act)
+	}
+
+	// อัปเดตข้อมูลหลักของ Location
+	existingLocation.LocationsName = input.Name
+	existingLocation.Address = input.Address
+	existingLocation.OpenTime = input.OpenTime
+	existingLocation.CloseTime = input.CloseTime
+	existingLocation.Topic = input.Topic
+	existingLocation.History = input.History
+	existingLocation.HasParking = input.HasParking
+	existingLocation.ParkingDetails = input.ParkingDetails
+	existingLocation.HasEntrance = input.HasEntrance
+	existingLocation.EntranceDetails = input.EntranceDetails
+	existingLocation.BudgetRange = input.BudgetRange
+	existingLocation.Season = input.Season
+	existingLocation.DistanceFromCity = input.DistanceFromCity
+	existingLocation.DrivingTime = input.DrivingTime
+	existingLocation.AdmissionFee = input.AdmissionFee
+	existingLocation.Latitude = input.Latitude
+	existingLocation.Longitude = input.Longitude
+
+	// บันทึกการเปลี่ยนแปลงหลัก
+	if err := tx.Save(&existingLocation).Error; err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update location"})
+		return
+	}
+
+	// ลบความสัมพันธ์เก่าทั้งหมด (ใช้ Association().Clear() เพื่อลบความสัมพันธ์ many-to-many)
+	if err := tx.Model(&existingLocation).Association("Images").Clear(); err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to clear images"})
+		return
+	}
+	
+	if err := tx.Model(&existingLocation).Association("Activities").Clear(); err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to clear activities"})
+		return
+	}
+	
+	if err := tx.Model(&existingLocation).Association("Tags").Clear(); err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to clear tags"})
+		return
+	}
+	
+	if err := tx.Model(&existingLocation).Association("Amenities").Clear(); err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to clear amenities"})
+		return
+	}
+
+	// เพิ่มความสัมพันธ์ใหม่
+	// เพิ่ม Images
+	if len(input.Images) > 0 {
+		if err := tx.Model(&existingLocation).Association("Images").Append(input.Images); err != nil {
+			tx.Rollback()
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update images"})
+			return
+		}
+	}
+
+	// เพิ่ม Activities
+	if len(activities) > 0 {
+		if err := tx.Model(&existingLocation).Association("Activities").Append(activities); err != nil {
+			tx.Rollback()
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update activities"})
+			return
+		}
+	}
+
+	// เพิ่ม Tags
+	if len(tags) > 0 {
+		if err := tx.Model(&existingLocation).Association("Tags").Append(tags); err != nil {
+			tx.Rollback()
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update tags"})
+			return
+		}
+	}
+
+	// เพิ่ม Amenities
+	if len(amenities) > 0 {
+		if err := tx.Model(&existingLocation).Association("Amenities").Append(amenities); err != nil {
+			tx.Rollback()
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update amenities"})
+			return
+		}
+	}
+
+	// Commit transaction
+	if err := tx.Commit().Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to commit transaction"})
+		return
+	}
+
+	// ดึงข้อมูลที่อัปเดตแล้วพร้อมกับ relationships เพื่อส่งกลับ
+	var updatedLocation orm.Location
+	if err := orm.Db.
+		Preload("Images").
+		Preload("Activities").
+		Preload("Tags").
+		Preload("Amenities").
+		First(&updatedLocation, existingLocation.ID).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to load updated location"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Location updated successfully",
+		"location": updatedLocation,
+	})
 }
 
 // Image
