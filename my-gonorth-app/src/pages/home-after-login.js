@@ -281,9 +281,9 @@ const HomeAfterAuthen = () => {
                     <h2 className={styles.historyCardTitle}>
                       {randomLocations[currentHistoryCard]?.topic || ""}
                     </h2>
-                    <h3 className={styles.historyCardSubtitle}>
+                    {/* <h3 className={styles.historyCardSubtitle}>
                       {randomLocations[currentHistoryCard]?.name || "ไม่มีข้อมูล"}
-                    </h3>
+                    </h3> */}
                     <p className={styles.historyCardDescription}>
                       {(() => {
                         const historyText = randomLocations[currentHistoryCard]?.history || "";
