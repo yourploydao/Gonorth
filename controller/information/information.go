@@ -33,7 +33,7 @@ type LocationInput struct {
 	Season           string                `json:"season"`
 	DistanceFromCity float64               `json:"distanceFromCity"`
 	DrivingTime      string                `json:"drivingTime"`
-	AdmissionFee     int                   `json:"admission_fee"`
+	AdmissionFee     int                   `json:"admissionFee"`
 	Latitude         float64               `json:"latitude"`
 	Longitude        float64               `json:"longitude"`
 	Images           []orm.Image           `json:"images"`

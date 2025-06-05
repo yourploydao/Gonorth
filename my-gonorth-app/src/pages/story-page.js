@@ -445,7 +445,7 @@ const StoryPage = () => {
               <span className={styles.infoIcon}>
                 <img src="https://cdn-icons-png.flaticon.com/128/2972/2972531.png" alt="Location Icon" />
               </span>
-              <span className={styles.infoText}>เปิดให้เข้าชม : {locationData?.open_time} - {locationData?.close_time}</span>
+              <span className={styles.infoText}>เปิดให้เข้าชม : {locationData?.open_time} - {locationData?.close_time} น.</span>
             </div>
           </div>
         </div>
