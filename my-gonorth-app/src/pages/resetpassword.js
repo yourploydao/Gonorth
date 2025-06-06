@@ -13,35 +13,35 @@ const ResetPassword = () => {
 
     useEffect(() => {
       if (!router.isReady) return;
-
+    
       const storedEmail = localStorage.getItem("forgotPasswordEmail");
       if (!storedEmail) {
-        alert("No email found. Please go back to Forgot Password page.");
+        console.error("No email found. Please go back to Forgot Password page.");
         router.push("/forgotpassword");
         return;
       }
-
+    
       setEmail(storedEmail);
-
+    
       if (!reset_code) {
-        alert("Invalid reset code.");
+        console.error("Invalid reset code.");
         router.push("/forgotpassword");
       }
-  }, [router.isReady]);
+    }, [router.isReady]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!reset_code) {
-      alert("Invalid reset code.");
+      console.error("Invalid reset code.");
       return;
     }
-
+    
     if (password !== confirmPassword) {
-      alert("Passwords do not match");
+      console.error("Passwords do not match");
       return;
     }
-
+    
     try {
       const res = await fetch("http://localhost:8080/resetpassword", {
         method: "POST",
@@ -52,18 +52,16 @@ const ResetPassword = () => {
           new_password: password,
         }),
       });
-
+    
       const data = await res.json();
-
+    
       if (res.ok && data.message === "Password reset successful") {
-        alert("Password reset successfully.");
         router.push("/login");
       } else {
-        alert(data.error || "Failed to reset password.");
+        console.error("Failed to reset password:", data.error);
       }
     } catch (err) {
       console.error("Error resetting password:", err);
-      alert("Server error. Please try again later.");
     }
   };
 
