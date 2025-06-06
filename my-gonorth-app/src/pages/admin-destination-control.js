@@ -19,7 +19,9 @@ const AdminDestinationControl = () => {
     const fetchDestinations = async () => {
       try {
         const res = await fetch("http://localhost:8080/locations/all");
-        if (!res.ok) throw new Error("Failed to fetch destinations");
+        if (!res.ok){
+          console.error("Failed to fetch destinations");
+        }
         const data = await res.json();
         const formatted = data.map(item => ({
           id: item.id || item.ID,
@@ -140,17 +142,30 @@ const AdminDestinationControl = () => {
   const confirmBulkDelete = async () => {
     if (isDeleting) return;
     setIsDeleting(true);
+    
     try {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("กรุณาเข้าสู่ระบบ");
+      
+      // Debug: ตรวจสอบข้อมูลที่จะส่ง
+      const requestData = { ids: selectedDestinations };
+      console.log("Sending data:", requestData);
+      console.log("Selected destinations:", selectedDestinations);
+      console.log("JSON string:", JSON.stringify(requestData));
+      
       const res = await fetch(`http://localhost:8080/locations/bulk-delete`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`,
         },
-        body: JSON.stringify({ ids: selectedDestinations }),
+        body: JSON.stringify(requestData),
       });
+      
+      // Debug: ตรวจสอบ response
+      console.log("Response status:", res.status);
+      console.log("Response headers:", res.headers);
+      
       if (res.ok) {
         setDestinations(prev => prev.filter(d => !selectedDestinations.includes(d.id)));
         setSelectedDestinations([]);
@@ -158,6 +173,7 @@ const AdminDestinationControl = () => {
         alert("ลบสถานที่ท่องเที่ยวหลายรายการสำเร็จ");
       } else {
         const error = await res.json();
+        console.error("Server error:", error);
         alert(`ลบสถานที่ท่องเที่ยวหลายรายการไม่สำเร็จ: ${error.error || "เกิดข้อผิดพลาดจากเซิร์ฟเวอร์"}`);
       }
     } catch (err) {

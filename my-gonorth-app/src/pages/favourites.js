@@ -10,11 +10,9 @@ const Favourites = () => {
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState('');
   const [currentPlace, setCurrentPlace] = useState('');
-  const [currentPlaceName, setCurrentPlaceName] = useState(''); // เพิ่มตัวแปรสำหรับเก็บชื่อ
+  const [currentPlaceName, setCurrentPlaceName] = useState(''); // เก็บชื่อ
   const [showInfoPopup, setShowInfoPopup] = useState(false);
   const router = useRouter();
-  
-  // เปลี่ยนจาก reviewStats เดี่ยว เป็น object ที่เก็บ stats ของแต่ละ location
   const [locationReviewStats, setLocationReviewStats] = useState({});
   const [isLoadingStats, setIsLoadingStats] = useState(false);
   
@@ -25,7 +23,7 @@ const Favourites = () => {
       return;
     }
 
-    // ดึงข้อมูลรายการโปรด
+    // ดึงรายการโปรด
     const fetchFavorites = async () => {
       try {
         console.log("Token:", token);
@@ -59,7 +57,7 @@ const Favourites = () => {
         setHeartStatus(dynamicHeartStatus);
         setSelectedPlaces(dynamicSelectedPlaces);
 
-        // ดึงสถิติรีวิวสำหรับแต่ละ location
+        // ดึงสถิติรีวิว
         await fetchAllReviewStats(data, token);
 
       } catch (error) {
@@ -70,7 +68,7 @@ const Favourites = () => {
     fetchFavorites();
   }, []);
 
-  // ฟังก์ชันใหม่สำหรับดึงสถิติรีวิวของทุก location
+  // ดึงสถิติรีวิวของทุก location
   const fetchAllReviewStats = async (favoritesData, token) => {
     setIsLoadingStats(true);
     const statsPromises = favoritesData.map(async (item) => {
@@ -170,7 +168,6 @@ const Favourites = () => {
             return newSelected;
           });
 
-          // ลบ review stats ของ location นี้ด้วย
           setLocationReviewStats(prev => {
             const newStats = { ...prev };
             const locationId = favoriteItem.location?.ID || favoriteItem.location_id;
@@ -236,7 +233,6 @@ const Favourites = () => {
     setShowInfoPopup(false);
   };
 
-  // Helper function สำหรับดึงชื่อสถานที่
   const getPlaceName = (itemId) => {
     const item = favorites.find(fav => fav.ID === itemId);
     return item?.location?.LocationsName || item?.location?.name || `สถานที่ ${itemId}`;
