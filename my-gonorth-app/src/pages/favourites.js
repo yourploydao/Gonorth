@@ -10,6 +10,7 @@ const Favourites = () => {
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState('');
   const [currentPlace, setCurrentPlace] = useState('');
+  const [currentPlaceName, setCurrentPlaceName] = useState(''); // เพิ่มตัวแปรสำหรับเก็บชื่อ
   const [showInfoPopup, setShowInfoPopup] = useState(false);
   const router = useRouter();
   
@@ -201,7 +202,9 @@ const Favourites = () => {
   };
 
   const handleMoreInfoClick = (id) => {
+    const placeName = getPlaceName(id);
     setCurrentPlace(id);
+    setCurrentPlaceName(placeName); // เก็บชื่อสถานที่
     setShowPopup(true);
   };
 
@@ -236,7 +239,7 @@ const Favourites = () => {
   // Helper function สำหรับดึงชื่อสถานที่
   const getPlaceName = (itemId) => {
     const item = favorites.find(fav => fav.ID === itemId);
-    return item?.location?.LocationsName || `สถานที่ ${itemId}`;
+    return item?.location?.LocationsName || item?.location?.name || `สถานที่ ${itemId}`;
   };
 
   const handleCreateRouteMap = () => {
@@ -377,7 +380,7 @@ const Favourites = () => {
 
                 <div className={styles.favouriteInfo}>
                   <h3 className={styles.favouriteTitle}>
-                    {location.name || "ไม่มีชื่อสถานที่"}
+                    {location.LocationsName || location.name || "ไม่มีชื่อสถานที่"}
                   </h3>
 
                   <div className={styles.infoItem}>
@@ -480,12 +483,12 @@ const Favourites = () => {
             <button className={styles.closePopup} onClick={handleClosePopup}>×</button>
             <div className={styles.popupContent}>
               <h3>ถูกกำหนดเป็นจุดเริ่มต้น</h3>
-              <p>คุณต้องการตั้ง <strong>{getPlaceName(currentPlace)}</strong> เป็นจุดเริ่มต้นสำหรับเส้นทางของคุณหรือไม่?</p>
+              <p>คุณต้องการตั้ง <strong>{currentPlaceName}</strong> เป็นจุดเริ่มต้นสำหรับเส้นทางของคุณหรือไม่?</p>
               <button 
                 className={styles.confirmButton}
                 onClick={() => {
                   setSelectedPlaces(prev => ({...prev, [currentPlace]: true}));
-                  showNotificationPopup(`${getPlaceName(currentPlace)} กำหนดเป็นจุดเริ่มต้น`);
+                  showNotificationPopup(`${currentPlaceName} กำหนดเป็นจุดเริ่มต้น`);
                   setShowPopup(false);
                 }}
               >

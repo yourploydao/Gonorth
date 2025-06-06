@@ -4,11 +4,9 @@ import dynamic from "next/dynamic";
 import styles from "../styles/admin-create-storypage.module.css";
 import 'leaflet/dist/leaflet.css';
 
-
 const MapSelector = dynamic(() => import("../components/map-selector.js"), {
   ssr: false, // ปิดการโหลดในฝั่ง Server
 });
-
 
 const validTags = ["Nature", "Culture", "Food", "Adventure"];
 
@@ -21,7 +19,6 @@ const AdminCreateDestination = () => {
   const [distanceKm, setDistanceKm] = useState('');
   const [drivingTimeMinutes, setDrivingTimeMinutes] = useState('');
   const [newActivity, setNewActivity] = useState('');
-
   const [formData, setFormData] = useState({
     name: "",
     topic: "",
@@ -32,7 +29,7 @@ const AdminCreateDestination = () => {
     bestSeason: "",
     latitude: "",
     longitude: "",
-    budget_range: "", // เพิ่ม budget
+    budgetRange: "", // เพิ่ม budget (แก้ไขจาก budget_range)
     admissionFee: "",
     distance_from_city: "",
     drivingTime: "",
@@ -137,6 +134,7 @@ const AdminCreateDestination = () => {
         [name]: value
       }));
     }
+  }; // เพิ่ม closing brace ที่หายไป
 
   const handleAddActivity = () => {
     if (newActivity.trim() === '') return;
@@ -188,8 +186,8 @@ const AdminCreateDestination = () => {
       return;
     }
 
-  // ตรวจสอบว่า admissionFee เป็นตัวเลข
-  const admissionFeeValue = Number(formData.admissionFee);
+    // ตรวจสอบว่า admissionFee เป็นตัวเลข
+    const admissionFeeValue = Number(formData.admissionFee);
     if (isNaN(admissionFeeValue)) {
       alert('กรุณากรอกค่าเข้าชมเป็นตัวเลขที่ถูกต้อง');
       return;
@@ -252,16 +250,13 @@ const AdminCreateDestination = () => {
       });
 
       if (res.ok) {
-        alert(id ? "แก้ไขข้อมูลสำเร็จ!" : "บันทึกข้อมูลสำเร็จ!");
         router.push("/admin-destination-control");
       } else {
         const errorData = await res.json();
         console.error("Error response:", errorData);
-        alert(`เกิดข้อผิดพลาดในการบันทึกข้อมูล: ${errorData.error || 'Unknown error'}`);
       }
     } catch (err) {
       console.error("Network error:", err);
-      alert("เกิดข้อผิดพลาดในการเชื่อมต่อ");
     }
   };
 
@@ -281,23 +276,7 @@ const AdminCreateDestination = () => {
     Object.entries(amenitiesObj)
       .filter(([_, checked]) => checked)
       .map(([name]) => ({ Name: name }));
-  const convertAccessibility = (accessObj) =>
-    Object.entries(accessObj)
-      .filter(([_, checked]) => checked)
-      .map(([name]) => ({ Name: name }));
 
-  // ถ้าเลือกเดียว
-  // const convertTags = (tagStr) =>
-  //   tagStr ? [{ TagName: tagStr }] : [];
-
-  // const convertActivities = (activitiesStr) =>
-  //   activitiesStr
-  //     .split(",")
-  //     .map(act => act.trim())
-  //     .filter(act => act)
-  //     .map(act => ({ Name: act })); 
-
-  // ฟังก์ชันอัปโหลดภาพขึ้น Cloudinary
   const uploadImageToCloud = async (file) => {
     const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME; // ชื่อ cloud ของคุณ
     const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET; // ชื่อ upload preset (unsigned)
@@ -331,7 +310,8 @@ const AdminCreateDestination = () => {
         .then(data => {
           console.log("API response data:", data);
           setDestination(data);
-          setFormData({
+          
+          const newFormData = {
             name: data.name || "",
             topic: data.topic || "",
             history: data.history || "",
@@ -341,14 +321,20 @@ const AdminCreateDestination = () => {
             bestSeason: data.season || "",
             latitude: data.latitude?.toString() || "",
             longitude: data.longitude?.toString() || "",
-            budgetRange: data.budgetRange || "0", // ค่าเริ่มต้นถ้าไม่มี
+            // แก้ไข: ใช้ budget_range จาก API (snake_case)
+            budgetRange: data.budget_range || "0", 
             admissionFee: data.admissionFee != null ? data.admissionFee.toString() : "0",
-            distance_from_city: data.distanceFromCity?.toString() || "",
-            drivingTime: data.drivingTime || "",
-            openTime: data.openTime || "",
-            closeTime: data.closeTime || "",
-            parking: data.hasParking ? "มี" : "ไม่มี",
-            parkingDetails: data.parkingDetails || "",
+            // แก้ไข: ใช้ distance จาก API (ไม่ใช่ distanceFromCity)
+            distance_from_city: data.distance?.toString() || "",
+            // แก้ไข: ใช้ driving_time จาก API (snake_case)
+            drivingTime: data.driving_time || "",
+            // แก้ไข: ใช้ open_time และ close_time จาก API (snake_case)
+            openTime: data.open_time || "",
+            closeTime: data.close_time || "",
+            // แก้ไข: ใช้ has_parking จาก API (snake_case)
+            parking: data.has_parking ? "มี" : "ไม่มี",
+            // แก้ไข: ใช้ parking_details จาก API (snake_case)
+            parkingDetails: data.parking_details || "",
             images: Array.isArray(data.images) ? data.images.map(img => img.URL || "").filter(Boolean) : [],
             amenities: {
               baggageStorage: Array.isArray(data.amenities) && data.amenities.some(a => a?.Name === "baggageStorage"),
@@ -361,13 +347,15 @@ const AdminCreateDestination = () => {
               shuttleService: Array.isArray(data.amenities) && data.amenities.some(a => a?.Name === "shuttleService"),
             },
             accessibility: {
-              wheelchairCarPark: Array.isArray(data.accessibilities) && data.accessibilities.some(a => a?.Name === "wheelchairCarPark"),
-              wheelchairEntrance: Array.isArray(data.accessibilities) && data.accessibilities.some(a => a?.Name === "wheelchairEntrance"),
-              wheelchairToilet: Array.isArray(data.accessibilities) && data.accessibilities.some(a => a?.Name === "wheelchairToilet"),
-              goodForKids: Array.isArray(data.accessibilities) && data.accessibilities.some(a => a?.Name === "goodForKids"),
+              wheelchairCarPark: false,
+              wheelchairEntrance: false,
+              wheelchairToilet: false,
+              goodForKids: false
             }
-          });
+          };
+          
           setFormData(newFormData);
+          
           const lat = parseFloat(data.latitude) || 0;
           const lng = parseFloat(data.longitude) || 0;
           setMapLocation({
@@ -375,12 +363,18 @@ const AdminCreateDestination = () => {
             lng,
             address: data.address || `${lat.toFixed(2)}, ${lng.toFixed(2)}`
           });
-          if (lat && lng && (!data.distanceFromCity || !data.drivingTime)) {
+          
+          // แก้ไข: ใช้ data.distance และ data.driving_time
+          if (lat && lng && (!data.distance || !data.driving_time)) {
             updateDistanceAndTime(lat, lng);
           } else {
-            setDistanceKm(data.distanceFromCity?.toString() || "");
-            setDrivingTimeMinutes(data.drivingTime?.replace(" นาทีด้วยรถ", "") || "");
+            setDistanceKm(data.distance?.toString() || "");
+            // แก้ไข: parsing driving_time ที่ถูกต้อง
+            const drivingTimeStr = data.driving_time || "";
+            const drivingTimeMatch = drivingTimeStr.match(/(\d+)/);
+            setDrivingTimeMinutes(drivingTimeMatch ? drivingTimeMatch[1] : "");
           }
+          
           console.log("formData after set:", newFormData);
         })
         .catch(err => {
@@ -883,6 +877,5 @@ const AdminCreateDestination = () => {
     </div>
   );
 };
-}
 
 export default AdminCreateDestination;
