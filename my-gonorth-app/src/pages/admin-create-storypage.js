@@ -4,9 +4,11 @@ import dynamic from "next/dynamic";
 import styles from "../styles/admin-create-storypage.module.css";
 import 'leaflet/dist/leaflet.css';
 
+
 const MapSelector = dynamic(() => import("../components/map-selector.js"), {
-  ssr: false,
+  ssr: false, // ปิดการโหลดในฝั่ง Server
 });
+
 
 const validTags = ["Nature", "Culture", "Food", "Adventure"];
 
@@ -30,7 +32,7 @@ const AdminCreateDestination = () => {
     bestSeason: "",
     latitude: "",
     longitude: "",
-    budgetRange: "",
+    budget_range: "", // เพิ่ม budget
     admissionFee: "",
     distance_from_city: "",
     drivingTime: "",
@@ -88,27 +90,34 @@ const AdminCreateDestination = () => {
   };
 
   const handleMapSelect = (lat, lng, routeInfo) => {
+    // พิกัดศาลหลักเมืองเชียงใหม่
     const chiangMaiCityHallLat = 18.7883;
     const chiangMaiCityHallLng = 98.9853;
-    const straightLineDistance = calculateDistance(lat, lng, chiangMaiCityHallLat, chiangMaiCityHallLng);
-    const distance = routeInfo?.distance || straightLineDistance.toFixed(1);
-    const drivingTime = routeInfo?.duration || Math.round(straightLineDistance);
 
+    // คำนวณระยะทางแบบเส้นตรง (สำรอง)
+    const straightLineDistance = calculateDistance(lat, lng, chiangMaiCityHallLat, chiangMaiCityHallLng);
+
+    // ใช้ข้อมูลจาก routing หรือใช้การคำนวณสำรอง
+    const distance = routeInfo?.distance || straightLineDistance.toFixed(1);
+    const drivingTime = routeInfo?.duration || Math.round(straightLineDistance * 2);
+
+    // อัพเดท state
     setMapLocation({ 
       lat, 
       lng, 
-      address: `${lat.toFixed(2)}, ${lng.toFixed(2)}` 
+      address: `${lat.toFixed(5)}, ${lng.toFixed(5)}` 
     });
     setDistanceKm(distance);
     setDrivingTimeMinutes(drivingTime);
     setShowMapModal(false);
 
+    // อัพเดท form data
     setFormData(prev => ({
       ...prev,
       latitude: lat.toFixed(6),
       longitude: lng.toFixed(6),
-      distance_from_city: distance,
-      drivingTime: `${drivingTime} นาทีด้วยรถ`
+      distance_from_city: parseFloat(distance), // เก็บเป็นตัวเลข
+      drivingTime: `${drivingTime} นาทีด้วยรถยนต์`
     }));
   };
 
@@ -128,7 +137,6 @@ const AdminCreateDestination = () => {
         [name]: value
       }));
     }
-  };
 
   const handleAddActivity = () => {
     if (newActivity.trim() === '') return;
@@ -174,14 +182,16 @@ const AdminCreateDestination = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.name || !formData.latitude || !formData.longitude || formData.admissionFee === "") {
+    // ตรวจสอบฟิลด์ที่จำเป็น
+    if (!formData.name || !formData.latitude || !formData.longitude || !formData.admissionFee) {
       alert('กรุณากรอกข้อมูลที่จำเป็นทั้งหมด รวมถึงค่าเข้าชม');
       return;
     }
 
-    const admissionFeeValue = Number(formData.admissionFee);
-    if (isNaN(admissionFeeValue) || admissionFeeValue < 0) {
-      alert('ค่าเข้าชมต้องเป็นตัวเลขที่ไม่ติดลบ');
+  // ตรวจสอบว่า admissionFee เป็นตัวเลข
+  const admissionFeeValue = Number(formData.admissionFee);
+    if (isNaN(admissionFeeValue)) {
+      alert('กรุณากรอกค่าเข้าชมเป็นตัวเลขที่ถูกต้อง');
       return;
     }
 
@@ -203,6 +213,7 @@ const AdminCreateDestination = () => {
       }
     }
 
+    // แปลงข้อมูลให้ตรงกับ Backend
     const payload = {
       name: formData.name,
       address: formData.address,
@@ -218,7 +229,7 @@ const AdminCreateDestination = () => {
       season: formData.bestSeason,
       distanceFromCity: Number(formData.distance_from_city) || 0,
       drivingTime: formData.drivingTime,
-      admission_fee: admissionFeeValue,
+      admissionFee: admissionFeeValue, // ใช้ค่า Number โดยตรง
       latitude: parseFloat(formData.latitude),
       longitude: parseFloat(formData.longitude),
       images: imageUrls,
@@ -227,14 +238,12 @@ const AdminCreateDestination = () => {
       amenities: convertAmenities(formData.amenities),
     };
 
-    console.log('Payload to send:', JSON.stringify(payload, null, 2));
+    console.log('Payload to send:', payload);
 
     try {
       const token = localStorage.getItem("token");
-      const method = id ? "PUT" : "POST";
-      const url = id ? `http://localhost:8080/locations/${id}` : "http://localhost:8080/locations";
-      const res = await fetch(url, {
-        method,
+      const res = await fetch("http://localhost:8080/locations", {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`,
@@ -242,15 +251,13 @@ const AdminCreateDestination = () => {
         body: JSON.stringify(payload)
       });
 
-      const responseData = await res.json();
-      console.log("Response data:", responseData);
-
       if (res.ok) {
         alert(id ? "แก้ไขข้อมูลสำเร็จ!" : "บันทึกข้อมูลสำเร็จ!");
         router.push("/admin-destination-control");
       } else {
-        console.error("Error response:", responseData);
-        alert(`เกิดข้อผิดพลาดในการ${id ? 'แก้ไข' : 'บันทึก'}ข้อมูล: ${responseData.error || 'Unknown error'}`);
+        const errorData = await res.json();
+        console.error("Error response:", errorData);
+        alert(`เกิดข้อผิดพลาดในการบันทึกข้อมูล: ${errorData.error || 'Unknown error'}`);
       }
     } catch (err) {
       console.error("Network error:", err);
@@ -270,16 +277,30 @@ const AdminCreateDestination = () => {
     setShowMapModal(false);
   };
 
-  const convertAmenities = (amenitiesObj) => {
-    if (!amenitiesObj) return [];
-    return Object.entries(amenitiesObj)
+  const convertAmenities = (amenitiesObj) =>
+    Object.entries(amenitiesObj)
       .filter(([_, checked]) => checked)
       .map(([name]) => ({ Name: name }));
-  };
+  const convertAccessibility = (accessObj) =>
+    Object.entries(accessObj)
+      .filter(([_, checked]) => checked)
+      .map(([name]) => ({ Name: name }));
 
+  // ถ้าเลือกเดียว
+  // const convertTags = (tagStr) =>
+  //   tagStr ? [{ TagName: tagStr }] : [];
+
+  // const convertActivities = (activitiesStr) =>
+  //   activitiesStr
+  //     .split(",")
+  //     .map(act => act.trim())
+  //     .filter(act => act)
+  //     .map(act => ({ Name: act })); 
+
+  // ฟังก์ชันอัปโหลดภาพขึ้น Cloudinary
   const uploadImageToCloud = async (file) => {
-    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-    const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
+    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME; // ชื่อ cloud ของคุณ
+    const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET; // ชื่อ upload preset (unsigned)
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", uploadPreset);
@@ -310,7 +331,7 @@ const AdminCreateDestination = () => {
         .then(data => {
           console.log("API response data:", data);
           setDestination(data);
-          const newFormData = {
+          setFormData({
             name: data.name || "",
             topic: data.topic || "",
             history: data.history || "",
@@ -345,7 +366,7 @@ const AdminCreateDestination = () => {
               wheelchairToilet: Array.isArray(data.accessibilities) && data.accessibilities.some(a => a?.Name === "wheelchairToilet"),
               goodForKids: Array.isArray(data.accessibilities) && data.accessibilities.some(a => a?.Name === "goodForKids"),
             }
-          };
+          });
           setFormData(newFormData);
           const lat = parseFloat(data.latitude) || 0;
           const lng = parseFloat(data.longitude) || 0;
@@ -375,8 +396,8 @@ const AdminCreateDestination = () => {
     <div className={styles.container}>
       <div className={styles.mainContent}>
         <div className={styles.pageHeader}>
-          <h1 className={styles.pageTitle}>{id ? "แก้ไขสถานที่ท่องเที่ยว" : "สร้างสถานที่ท่องเที่ยวใหม่"}</h1>
-          <p className={styles.pageSubtitle}>{id ? "แก้ไขข้อมูลสถานที่ในระบบ" : "เพิ่มสถานที่ใหม่เข้าสู่ระบบ"}</p>
+          <h1 className={styles.pageTitle}>สร้างสถานที่ท่องเที่ยวใหม่</h1>
+          <p className={styles.pageSubtitle}>เพิ่มสถานที่ใหม่เข้าสู่ระบบ</p>
         </div>
 
         <form onSubmit={handleSubmit} className={styles.createForm}>
@@ -593,14 +614,15 @@ const AdminCreateDestination = () => {
                 </select>
               </div>
               <div className={styles.formField}>
-                <label>ค่าเข้าชม (บาท) *</label>
+                <label>ค่าเข้าชม (บาท)</label>
                 <input
-                  type="text"
+                  type="number"
                   name="admissionFee"
                   value={formData.admissionFee}
                   onChange={handleInputChange}
                   placeholder="กรอกค่าเข้าชม (เช่น 50, 100) หรือ 0 ถ้าฟรี"
-                  required
+                  min="0"
+                  step="1"
                 />
               </div>
             </div>
@@ -627,6 +649,7 @@ const AdminCreateDestination = () => {
               </div>
             </div>
 
+            {/* Parking Section */}
             <div className={styles.formField}>
               <label>ที่จอดรถ</label>
               <div className={styles.radioGroup}>
@@ -702,6 +725,7 @@ const AdminCreateDestination = () => {
             )}
           </div>
 
+          {/* Amenities Section */}
           <div className={styles.formSection}>
             <h2 className={styles.sectionTitle}>สิ่งอำนวยความสะดวก</h2>
             
@@ -780,6 +804,50 @@ const AdminCreateDestination = () => {
             </div>
           </div>
 
+          {/* Accessibility Section */}
+          {/* <div className={styles.formSection}>
+            <h2 className={styles.sectionTitle}>ความสะดวกในการเข้าถึง</h2>
+            
+            <div className={styles.checkboxGrid}>
+              <label className={styles.checkboxItem}>
+                <input
+                  type="checkbox"
+                  checked={formData.accessibility.wheelchairCarPark}
+                  onChange={() => handleCheckboxChange('accessibility', 'wheelchairCarPark')}
+                />
+                <span>ที่จอดรถสำหรับผู้ใช้รถเข็น</span>
+              </label>
+              
+              <label className={styles.checkboxItem}>
+                <input
+                  type="checkbox"
+                  checked={formData.accessibility.wheelchairEntrance}
+                  onChange={() => handleCheckboxChange('accessibility', 'wheelchairEntrance')}
+                />
+                <span>ทางเข้าเหมาะสำหรับผู้ใช้รถเข็น</span>
+              </label>
+              
+              <label className={styles.checkboxItem}>
+                <input
+                  type="checkbox"
+                  checked={formData.accessibility.wheelchairToilet}
+                  onChange={() => handleCheckboxChange('accessibility', 'wheelchairToilet')}
+                />
+                <span>มีห้องน้ำสำหรับผู้ใช้รถเข็นใกล้ทางเข้า</span>
+              </label>
+              
+              <label className={styles.checkboxItem}>
+                <input
+                  type="checkbox"
+                  checked={formData.accessibility.goodForKids}
+                  onChange={() => handleCheckboxChange('accessibility', 'goodForKids')}
+                />
+                <span>เหมาะสำหรับเด็ก</span>
+              </label>
+            </div>
+          </div> */}
+
+          {/* Form Actions */}
           <div className={styles.formActions}>
             <button
               type="button"
@@ -792,12 +860,13 @@ const AdminCreateDestination = () => {
               type="submit"
               className={styles.submitButton}
             >
-              {id ? "บันทึกการเปลี่ยนแปลง" : "สร้างสถานที่ท่องเที่ยว"}
+              สร้างสถานที่ท่องเที่ยว
             </button>
           </div>
         </form>
       </div>
 
+      {/* Map Modal */}
       {showMapModal && (
         <div className={styles.mapModal}>
           <div className={styles.mapModalContent}>
@@ -814,5 +883,6 @@ const AdminCreateDestination = () => {
     </div>
   );
 };
+}
 
 export default AdminCreateDestination;

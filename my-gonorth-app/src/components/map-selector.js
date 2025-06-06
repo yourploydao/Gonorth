@@ -24,7 +24,7 @@ const redIcon = new L.Icon({
 });
 
 const blueIcon = new L.Icon({
-  iconUrl: 'data:image/svg+xml;base64,' + btoa(`
+  iconUrl: 'data:image/svg+xml;base64=' + btoa(`
     <svg width="25" height="41" viewBox="0 0 25 41" xmlns="http://www.w3.org/2000/svg">
       <path fill="#2563eb" stroke="#1d4ed8" stroke-width="1" d="m12.5,1c6.904,0 12.5,5.596 12.5,12.5c0,6.904 -12.5,26.5 -12.5,26.5s-12.5,-19.596 -12.5,-26.5c0,-6.904 5.596,-12.5 12.5,-12.5z"/>
       <circle fill="#ffffff" cx="12.5" cy="13.5" r="7"/>
@@ -92,7 +92,23 @@ const MapSelector = ({ onSelect }) => {
   const [showResults, setShowResults] = useState(false);
   const [searchLocation, setSearchLocation] = useState(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [savedMaps, setSavedMaps] = useState([]);
+  const [showSavedMaps, setShowSavedMaps] = useState(false);
+  const [mapName, setMapName] = useState('');
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  
+  // ฟิลด์สำหรับใส่พิกัดแบบแมนนวล
+  const [manualLat, setManualLat] = useState('');
+  const [manualLng, setManualLng] = useState('');
+  const [showCoordinateInput, setShowCoordinateInput] = useState(false);
+  
   const mapRef = useRef(null);
+
+  // Load saved maps from memory on component mount
+  useEffect(() => {
+    const saved = JSON.parse(sessionStorage.getItem('savedMaps') || '[]');
+    setSavedMaps(saved);
+  }, []);
 
   // ฟังก์ชันคำนวณระยะทางแบบเส้นตรง (สำรอง)
   const calculateStraightDistance = (lat1, lon1, lat2, lon2) => {
@@ -154,6 +170,29 @@ const MapSelector = ({ onSelect }) => {
     setRouteInfo(routeData);
   };
 
+  // ฟังก์ชันจัดการการใส่พิกัดแบบแมนนวล
+  const handleManualCoordinateSubmit = () => {
+    const lat = parseFloat(manualLat);
+    const lng = parseFloat(manualLng);
+    
+    if (isNaN(lat) || isNaN(lng)) {
+      alert('กรุณาใส่พิกัดที่ถูกต้อง');
+      return;
+    }
+    
+    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+      alert('พิกัดไม่อยู่ในช่วงที่ถูกต้อง');
+      return;
+    }
+    
+    // เซ็ตแมพไปยังตำแหน่งนั้น
+    setSearchLocation({ lat, lng });
+    handleLocationSelect(lat, lng);
+    setShowCoordinateInput(false);
+    setManualLat('');
+    setManualLng('');
+  };
+
   // ฟังก์ชันค้นหาสถานที่
   const searchPlaces = async (query) => {
     if (!query || query.length < 2) {
@@ -166,7 +205,7 @@ const MapSelector = ({ onSelect }) => {
     try {
       // ใช้ Nominatim API สำหรับค้นหาสถานที่
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query + ' เชียงใหม่')}&limit=5&countrycodes=th&bounded=1&viewbox=98.8,18.9,99.1,18.6`
+     `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query + ' เชียงใหม่')}&limit=5&countrycodes=th`
       );
       
       if (response.ok) {
@@ -213,6 +252,56 @@ const MapSelector = ({ onSelect }) => {
     setShowConfirmModal(false);
   };
 
+  // ฟังก์ชันเซฟแมพ
+  const handleSaveMap = () => {
+    if (!selectedLocation) {
+      alert('กรุณาเลือกตำแหน่งก่อนเซฟแมพ');
+      return;
+    }
+    setShowSaveModal(true);
+  };
+
+  // ฟังก์ชันยืนยันการเซฟแมพ
+  const handleConfirmSaveMap = () => {
+    if (!mapName.trim()) {
+      alert('กรุณาใส่ชื่อแมพ');
+      return;
+    }
+
+    const newMap = {
+      id: Date.now(),
+      name: mapName.trim(),
+      lat: selectedLocation.lat,
+      lng: selectedLocation.lng,
+      routeInfo: routeInfo,
+      savedAt: new Date().toLocaleString('th-TH')
+    };
+
+    const updatedMaps = [...savedMaps, newMap];
+    setSavedMaps(updatedMaps);
+    sessionStorage.setItem('savedMaps', JSON.stringify(updatedMaps));
+    
+    setShowSaveModal(false);
+    setMapName('');
+    alert('เซฟแมพเรียบร้อยแล้ว!');
+  };
+
+  // ฟังก์ชันโหลดแมพที่เซฟไว้
+  const handleLoadSavedMap = (savedMap) => {
+    setSearchLocation({ lat: savedMap.lat, lng: savedMap.lng });
+    handleLocationSelect(savedMap.lat, savedMap.lng);
+    setShowSavedMaps(false);
+  };
+
+  // ฟังก์ชันลบแมพที่เซฟไว้
+  const handleDeleteSavedMap = (mapId) => {
+    if (confirm('ต้องการลบแมพนี้ใช่หรือไม่?')) {
+      const updatedMaps = savedMaps.filter(map => map.id !== mapId);
+      setSavedMaps(updatedMaps);
+      sessionStorage.setItem('savedMaps', JSON.stringify(updatedMaps));
+    }
+  };
+
   // ฟังก์ชันซูมเข้า
   const handleZoomIn = () => {
     if (mapRef.current) {
@@ -245,15 +334,37 @@ const MapSelector = ({ onSelect }) => {
       borderRadius: '8px',
       overflow: 'hidden'
     },
-    searchContainer: {
+    topControls: {
       position: 'absolute',
       top: '10px',
       left: '10px',
       right: '10px',
       zIndex: 1000,
+      display: 'flex',
+      gap: '10px',
+      flexWrap: 'wrap'
+    },
+    searchContainer: {
+      flex: '1',
+      minWidth: '300px',
       backgroundColor: 'white',
       borderRadius: '8px',
       boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+    },
+    controlButtons: {
+      display: 'flex',
+      gap: '5px'
+    },
+    controlButton: {
+      padding: '8px 12px',
+      backgroundColor: 'white',
+      border: '1px solid #d1d5db',
+      borderRadius: '6px',
+      cursor: 'pointer',
+      fontSize: '12px',
+      fontWeight: '500',
+      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+      whiteSpace: 'nowrap'
     },
     searchInput: {
       width: '100%',
@@ -274,6 +385,82 @@ const MapSelector = ({ onSelect }) => {
       cursor: 'pointer',
       fontSize: '13px',
       transition: 'background-color 0.2s'
+    },
+    coordinateInput: {
+      position: 'absolute',
+      top: '70px',
+      left: '10px',
+      right: '10px',
+      backgroundColor: 'white',
+      padding: '15px',
+      borderRadius: '8px',
+      boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+      zIndex: 1000
+    },
+    coordinateInputRow: {
+      display: 'flex',
+      gap: '10px',
+      marginBottom: '10px',
+      alignItems: 'center'
+    },
+    coordinateField: {
+      flex: '1',
+      padding: '8px',
+      border: '1px solid #d1d5db',
+      borderRadius: '4px',
+      fontSize: '14px'
+    },
+    savedMapsPanel: {
+      position: 'absolute',
+      top: '70px',
+      left: '10px',
+      right: '10px',
+      maxHeight: '300px',
+      backgroundColor: 'white',
+      borderRadius: '8px',
+      boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+      zIndex: 1000,
+      overflow: 'hidden'
+    },
+    savedMapsHeader: {
+      padding: '15px',
+      borderBottom: '1px solid #e5e7eb',
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      fontWeight: 'bold'
+    },
+    savedMapsList: {
+      maxHeight: '200px',
+      overflowY: 'auto'
+    },
+    savedMapItem: {
+      padding: '12px 15px',
+      borderBottom: '1px solid #f3f4f6',
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center'
+    },
+    savedMapInfo: {
+      flex: '1',
+      cursor: 'pointer'
+    },
+    savedMapName: {
+      fontWeight: '500',
+      marginBottom: '2px'
+    },
+    savedMapDetails: {
+      fontSize: '11px',
+      color: '#6b7280'
+    },
+    deleteButton: {
+      padding: '4px 8px',
+      backgroundColor: '#dc2626',
+      color: 'white',
+      border: 'none',
+      borderRadius: '4px',
+      cursor: 'pointer',
+      fontSize: '11px'
     },
     infoPanel: {
       position: 'absolute',
@@ -342,9 +529,19 @@ const MapSelector = ({ onSelect }) => {
       cursor: 'pointer',
       fontSize: '13px',
       marginTop: '10px',
-      width: '100%'
+      marginRight: '10px'
     },
-    confirmModal: {
+    saveButton: {
+      backgroundColor: '#2563eb',
+      color: 'white',
+      border: 'none',
+      padding: '8px 16px',
+      borderRadius: '6px',
+      cursor: 'pointer',
+      fontSize: '13px',
+      marginTop: '10px'
+    },
+    modal: {
       position: 'fixed',
       top: '0',
       left: '0',
@@ -356,7 +553,7 @@ const MapSelector = ({ onSelect }) => {
       justifyContent: 'center',
       zIndex: 2000
     },
-    confirmModalContent: {
+    modalContent: {
       backgroundColor: 'white',
       padding: '20px',
       borderRadius: '12px',
@@ -365,25 +562,25 @@ const MapSelector = ({ onSelect }) => {
       width: '90%',
       textAlign: 'center'
     },
-    confirmModalTitle: {
+    modalTitle: {
       fontSize: '18px',
       fontWeight: 'bold',
       marginBottom: '15px',
       color: '#1f2937'
     },
-    confirmModalInfo: {
+    modalInfo: {
       backgroundColor: '#f9fafb',
       padding: '15px',
       borderRadius: '8px',
       marginBottom: '20px',
       textAlign: 'left'
     },
-    confirmModalButtons: {
+    modalButtons: {
       display: 'flex',
       gap: '10px',
       justifyContent: 'center'
     },
-    confirmModalButton: {
+    modalButton: {
       padding: '10px 20px',
       borderRadius: '6px',
       border: 'none',
@@ -391,64 +588,204 @@ const MapSelector = ({ onSelect }) => {
       fontSize: '14px',
       fontWeight: '500'
     },
-    confirmModalButtonConfirm: {
+    modalButtonConfirm: {
       backgroundColor: '#059669',
       color: 'white'
     },
-    confirmModalButtonCancel: {
+    modalButtonCancel: {
       backgroundColor: '#6b7280',
       color: 'white'
+    },
+    modalInput: {
+      width: '100%',
+      padding: '10px',
+      border: '1px solid #d1d5db',
+      borderRadius: '6px',
+      marginBottom: '15px',
+      fontSize: '14px'
     }
   };
 
   return (
     <div style={mapStyles.container}>
-      {/* Search Box */}
-      <div style={mapStyles.searchContainer}>
-        <input
-          type="text"
-          placeholder="ค้นหาสถานที่ในเชียงใหม่... (เช่น วัดพระสิงห์, ดอยสุเทพ)"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          style={mapStyles.searchInput}
-        />
-        
-        {searchLoading && (
-          <div style={{ padding: '10px', textAlign: 'center', fontSize: '12px', color: '#6b7280' }}>
-            กำลังค้นหา...
-          </div>
-        )}
-        
-        {showResults && searchResults.length > 0 && (
-          <div style={mapStyles.searchResults}>
-            {searchResults.map((result) => (
-              <div
-                key={result.id}
-                style={{
-                  ...mapStyles.searchResultItem,
-                  ':hover': { backgroundColor: '#f9fafb' }
-                }}
-                onClick={() => handleSearchResultSelect(result)}
-                onMouseEnter={(e) => e.target.style.backgroundColor = '#f9fafb'}
-                onMouseLeave={(e) => e.target.style.backgroundColor = 'white'}
-              >
-                <div style={{ fontWeight: '500', marginBottom: '2px' }}>
-                  {result.name.split(',')[0]}
+      {/* Top Controls */}
+      <div style={mapStyles.topControls}>
+        {/* Search Box */}
+        <div style={mapStyles.searchContainer}>
+          <input
+            type="text"
+            placeholder="ค้นหาสถานที่ในเชียงใหม่... (เช่น วัดพระสิงห์, ดอยสุเทพ)"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={mapStyles.searchInput}
+          />
+          
+          {searchLoading && (
+            <div style={{ padding: '10px', textAlign: 'center', fontSize: '12px', color: '#6b7280' }}>
+              กำลังค้นหา...
+            </div>
+          )}
+          
+          {showResults && searchResults.length > 0 && (
+            <div style={mapStyles.searchResults}>
+              {searchResults.map((result) => (
+                <div
+                  key={result.id}
+                  style={{
+                    ...mapStyles.searchResultItem,
+                    ':hover': { backgroundColor: '#f9fafb' }
+                  }}
+                  onClick={() => handleSearchResultSelect(result)}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = '#f9fafb'}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = 'white'}
+                >
+                  <div style={{ fontWeight: '500', marginBottom: '2px' }}>
+                    {result.name.split(',')[0]}
+                  </div>
+                  <div style={{ color: '#6b7280', fontSize: '11px' }}>
+                    {result.name}
+                  </div>
                 </div>
-                <div style={{ color: '#6b7280', fontSize: '11px' }}>
-                  {result.name}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-        
-        {showResults && searchResults.length === 0 && searchQuery.length > 2 && !searchLoading && (
-          <div style={{ padding: '10px', textAlign: 'center', fontSize: '12px', color: '#6b7280' }}>
-            ไม่พบสถานที่ที่ค้นหา
-          </div>
-        )}
+              ))}
+            </div>
+          )}
+          
+          {showResults && searchResults.length === 0 && searchQuery.length > 2 && !searchLoading && (
+            <div style={{ padding: '10px', textAlign: 'center', fontSize: '12px', color: '#6b7280' }}>
+              ไม่พบสถานที่ที่ค้นหา
+            </div>
+          )}
+        </div>
+
+        {/* Control Buttons */}
+        <div style={mapStyles.controlButtons}>
+          <button
+            style={{
+              ...mapStyles.controlButton,
+              backgroundColor: showCoordinateInput ? '#e5e7eb' : 'white'
+            }}
+            onClick={() => setShowCoordinateInput(!showCoordinateInput)}
+          >
+            ใส่พิกัด
+          </button>
+          <button
+            style={{
+              ...mapStyles.controlButton,
+              backgroundColor: showSavedMaps ? '#e5e7eb' : 'white'
+            }}
+            onClick={() => setShowSavedMaps(!showSavedMaps)}
+          >
+            แมพที่เซฟไว้ ({savedMaps.length})
+          </button>
+        </div>
       </div>
+
+      {/* Coordinate Input Panel */}
+      {showCoordinateInput && (
+        <div style={mapStyles.coordinateInput}>
+          <div style={{ fontWeight: 'bold', marginBottom: '10px' }}>ใส่พิกัด (Latitude, Longitude)</div>
+          <div style={mapStyles.coordinateInputRow}>
+            <input
+              type="number"
+              placeholder="Latitude (เช่น 18.7883)"
+              value={manualLat}
+              onChange={(e) => setManualLat(e.target.value)}
+              style={mapStyles.coordinateField}
+              step="any"
+            />
+            <input
+              type="number"
+              placeholder="Longitude (เช่น 98.9853)"
+              value={manualLng}
+              onChange={(e) => setManualLng(e.target.value)}
+              style={mapStyles.coordinateField}
+              step="any"
+            />
+            <button
+              onClick={handleManualCoordinateSubmit}
+              style={{
+                padding: '8px 16px',
+                backgroundColor: '#059669',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '14px'
+              }}
+            >
+              ไป
+            </button>
+            <button
+              onClick={() => setShowCoordinateInput(false)}
+              style={{
+                padding: '8px 16px',
+                backgroundColor: '#6b7280',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '14px'
+              }}
+            >
+              ปิด
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Saved Maps Panel */}
+      {showSavedMaps && (
+        <div style={mapStyles.savedMapsPanel}>
+          <div style={mapStyles.savedMapsHeader}>
+            <span>แมพที่เซฟไว้</span>
+            <button
+              onClick={() => setShowSavedMaps(false)}
+              style={{
+                padding: '4px 8px',
+                backgroundColor: '#6b7280',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '12px'
+              }}
+            >
+              ปิด
+            </button>
+          </div>
+          
+          <div style={mapStyles.savedMapsList}>
+            {savedMaps.length === 0 ? (
+              <div style={{ padding: '20px', textAlign: 'center', color: '#6b7280' }}>
+                ยังไม่มีแมพที่เซฟไว้
+              </div>
+            ) : (
+              savedMaps.map((savedMap) => (
+                <div key={savedMap.id} style={mapStyles.savedMapItem}>
+                  <div 
+                    style={mapStyles.savedMapInfo}
+                    onClick={() => handleLoadSavedMap(savedMap)}
+                  >
+                    <div style={mapStyles.savedMapName}>{savedMap.name}</div>
+                    <div style={mapStyles.savedMapDetails}>
+                      {savedMap.lat.toFixed(5)}, {savedMap.lng.toFixed(5)}
+                    </div>
+                    <div style={mapStyles.savedMapDetails}>
+                      เซฟเมื่อ: {savedMap.savedAt}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleDeleteSavedMap(savedMap.id)}
+                    style={mapStyles.deleteButton}
+                  >
+                    ลบ
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Legend */}
       <div style={mapStyles.legend}>
@@ -542,23 +879,32 @@ const MapSelector = ({ onSelect }) => {
             </div>
           </div>
           
-          <button
-            onClick={handleConfirmSelection}
-            style={mapStyles.confirmButton}
-            disabled={loading}
-          >
-            {loading ? 'กำลังคำนวณ...' : 'เลือกตำแหน่งนี้'}
-          </button>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button
+              onClick={handleConfirmSelection}
+              style={mapStyles.confirmButton}
+              disabled={loading}
+            >
+              {loading ? 'กำลังคำนวณ...' : 'เลือกตำแหน่งนี้'}
+            </button>
+            <button
+              onClick={handleSaveMap}
+              style={mapStyles.saveButton}
+              disabled={loading}
+            >
+              เซฟแมพ
+            </button>
+          </div>
         </div>
       )}
 
       {/* Confirmation Modal */}
       {showConfirmModal && selectedLocation && (
-        <div style={mapStyles.confirmModal} onClick={handleCancelConfirm}>
-          <div style={mapStyles.confirmModalContent} onClick={(e) => e.stopPropagation()}>
-            <div style={mapStyles.confirmModalTitle}>ยืนยันการเลือกตำแหน่ง</div>
+        <div style={mapStyles.modal} onClick={handleCancelConfirm}>
+          <div style={mapStyles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <div style={mapStyles.modalTitle}>ยืนยันการเลือกตำแหน่ง</div>
             
-            <div style={mapStyles.confirmModalInfo}>
+            <div style={mapStyles.modalInfo}>
               <div style={{ marginBottom: '10px' }}>
                 <strong>พิกัดที่เลือก:</strong>
               </div>
@@ -581,11 +927,11 @@ const MapSelector = ({ onSelect }) => {
               )}
             </div>
             
-            <div style={mapStyles.confirmModalButtons}>
+            <div style={mapStyles.modalButtons}>
               <button
                 style={{
-                  ...mapStyles.confirmModalButton,
-                  ...mapStyles.confirmModalButtonCancel
+                  ...mapStyles.modalButton,
+                  ...mapStyles.modalButtonCancel
                 }}
                 onClick={handleCancelConfirm}
               >
@@ -593,12 +939,63 @@ const MapSelector = ({ onSelect }) => {
               </button>
               <button
                 style={{
-                  ...mapStyles.confirmModalButton,
-                  ...mapStyles.confirmModalButtonConfirm
+                  ...mapStyles.modalButton,
+                  ...mapStyles.modalButtonConfirm
                 }}
                 onClick={handleFinalConfirm}
               >
                 ยืนยัน
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Save Map Modal */}
+      {showSaveModal && (
+        <div style={mapStyles.modal} onClick={() => setShowSaveModal(false)}>
+          <div style={mapStyles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <div style={mapStyles.modalTitle}>เซฟแมพ</div>
+            
+            <div style={{ textAlign: 'left', marginBottom: '15px' }}>
+              <div style={{ marginBottom: '10px' }}>
+                <strong>พิกัดที่จะเซฟ:</strong>
+              </div>
+              <div style={{ marginBottom: '5px', fontSize: '14px' }}>
+                Latitude: {selectedLocation.lat.toFixed(6)}
+              </div>
+              <div style={{ fontSize: '14px' }}>
+                Longitude: {selectedLocation.lng.toFixed(6)}
+              </div>
+            </div>
+            
+            <input
+              type="text"
+              placeholder="ใส่ชื่อแมพ (เช่น บ้านฉัน, ร้านอาหารโปรด)"
+              value={mapName}
+              onChange={(e) => setMapName(e.target.value)}
+              style={mapStyles.modalInput}
+              autoFocus
+            />
+            
+            <div style={mapStyles.modalButtons}>
+              <button
+                style={{
+                  ...mapStyles.modalButton,
+                  ...mapStyles.modalButtonCancel
+                }}
+                onClick={() => setShowSaveModal(false)}
+              >
+                ยกเลิก
+              </button>
+              <button
+                style={{
+                  ...mapStyles.modalButton,
+                  ...mapStyles.modalButtonConfirm
+                }}
+                onClick={handleConfirmSaveMap}
+              >
+                เซฟ
               </button>
             </div>
           </div>
