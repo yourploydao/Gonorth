@@ -28,18 +28,17 @@ const VerifyCode = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email, code: code }),
       });
-
+    
       const data = await res.json();
-
+    
       if (res.ok && data.message === "Code verified") {
-        alert("Verified! You can now reset your password.");
         const encodedCode = btoa(code); // base64 encode
         router.push(`/resetpassword?reset_code=${encodedCode}`);
       } else {
-        alert(data.error || "Invalid code.");
+        console.error("Verification failed:", data.error || "Invalid code.");
       }
     } catch (err) {
-      alert("Server error. Please try again later.");
+      console.error("Server error:", err);
     }
   };
 

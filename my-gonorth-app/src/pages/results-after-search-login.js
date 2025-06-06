@@ -343,7 +343,7 @@ const DestinationList = () => {
                 onChange={(e) => setSortBy(e.target.value)}
                 className={styles.sortSelect}
               >
-                <option value="">แนะนำ</option>
+                {/* <option value="">แนะนำ</option> */}
                 <option value="Latest">ล่าสุด</option>
                 <option value="Price">ราคา</option>
                 <option value="Distance">ระยะทาง</option>
