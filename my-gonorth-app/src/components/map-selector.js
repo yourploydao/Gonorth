@@ -255,7 +255,7 @@ const MapSelector = ({ onSelect }) => {
   // ฟังก์ชันเซฟแมพ
   const handleSaveMap = () => {
     if (!selectedLocation) {
-      alert('กรุณาเลือกตำแหน่งก่อนเซฟแมพ');
+      alert('กรุณาเลือกตำแหน่งก่อนบันทึกแผนที่');
       return;
     }
     setShowSaveModal(true);
@@ -264,7 +264,7 @@ const MapSelector = ({ onSelect }) => {
   // ฟังก์ชันยืนยันการเซฟแมพ
   const handleConfirmSaveMap = () => {
     if (!mapName.trim()) {
-      alert('กรุณาใส่ชื่อแมพ');
+      alert('กรุณาใส่ชื่อแผนที่');
       return;
     }
 
@@ -283,7 +283,7 @@ const MapSelector = ({ onSelect }) => {
     
     setShowSaveModal(false);
     setMapName('');
-    alert('เซฟแมพเรียบร้อยแล้ว!');
+    alert('บันทึกแผนที่เรียบร้อยแล้ว!');
   };
 
   // ฟังก์ชันโหลดแมพที่เซฟไว้
@@ -295,7 +295,7 @@ const MapSelector = ({ onSelect }) => {
 
   // ฟังก์ชันลบแมพที่เซฟไว้
   const handleDeleteSavedMap = (mapId) => {
-    if (confirm('ต้องการลบแมพนี้ใช่หรือไม่?')) {
+    if (confirm('ต้องการลบแผนที่นี้ใช่หรือไม่?')) {
       const updatedMaps = savedMaps.filter(map => map.id !== mapId);
       setSavedMaps(updatedMaps);
       sessionStorage.setItem('savedMaps', JSON.stringify(updatedMaps));
@@ -675,7 +675,7 @@ const MapSelector = ({ onSelect }) => {
             }}
             onClick={() => setShowSavedMaps(!showSavedMaps)}
           >
-            แมพที่เซฟไว้ ({savedMaps.length})
+            แผนที่ที่บันทึกไว้ ({savedMaps.length})
           </button>
         </div>
       </div>
@@ -955,11 +955,11 @@ const MapSelector = ({ onSelect }) => {
       {showSaveModal && (
         <div style={mapStyles.modal} onClick={() => setShowSaveModal(false)}>
           <div style={mapStyles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <div style={mapStyles.modalTitle}>เซฟแมพ</div>
+            <div style={mapStyles.modalTitle}>บันทึกแผนที่</div>
             
             <div style={{ textAlign: 'left', marginBottom: '15px' }}>
               <div style={{ marginBottom: '10px' }}>
-                <strong>พิกัดที่จะเซฟ:</strong>
+                <strong>พิกัดที่จะบันทึก:</strong>
               </div>
               <div style={{ marginBottom: '5px', fontSize: '14px' }}>
                 Latitude: {selectedLocation.lat.toFixed(6)}
@@ -971,7 +971,7 @@ const MapSelector = ({ onSelect }) => {
             
             <input
               type="text"
-              placeholder="ใส่ชื่อแมพ (เช่น บ้านฉัน, ร้านอาหารโปรด)"
+              placeholder="ใส่ชื่อแผนที่ (เช่น ม่อนแจ่ม, อ่างแก้ว)"
               value={mapName}
               onChange={(e) => setMapName(e.target.value)}
               style={mapStyles.modalInput}
@@ -995,7 +995,7 @@ const MapSelector = ({ onSelect }) => {
                 }}
                 onClick={handleConfirmSaveMap}
               >
-                เซฟ
+                บันทึก
               </button>
             </div>
           </div>

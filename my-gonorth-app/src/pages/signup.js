@@ -17,12 +17,12 @@ const SignUp = () => {
     e.preventDefault();
     // Registration logic here
     if (!agreeTerms) {
-      alert("You must agree to the terms and conditions.");
+      console.error("You must agree to the terms and conditions.");
       return;
     }
-
+    
     if (password !== confirmPassword) {
-      alert("Passwords do not match!");
+      console.error("Passwords do not match!");
       return;
     }
 
@@ -43,18 +43,16 @@ const SignUp = () => {
         },
         body: JSON.stringify(payload),
       });
-
+    
       const data = await res.json();
-
+    
       if (res.ok && data.message == "Registeration successful") {
-        alert(data.message || "Registered successfully!");
         window.location.href = "/login";
       } else {
-        alert(data.error || data.message || "Registration failed");
+        console.error("Registration failed:", data.error || data.message);
       }
     } catch (err) {
       console.error("Registration error:", err);
-      alert("Something went wrong. Please try again later.");
     }
   };
 

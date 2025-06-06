@@ -239,26 +239,27 @@ const AdminCreateDestination = () => {
     console.log('Payload to send:', payload);
 
     try {
-      const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:8080/locations", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload)
-      });
-
-      if (res.ok) {
-        router.push("/admin-destination-control");
-      } else {
-        const errorData = await res.json();
-        console.error("Error response:", errorData);
-      }
-    } catch (err) {
-      console.error("Network error:", err);
-    }
-  };
+        const token = localStorage.getItem("token");
+        const res = await fetch("http://localhost:8080/locations", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload)
+        });
+       
+        if (res.ok) {
+          console.log("Response data:", await res.json());
+          router.push("/home-after-login");
+        } else {
+          const errorData = await res.json();
+          console.error("Error response:", errorData);
+        }
+       } catch (err) {
+        console.error("Network error:", err);
+       }
+    };
 
   const handleCancel = () => {
     router.push('/admin-destination-control');

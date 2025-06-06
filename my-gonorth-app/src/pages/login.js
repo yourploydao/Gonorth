@@ -13,7 +13,7 @@ const Login = () => {
     e.preventDefault();
     // Authentication logic here
     if (!email || !password) {
-      alert("Please enter both email and password.");
+      console.error("Please enter both email and password.");
       return;
     }
   
@@ -27,20 +27,18 @@ const Login = () => {
         },
         body: JSON.stringify(payload),
       });
-  
+    
       const data = await res.json();
-  
+    
       if (res.ok && data.message == "Login successful") {
-        alert(data.message); 
         localStorage.setItem("user", JSON.stringify(data.user));
         localStorage.setItem("token", data.token);
         window.location.href = "/home-after-login";
       } else {
-        alert(data.error || data.message || "Login failed"); 
+        console.error("Login failed:", data.error || data.message);
       }
     } catch (err) {
       console.error("Login error:", err);
-      alert("Something went wrong. Please try again.");
     }
   };
 
