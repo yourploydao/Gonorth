@@ -11,28 +11,36 @@ const AdminDestinationControl = () => {
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const [destinationToDelete, setDestinationToDelete] = useState(null);
   const [isConfirmingBulkDelete, setIsConfirmingBulkDelete] = useState(false);
-  const [sortField, setSortField] = useState('id');
-  const [sortOrder, setSortOrder] = useState('asc');
+  const [sortField, setSortField] = useState("id");
+  const [sortOrder, setSortOrder] = useState("asc");
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const fetchDestinations = async () => {
-      const res = await fetch("http://localhost:8080/locations/all");
-      const data = await res.json();
-      // แปลงข้อมูลให้ตรงกับที่ frontend ใช้
-      const formatted = data.map(item => ({
-        id: item.id || item.ID, 
-        placeName: item.name || item.LocationsName || "", 
-        category: item.tags && item.tags.length > 0 ? item.tags[0].TagName : "ไม่ระบุ", // ใช้ TagName
-      }));
-      setDestinations(formatted);
-      console.log("Formatted destinations:", formatted);
+      try {
+        const res = await fetch("http://localhost:8080/locations/all");
+        if (!res.ok) throw new Error("Failed to fetch destinations");
+        const data = await res.json();
+        const formatted = data.map(item => ({
+          id: item.id || item.ID,
+          placeName: item.name || item.LocationsName || "",
+          categories: item.tags && typeof item.tags === "string" 
+            ? item.tags.split(",").map(tag => tag.trim()).filter(Boolean) 
+            : [],
+        }));
+        setDestinations(formatted);
+        console.log("Formatted destinations:", formatted);
+      } catch (err) {
+        console.error("Error fetching destinations:", err);
+        alert("ไม่สามารถโหลดข้อมูลสถานที่ท่องเที่ยวได้");
+      }
     };
     fetchDestinations();
   }, []);
 
   const handleSelectDestination = (destinationId) => {
-    setSelectedDestinations(prev => 
-      prev.includes(destinationId) 
+    setSelectedDestinations(prev =>
+      prev.includes(destinationId)
         ? prev.filter(id => id !== destinationId)
         : [...prev, destinationId]
     );
@@ -48,28 +56,28 @@ const AdminDestinationControl = () => {
 
   const getFilteredDestinations = () => {
     let filtered = destinations.filter(destination => {
-      // ตรวจสอบว่ามี placeName ก่อน
       const name = destination.placeName || "";
       return name.toLowerCase().includes(searchTerm.toLowerCase());
     });
 
-    // ตัวอย่างสำหรับ filter category
     if (filterCategory !== "all") {
-      filtered = filtered.filter(destination => {
-        const category = destination.category || "";
-        return category === filterCategory;
-      });
+      filtered = filtered.filter(destination =>
+        destination.categories.includes(filterCategory)
+      );
     }
 
-    // Sort destinations
     filtered.sort((a, b) => {
-      let aValue = a[sortField];
-      let bValue = b[sortField];
+      let aValue = sortField === "categories"
+        ? a.categories.join(", ")
+        : a[sortField];
+      let bValue = sortField === "categories"
+        ? b.categories.join(", ")
+        : b[sortField];
       
-      if (sortOrder === 'asc') {
-        return aValue > bValue ? 1 : -1;
+      if (sortOrder === "asc") {
+        return aValue < bValue ? -1 : 1;
       } else {
-        return aValue < bValue ? 1 : -1;
+        return aValue > bValue ? -1 : 1;
       }
     });
 
@@ -78,10 +86,10 @@ const AdminDestinationControl = () => {
 
   const handleSort = (field) => {
     if (sortField === field) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
     } else {
       setSortField(field);
-      setSortOrder('asc');
+      setSortOrder("asc");
     }
   };
 
@@ -94,10 +102,12 @@ const AdminDestinationControl = () => {
     setIsConfirmingDelete(true);
   };
 
-  // ลบทีละรายการ
   const confirmDeleteDestination = async () => {
+    if (isDeleting) return;
+    setIsDeleting(true);
     try {
       const token = localStorage.getItem("token");
+      if (!token) throw new Error("กรุณาเข้าสู่ระบบ");
       const res = await fetch(`http://localhost:8080/locations/${destinationToDelete.id}`, {
         method: "DELETE",
         headers: {
@@ -105,15 +115,20 @@ const AdminDestinationControl = () => {
         },
       });
       if (res.ok) {
-        setDestinations(prev => prev.filter(destination => destination.id !== destinationToDelete.id));
+        setDestinations(prev => prev.filter(d => d.id !== destinationToDelete.id));
         setSelectedDestinations(prev => prev.filter(id => id !== destinationToDelete.id));
         setIsConfirmingDelete(false);
         setDestinationToDelete(null);
+        alert("ลบสถานที่ท่องเที่ยวสำเร็จ");
       } else {
-        alert("ลบสถานที่ท่องเที่ยวไม่สำเร็จ");
+        const error = await res.json();
+        alert(`ลบสถานที่ท่องเที่ยวไม่สำเร็จ: ${error.error || "เกิดข้อผิดพลาดจากเซิร์ฟเวอร์"}`);
       }
     } catch (err) {
-      alert("เกิดข้อผิดพลาดในการลบสถานที่ท่องเที่ยว");
+      console.error("Error deleting destination:", err);
+      alert(`เกิดข้อผิดพลาด: ${err.message || "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์"}`);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -122,10 +137,12 @@ const AdminDestinationControl = () => {
     setIsConfirmingBulkDelete(true);
   };
 
-  // ลบหลายรายการ
   const confirmBulkDelete = async () => {
+    if (isDeleting) return;
+    setIsDeleting(true);
     try {
       const token = localStorage.getItem("token");
+      if (!token) throw new Error("กรุณาเข้าสู่ระบบ");
       const res = await fetch(`http://localhost:8080/locations/bulk-delete`, {
         method: "POST",
         headers: { 
@@ -135,33 +152,38 @@ const AdminDestinationControl = () => {
         body: JSON.stringify({ ids: selectedDestinations }),
       });
       if (res.ok) {
-        setDestinations(prev => prev.filter(destination => !selectedDestinations.includes(destination.id)));
+        setDestinations(prev => prev.filter(d => !selectedDestinations.includes(d.id)));
         setSelectedDestinations([]);
         setIsConfirmingBulkDelete(false);
+        alert("ลบสถานที่ท่องเที่ยวหลายรายการสำเร็จ");
       } else {
-        alert("ลบสถานที่ท่องเที่ยวไม่สำเร็จ");
+        const error = await res.json();
+        alert(`ลบสถานที่ท่องเที่ยวหลายรายการไม่สำเร็จ: ${error.error || "เกิดข้อผิดพลาดจากเซิร์ฟเวอร์"}`);
       }
     } catch (err) {
-      alert("เกิดข้อผิดพลาดในการลบสถานที่ท่องเที่ยว");
+      console.error("Error bulk deleting:", err);
+      alert(`เกิดข้อผิดพลาด: ${err.message || "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์"}`);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
   const getCategoryColor = (category) => {
     switch (category) {
-      case 'Nature': return styles.categoryNature;
-      case 'Culture': return styles.categoryCulture;
-      case 'Food': return styles.categoryFood;
-      case 'Adventure': return styles.categoryAdventure;
-      default: return '';
+      case "Nature": return styles.categoryNature;
+      case "Culture": return styles.categoryCulture;
+      case "Food": return styles.categoryFood;
+      case "Adventure": return styles.categoryAdventure;
+      default: return styles.categoryDefault;
     }
   };
 
   const getCategoryLabel = (category) => {
     switch (category) {
-      case 'Nature': return 'ธรรมชาติ';
-      case 'Culture': return 'วัฒนธรรม';
-      case 'Food': return 'อาหาร';
-      case 'Adventure': return 'ผจญภัย';
+      case "Nature": return "ธรรมชาติ";
+      case "Culture": return "วัฒนธรรม";
+      case "Food": return "อาหาร";
+      case "Adventure": return "ผจญภัย";
       default: return category;
     }
   };
@@ -171,20 +193,18 @@ const AdminDestinationControl = () => {
   return (
     <div className={styles.container}>
       <div className={styles.mainContent}>
-        {/* Header Section */}
         <div className={styles.pageHeader}>
           <div className={styles.headerTop}>
             <h1 className={styles.pageTitle}>จัดการสถานที่ท่องเที่ยว</h1>
             <button 
               className={styles.backButton}
-              onClick={() => router.push('/profile')}
+              onClick={() => router.push("/profile")}
             >
               กลับ
             </button>
           </div>
         </div>
 
-        {/* Controls */}
         <div className={styles.controlsSection}>
           <div className={styles.searchFilters}>
             <input
@@ -215,6 +235,7 @@ const AdminDestinationControl = () => {
               <button 
                 onClick={handleBulkDelete}
                 className={`${styles.bulkActionBtn} ${styles.deleteBtn}`}
+                disabled={isDeleting}
               >
                 ลบสถานที่ท่องเที่ยวที่เลือก
               </button>
@@ -222,7 +243,6 @@ const AdminDestinationControl = () => {
           )}
         </div>
 
-        {/* Destinations Table */}
         <div className={styles.tableContainer}>
           {filteredDestinations.length > 0 ? (
             <table className={styles.destinationsTable}>
@@ -236,22 +256,22 @@ const AdminDestinationControl = () => {
                     />
                   </th>
                   <th 
-                    onClick={() => handleSort('id')}
-                    style={{ cursor: 'pointer' }}
+                    onClick={() => handleSort("id")}
+                    style={{ cursor: "pointer" }}
                   >
-                    ไอดี {sortField === 'id' && (sortOrder === 'asc' ? '↑' : '↓')}
+                    ไอดี {sortField === "id" && (sortOrder === "asc" ? "↑" : "↓")}
                   </th>
                   <th 
-                    onClick={() => handleSort('placeName')}
-                    style={{ cursor: 'pointer' }}
+                    onClick={() => handleSort("placeName")}
+                    style={{ cursor: "pointer" }}
                   >
-                    ชื่อสถานที่ {sortField === 'placeName' && (sortOrder === 'asc' ? '↑' : '↓')}
+                    ชื่อสถานที่ {sortField === "placeName" && (sortOrder === "asc" ? "↑" : "↓")}
                   </th>
                   <th 
-                    onClick={() => handleSort('category')}
-                    style={{ cursor: 'pointer' }}
+                    onClick={() => handleSort("categories")}
+                    style={{ cursor: "pointer" }}
                   >
-                    ประเภท {sortField === 'category' && (sortOrder === 'asc' ? '↑' : '↓')}
+                    ประเภท {sortField === "categories" && (sortOrder === "asc" ? "↑" : "↓")}
                   </th>
                   <th>จัดการ</th>
                 </tr>
@@ -269,23 +289,36 @@ const AdminDestinationControl = () => {
                     <td className={styles.destinationId}>{destination.id}</td>
                     <td className={styles.destinationName}>{destination.placeName}</td>
                     <td>
-                      <span className={`${styles.categoryBadge} ${getCategoryColor(destination.category)}`}>
-                        {getCategoryLabel(destination.category)}
-                      </span>
+                      {destination.categories.length > 0 ? (
+                        destination.categories.map((tag, index) => (
+                          <span 
+                            key={index} 
+                            className={`${styles.categoryBadge} ${getCategoryColor(tag)}`}
+                          >
+                            {getCategoryLabel(tag)}
+                          </span>
+                        ))
+                      ) : (
+                        <span className={`${styles.categoryBadge} ${styles.categoryDefault}`}>
+                          ไม่ระบุ
+                        </span>
+                      )}
                     </td>
                     <td>
                       <div className={styles.actionButtons}>
                         <button
                           onClick={() => handleEditDestination(destination)}
                           className={styles.editBtn}
+                          disabled={isDeleting}
                         >
                           แก้ไข
                         </button>
                         <button
                           onClick={() => handleDeleteDestination(destination)}
                           className={styles.deleteBtn}
+                          disabled={isDeleting}
                         >
-                          ลบสถานที่ท่องเที่ยว
+                          ลบ
                         </button>
                       </div>
                     </td>
@@ -300,54 +333,56 @@ const AdminDestinationControl = () => {
           )}
         </div>
 
-        {/* Delete Confirmation Modal */}
         {isConfirmingDelete && (
           <div className={styles.modalOverlay}>
             <div className={styles.modal}>
               <h2 className={styles.modalTitle}>ยืนยันการลบ</h2>
               <div className={styles.modalContent}>
                 <p>คุณต้องการลบสถานที่ท่องเที่ยว <strong>{destinationToDelete?.placeName}</strong> (ID: {destinationToDelete?.id}) ใช่หรือไม่?</p>
-                <p className={styles.warningText}>การดำเนินการนี้ไม่สามารถย้อนกลับได้</p>
+                <p className={styles.warningText}>การดำเนินการนี้จะลบข้อมูลที่เกี่ยวข้องทั้งหมดและไม่สามารถย้อนกลับได้</p>
               </div>
               <div className={styles.modalActions}>
                 <button
                   onClick={() => setIsConfirmingDelete(false)}
                   className={styles.modalCancel}
+                  disabled={isDeleting}
                 >
                   ยกเลิก
                 </button>
                 <button
                   onClick={confirmDeleteDestination}
                   className={`${styles.modalSave} ${styles.confirmDelete}`}
+                  disabled={isDeleting}
                 >
-                  ลบสถานที่ท่องเที่ยว
+                  {isDeleting ? "กำลังลบ..." : "ลบ"}
                 </button>
               </div>
             </div>
           </div>
         )}
 
-        {/* Bulk Delete Confirmation Modal */}
         {isConfirmingBulkDelete && (
           <div className={styles.modalOverlay}>
             <div className={styles.modal}>
               <h2 className={styles.modalTitle}>ยืนยันการลบหลายรายการ</h2>
               <div className={styles.modalContent}>
                 <p>คุณต้องการลบสถานที่ท่องเที่ยว {selectedDestinations.length} รายการที่เลือกใช่หรือไม่?</p>
-                <p className={styles.warningText}>การดำเนินการนี้ไม่สามารถย้อนกลับได้</p>
+                <p className={styles.warningText}>การดำเนินการนี้จะลบข้อมูลที่เกี่ยวข้องทั้งหมดและไม่สามารถย้อนกลับได้</p>
               </div>
               <div className={styles.modalActions}>
                 <button
                   onClick={() => setIsConfirmingBulkDelete(false)}
                   className={styles.modalCancel}
+                  disabled={isDeleting}
                 >
                   ยกเลิก
                 </button>
                 <button
                   onClick={confirmBulkDelete}
                   className={`${styles.modalSave} ${styles.confirmDelete}`}
+                  disabled={isDeleting}
                 >
-                  ลบสถานที่ท่องเที่ยวทั้งหมด
+                  {isDeleting ? "กำลังลบ..." : "ลบทั้งหมด"}
                 </button>
               </div>
             </div>

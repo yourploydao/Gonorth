@@ -16,9 +16,10 @@ type Location struct {
 	EntranceDetails  string            `json:"entrance_details"`
 	Images           []Image           `gorm:"foreignKey:LocationID" json:"images"`
 	Activities       []Activity        `gorm:"foreignKey:LocationID" json:"activities"`
-	Tags             []Tag             `gorm:"many2many:location_tags;" json:"tags"`
+	// Tags             []Tag             `gorm:"many2many:location_tags;" json:"tags"`
 	BudgetRange      string            `gorm:"type:varchar(20)" json:"budget_range"`
 	Season           string            `gorm:"type:varchar(10);default:'summer'" json:"season"`
+	Tag          	string            		`gorm:"type:varchar(100)" json:"tags"`
 	DistanceFromCity float64           `gorm:"type:decimal(5,2)" json:"distance"`
 	DrivingTime      string            `json:"driving_time"`
 	AdmissionFee     int               `json:"admissionFee"`

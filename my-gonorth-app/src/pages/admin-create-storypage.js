@@ -1,15 +1,13 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import dynamic from "next/dynamic";
 import styles from "../styles/admin-create-storypage.module.css";
 import 'leaflet/dist/leaflet.css';
 
-// Dynamic import สำหรับ MapSelector
 const MapSelector = dynamic(() => import("../components/map-selector.js"), {
   ssr: false,
 });
 
-// รายการตัวเลือกที่ถูกต้องสำหรับ tags
 const validTags = ["Nature", "Culture", "Food", "Adventure"];
 
 const AdminCreateDestination = () => {
@@ -20,19 +18,19 @@ const AdminCreateDestination = () => {
   const [mapLocation, setMapLocation] = useState(null);
   const [distanceKm, setDistanceKm] = useState('');
   const [drivingTimeMinutes, setDrivingTimeMinutes] = useState('');
+  const [newActivity, setNewActivity] = useState('');
 
-  // Form state
   const [formData, setFormData] = useState({
     name: "",
     topic: "",
     history: "",
     tags: "",
-    activities: "",
+    activities: [],
     address: "",
     bestSeason: "",
     latitude: "",
     longitude: "",
-    budget_range: "",
+    budgetRange: "",
     admissionFee: "",
     distance_from_city: "",
     drivingTime: "",
@@ -59,23 +57,36 @@ const AdminCreateDestination = () => {
     }
   });
 
-  // ฟังก์ชันคำนวณระยะทางแบบเส้นตรง
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
     const toRad = (value) => (value * Math.PI) / 180;
-    const R = 6371; // Radius of Earth in km
+    const R = 6371;
     const dLat = toRad(lat2 - lat1);
     const dLon = toRad(lon2 - lon1);
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos(toRad(lat1)) *
         Math.cos(toRad(lat2)) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
   };
 
-  // ฟังก์ชันจัดการเมื่อเลือกตำแหน่งบนแผนที่
+  const updateDistanceAndTime = (lat, lng) => {
+    const chiangMaiCityHallLat = 18.7883;
+    const chiangMaiCityHallLng = 98.9853;
+    const straightLineDistance = calculateDistance(lat, lng, chiangMaiCityHallLat, chiangMaiCityHallLng);
+    const distance = straightLineDistance.toFixed(1);
+    const drivingTime = Math.round(straightLineDistance);
+
+    setDistanceKm(distance);
+    setDrivingTimeMinutes(drivingTime);
+    setFormData(prev => ({
+      ...prev,
+      distance_from_city: distance,
+      drivingTime: `${drivingTime} นาทีด้วยรถ`
+    }));
+  };
+
   const handleMapSelect = (lat, lng, routeInfo) => {
     const chiangMaiCityHallLat = 18.7883;
     const chiangMaiCityHallLng = 98.9853;
@@ -105,7 +116,6 @@ const AdminCreateDestination = () => {
     const { name, value } = e.target;
     console.log(`Input changed: ${name} = ${value}`);
     if (name === "admissionFee") {
-      // อนุญาตเฉพาะตัวเลขและว่างเปล่า จำกัดความยาวไม่เกิน 10 หลัก
       if (value === "" || (/^\d*$/.test(value) && value.length <= 10)) {
         setFormData(prev => ({
           ...prev,
@@ -118,6 +128,22 @@ const AdminCreateDestination = () => {
         [name]: value
       }));
     }
+  };
+
+  const handleAddActivity = () => {
+    if (newActivity.trim() === '') return;
+    setFormData(prev => ({
+      ...prev,
+      activities: [...prev.activities, newActivity.trim()]
+    }));
+    setNewActivity('');
+  };
+
+  const handleRemoveActivity = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      activities: prev.activities.filter((_, i) => i !== index)
+    }));
   };
 
   const handleCheckboxChange = (category, name) => {
@@ -159,27 +185,36 @@ const AdminCreateDestination = () => {
       return;
     }
 
-    let imageUrls = [];
+    if (!formData.budgetRange) {
+      alert('กรุณาเลือกงบประมาณ');
+      return;
+    }
+
+    let imageUrls = destination?.images || [];
     if (formData.images.length > 0) {
       for (let file of formData.images) {
-        const url = await uploadImageToCloud(file);
-        imageUrls.push({ URL: url, IsMain: false });
+        if (typeof file !== "string") {
+          const url = await uploadImageToCloud(file);
+          imageUrls.push({ URL: url, IsMain: false });
+        }
       }
-      if (imageUrls.length > 0) imageUrls[0].IsMain = true;
+      if (imageUrls.length > 0 && !imageUrls.some(img => img.IsMain)) {
+        imageUrls[0].IsMain = true;
+      }
     }
 
     const payload = {
       name: formData.name,
       address: formData.address,
-      openTime: formData.openTime,
-      closeTime: formData.closeTime,
+      openTime: formData.openTime || null,
+      closeTime: formData.closeTime || null,
       topic: formData.topic,
       history: formData.history,
       hasParking: formData.parking === "มี",
       parkingDetails: formData.parkingDetails,
       hasEntrance: true,
       entranceDetails: "",
-      budgetRange: formData.budget_range,
+      budgetRange: formData.budgetRange,
       season: formData.bestSeason,
       distanceFromCity: Number(formData.distance_from_city) || 0,
       drivingTime: formData.drivingTime,
@@ -187,10 +222,9 @@ const AdminCreateDestination = () => {
       latitude: parseFloat(formData.latitude),
       longitude: parseFloat(formData.longitude),
       images: imageUrls,
-      activities: convertActivities(formData.activities),
-      tags: convertTags(formData.tags),
+      activities: formData.activities.map(act => ({ Name: act })),
+      tags: formData.tags || "",
       amenities: convertAmenities(formData.amenities),
-      accessibilities: convertAccessibility(formData.accessibility),
     };
 
     console.log('Payload to send:', JSON.stringify(payload, null, 2));
@@ -213,7 +247,7 @@ const AdminCreateDestination = () => {
 
       if (res.ok) {
         alert(id ? "แก้ไขข้อมูลสำเร็จ!" : "บันทึกข้อมูลสำเร็จ!");
-        router.push("/home-after-login");
+        router.push("/admin-destination-control");
       } else {
         console.error("Error response:", responseData);
         alert(`เกิดข้อผิดพลาดในการ${id ? 'แก้ไข' : 'บันทึก'}ข้อมูล: ${responseData.error || 'Unknown error'}`);
@@ -225,7 +259,7 @@ const AdminCreateDestination = () => {
   };
 
   const handleCancel = () => {
-    router.push('/admin/destinations');
+    router.push('/admin-destination-control');
   };
 
   const openMapModal = () => {
@@ -241,27 +275,6 @@ const AdminCreateDestination = () => {
     return Object.entries(amenitiesObj)
       .filter(([_, checked]) => checked)
       .map(([name]) => ({ Name: name }));
-  };
-
-  const convertAccessibility = (accessObj) => {
-    if (!accessObj) return [];
-    return Object.entries(accessObj)
-      .filter(([_, checked]) => checked)
-      .map(([name]) => ({ Name: name }));
-  };
-
-  const convertTags = (tagStr) => {
-    if (!tagStr) return [];
-    return [{ TagName: tagStr }];
-  };
-
-  const convertActivities = (activitiesStr) => {
-    if (!activitiesStr) return [];
-    return activitiesStr
-      .split(",")
-      .map(act => act.trim())
-      .filter(act => act)
-      .map(act => ({ Name: act }));
   };
 
   const uploadImageToCloud = async (file) => {
@@ -296,54 +309,63 @@ const AdminCreateDestination = () => {
         })
         .then(data => {
           console.log("API response data:", data);
-          console.log("Tags from API:", data.tags);
-          console.log("Amenities from API:", data.amenities);
-          console.log("AdmissionFee from API:", data.admissionFee);
           setDestination(data);
           const newFormData = {
             name: data.name || "",
             topic: data.topic || "",
             history: data.history || "",
-            tags: data.tags && Array.isArray(data.tags) && data.tags.length > 0 && validTags.includes(data.tags[0].TagName)
-              ? data.tags[0].TagName
-              : "",
-            activities: Array.isArray(data.activities)
-              ? data.activities.map(act => act.Name || "").filter(Boolean).join(", ")
-              : "",
+            tags: data.tags || "",
+            activities: Array.isArray(data.activities) ? data.activities.map(act => act.ActivityName || "").filter(Boolean) : [],
             address: data.address || "",
             bestSeason: data.season || "",
             latitude: data.latitude?.toString() || "",
             longitude: data.longitude?.toString() || "",
-            budget_range: data.budget_range || "",
-            admissionFee: data.admissionFee != null ? data.admissionFee.toString() : "",
-            distance_from_city: data.distance?.toString() || "",
-            drivingTime: data.driving_time || "",
-            openTime: data.open_time || "",
-            closeTime: data.close_time || "",
-            parking: data.has_parking ? "มี" : "ไม่มี",
-            parkingDetails: data.parking_details || "",
-            images: Array.isArray(data.images) ? data.images.map(img => img.URL || "") : [],
+            budgetRange: data.budgetRange || "0", // ค่าเริ่มต้นถ้าไม่มี
+            admissionFee: data.admissionFee != null ? data.admissionFee.toString() : "0",
+            distance_from_city: data.distanceFromCity?.toString() || "",
+            drivingTime: data.drivingTime || "",
+            openTime: data.openTime || "",
+            closeTime: data.closeTime || "",
+            parking: data.hasParking ? "มี" : "ไม่มี",
+            parkingDetails: data.parkingDetails || "",
+            images: Array.isArray(data.images) ? data.images.map(img => img.URL || "").filter(Boolean) : [],
             amenities: {
-              baggageStorage: data.amenities && Array.isArray(data.amenities) ? data.amenities.some(a => a?.Name === "baggageStorage") : false,
-              freeWifi: data.amenities && Array.isArray(data.amenities) ? data.amenities.some(a => a?.Name === "freeWifi") : false,
-              toilet: data.amenities && Array.isArray(data.amenities) ? data.amenities.some(a => a?.Name === "toilet") : false,
-              restaurant: data.amenities && Array.isArray(data.amenities) ? data.amenities.some(a => a?.Name === "restaurant") : false,
-              barOnSite: data.amenities && Array.isArray(data.amenities) ? data.amenities.some(a => a?.Name === "barOnSite") : false,
-              souvenirShop: data.amenities && Array.isArray(data.amenities) ? data.amenities.some(a => a?.Name === "souvenirShop") : false,
-              informationCenter: data.amenities && Array.isArray(data.amenities) ? data.amenities.some(a => a?.Name === "informationCenter") : false,
-              shuttleService: data.amenities && Array.isArray(data.amenities) ? data.amenities.some(a => a?.Name === "shuttleService") : false,
+              baggageStorage: Array.isArray(data.amenities) && data.amenities.some(a => a?.Name === "baggageStorage"),
+              freeWifi: Array.isArray(data.amenities) && data.amenities.some(a => a?.Name === "freeWifi"),
+              toilet: Array.isArray(data.amenities) && data.amenities.some(a => a?.Name === "toilet"),
+              restaurant: Array.isArray(data.amenities) && data.amenities.some(a => a?.Name === "restaurant"),
+              barOnSite: Array.isArray(data.amenities) && data.amenities.some(a => a?.Name === "barOnSite"),
+              souvenirShop: Array.isArray(data.amenities) && data.amenities.some(a => a?.Name === "souvenirShop"),
+              informationCenter: Array.isArray(data.amenities) && data.amenities.some(a => a?.Name === "informationCenter"),
+              shuttleService: Array.isArray(data.amenities) && data.amenities.some(a => a?.Name === "shuttleService"),
             },
             accessibility: {
-              wheelchairCarPark: data.accessibilities && Array.isArray(data.accessibilities) ? data.accessibilities.some(a => a?.Name === "wheelchairCarPark") : false,
-              wheelchairEntrance: data.accessibilities && Array.isArray(data.accessibilities) ? data.accessibilities.some(a => a?.Name === "wheelchairEntrance") : false,
-              wheelchairToilet: data.accessibilities && Array.isArray(data.accessibilities) ? data.accessibilities.some(a => a?.Name === "wheelchairToilet") : false,
-              goodForKids: data.accessibilities && Array.isArray(data.accessibilities) ? data.accessibilities.some(a => a?.Name === "goodForKids") : false,
+              wheelchairCarPark: Array.isArray(data.accessibilities) && data.accessibilities.some(a => a?.Name === "wheelchairCarPark"),
+              wheelchairEntrance: Array.isArray(data.accessibilities) && data.accessibilities.some(a => a?.Name === "wheelchairEntrance"),
+              wheelchairToilet: Array.isArray(data.accessibilities) && data.accessibilities.some(a => a?.Name === "wheelchairToilet"),
+              goodForKids: Array.isArray(data.accessibilities) && data.accessibilities.some(a => a?.Name === "goodForKids"),
             }
           };
           setFormData(newFormData);
+          const lat = parseFloat(data.latitude) || 0;
+          const lng = parseFloat(data.longitude) || 0;
+          setMapLocation({
+            lat,
+            lng,
+            address: data.address || `${lat.toFixed(2)}, ${lng.toFixed(2)}`
+          });
+          if (lat && lng && (!data.distanceFromCity || !data.drivingTime)) {
+            updateDistanceAndTime(lat, lng);
+          } else {
+            setDistanceKm(data.distanceFromCity?.toString() || "");
+            setDrivingTimeMinutes(data.drivingTime?.replace(" นาทีด้วยรถ", "") || "");
+          }
           console.log("formData after set:", newFormData);
         })
-        .catch(err => console.error("โหลดข้อมูลไม่สำเร็จ", err));
+        .catch(err => {
+          console.error("โหลดข้อมูลไม่สำเร็จ", err);
+          alert("ไม่สามารถโหลดข้อมูลสถานที่ได้");
+        });
     }
   }, [id]);
 
@@ -358,7 +380,6 @@ const AdminCreateDestination = () => {
         </div>
 
         <form onSubmit={handleSubmit} className={styles.createForm}>
-          {/* Basic Information Section */}
           <div className={styles.formSection}>
             <h2 className={styles.sectionTitle}>ข้อมูลพื้นฐาน</h2>
             
@@ -376,13 +397,14 @@ const AdminCreateDestination = () => {
               </div>
               
               <div className={styles.formField}>
-                <label>ประเภทสถานที่</label>
+                <label>ประเภทสถานที่ *</label>
                 <select
                   name="tags"
                   value={formData.tags}
                   onChange={handleInputChange}
+                  required
                 >
-                  <option value="">ตัวเลือก</option>
+                  <option value="">เลือกประเภท</option>
                   <option value="Nature">ธรรมชาติ</option>
                   <option value="Culture">วัฒนธรรม</option>
                   <option value="Food">อาหาร</option>
@@ -415,13 +437,37 @@ const AdminCreateDestination = () => {
 
             <div className={styles.formField}>
               <label>กิจกรรมที่น่าสนใจ</label>
-              <textarea
-                name="activities"
-                value={formData.activities}
-                onChange={handleInputChange}
-                placeholder="กรอกกิจกรรมที่น่าสนใจที่สามารถทำได้ที่สถานที่ท่องเที่ยวนี้ (ใส่ , (comma) คั่นกิจกรรม กรณีที่มีกิจกรรมหลายอย่าง เช่น ปีนเขา, ถ่ายรูป, ชมวิว)"
-                rows={4}
-              />
+              <div className={styles.activityInput}>
+                <input
+                  type="text"
+                  value={newActivity}
+                  onChange={(e) => setNewActivity(e.target.value)}
+                  placeholder="กรอกกิจกรรม (เช่น ปีนเขา)"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddActivity}
+                  className={styles.addActivityBtn}
+                >
+                  เพิ่ม
+                </button>
+              </div>
+              {formData.activities.length > 0 && (
+                <ul className={styles.activityList}>
+                  {formData.activities.map((activity, index) => (
+                    <li key={index} className={styles.activityItem}>
+                      <span>{activity}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveActivity(index)}
+                        className={styles.removeActivityBtn}
+                      >
+                        ×
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
 
             <div className={styles.formField}>
@@ -451,7 +497,6 @@ const AdminCreateDestination = () => {
             </div>
           </div>
 
-          {/* Location & Map Section */}
           <div className={styles.formSection}>
             <h2 className={styles.sectionTitle}>ตำแหน่งที่ตั้งและแผนที่</h2>
             <p className={styles.sectionNote}>กด "เลือกตำแหน่ง" เพื่อกำหนดตำแหน่งจุดหมายบนแผนที่</p>
@@ -507,11 +552,7 @@ const AdminCreateDestination = () => {
                 <input
                   type="text"
                   name="distance_from_city"
-                  value={
-                    formData.distance_from_city !== ""
-                      ? `${formData.distance_from_city} กิโลเมตรจากศาลากลางจังหวัดเชียงใหม่`
-                      : ""
-                  }
+                  value={distanceKm ? `${distanceKm} กิโลเมตรจากศาลากลางจังหวัดเชียงใหม่` : ""}
                   placeholder="คำนวณอัตโนมัติเมื่อเลือกตำแหน่ง"
                   readOnly
                 />
@@ -522,25 +563,24 @@ const AdminCreateDestination = () => {
                 <input
                   type="text"
                   name="drivingTime"
-                  value={formData.drivingTime}
+                  value={drivingTimeMinutes ? `${drivingTimeMinutes} นาทีด้วยรถ` : ""}
                   onChange={handleInputChange}
-                  placeholder="คำนวณอัตโนมัติเมื่อเลือกตำแหน่งแล้ว"
+                  placeholder="คำนวณอัตโนมัติเมื่อเลือกตำแหน่ง"
                   readOnly
                 />
               </div>
             </div>
           </div>
 
-          {/* Details Section */}
           <div className={styles.formSection}>
             <h2 className={styles.sectionTitle}>รายละเอียด</h2>
             
             <div className={styles.formRow}>
               <div className={styles.formField}>
-                <label>งบประมาณ</label>
+                <label>งบประมาณ *</label>
                 <select
-                  name="budget_range"
-                  value={formData.budget_range}
+                  name="budgetRange"
+                  value={formData.budgetRange}
                   onChange={handleInputChange}
                   required
                 >
@@ -567,7 +607,7 @@ const AdminCreateDestination = () => {
 
             <div className={styles.formRow}>
               <div className={styles.formField}>
-                <label>เวลาเปิดทำการ</label>
+                <label>เวลาเปิด</label>
                 <input
                   type="time"
                   name="openTime"
@@ -577,7 +617,7 @@ const AdminCreateDestination = () => {
               </div>
               
               <div className={styles.formField}>
-                <label>เวลาปิดทำการ</label>
+                <label>เวลาปิด</label>
                 <input
                   type="time"
                   name="closeTime"
@@ -626,12 +666,11 @@ const AdminCreateDestination = () => {
             </div>
           </div>
 
-          {/* Images Section */}
           <div className={styles.formSection}>
             <h2 className={styles.sectionTitle}>รูปภาพสถานที่ท่องเที่ยว</h2>
             
             <div className={styles.formField}>
-              <label>อัพโหลดรูปสถานที่ท่องเที่ยว</label>
+              <label>อัปโหลดรูปสถานที่ท่องเที่ยว</label>
               <input
                 type="file"
                 multiple
@@ -709,7 +748,7 @@ const AdminCreateDestination = () => {
                   checked={formData.amenities.barOnSite}
                   onChange={() => handleCheckboxChange('amenities', 'barOnSite')}
                 />
-                <span>บาร์ในสถานที่ท่องเที่ยว</span>
+                <span>บาร์ในสถานที่</span>
               </label>
 
               <label className={styles.checkboxItem}>

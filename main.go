@@ -68,7 +68,7 @@ func main() {
 			admin.POST("/locations", InformationController.CreateLocation)
 			admin.PUT("/locations/:id", InformationController.UpdateLocation)
 			admin.DELETE("/locations/:id", InformationController.DeleteLocation)          
-			admin.POST("/locations/bulk-delete", InformationController.BulkDeleteLocation)
+			admin.DELETE("/locations/bulk-delete", InformationController.BulkDeleteLocation)
 			admin.GET("/users", AuthController.GetAllUsers)
 			admin.PUT("/users/:id", AuthController.UpdateUser)
 			admin.DELETE("/users/:id", AuthController.DeleteUser)
